@@ -36,6 +36,16 @@ class application():
         self.button_temp = ctk.CTkButton(self.root, fg_color="#7f7f7f", text="add cont", hover_color="#6f6f6f", command=self.addcont)
         self.button_temp.place(relx=0.8, rely=0.95, relwidth=0.2, relheight=0.05)
 
+    def mainwindow(self):
+        self.entry_name.destroy()
+        self.entry_password.destroy()
+        self.button_login.destroy()
+        self.button_temp.destroy()
+        self.label_person.destroy()
+        del self.personimg
+        if self.label_failedlogin:
+            self.label_failedlogin.destroy()
+        print("alternando tela")
     def login(self):
         name = self.entry_name.get()
         password = self.entry_password.get()
@@ -51,23 +61,25 @@ class application():
                 print(permissionmasterdata)
             if passworddata == password and permissionmasterdata == "Y":
                 print("login efetuado")
+                self.mainwindow()
             else:
                 raise Exception("nome ou senha incorretos")
+                
         except Exception as error:
             print(error)
+            self.label_failedlogin = ctk.CTkLabel(self.root, text="NOME E/OU SENHA INCORRETOS", )
+            self.label_failedlogin.place(relx=0.4, rely=0.75, relwidth=0.2, relheight=0.05)
         self.desconnectconts()
     def connectconts(self):
         self.conts = sql.connect("sql.db")
         self.contscursor = self.conts.cursor()
-
     def desconnectconts(self):
         self.conts.commit()
         self.conts.close()
-
     def addcont(self):
         self.connectconts()
-        name = "Gabriel"
-        password = 12345678910
+        name = "Viviane"
+        password = "sim123"
         permissionmaster = "Y"
         self.contscursor.execute("""INSERT INTO Conts (name, password, permissionmaster) VALUES (?, ?, ?)""", (name, password, permissionmaster))
         self.desconnectconts()
