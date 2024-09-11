@@ -67,8 +67,8 @@ class application():
                 
         except Exception as error:
             print(error)
-            self.label_failedlogin = ctk.CTkLabel(self.root, text="NOME E/OU SENHA INCORRETOS", )
-            self.label_failedlogin.place(relx=0.4, rely=0.75, relwidth=0.2, relheight=0.05)
+            self.label_failedlogin = ctk.CTkLabel(self.root, text="NOME E/OU SENHA INCORRETOS", font=("Arial", 18))
+            self.label_failedlogin.place(relx=0.4, rely=0.70, relwidth=0.2, relheight=0.05)
         self.desconnectconts()
     def connectconts(self):
         self.conts = sql.connect("sql.db")
