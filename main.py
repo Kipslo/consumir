@@ -44,10 +44,10 @@ class application():
         self.label_person.destroy()
         del self.personimg
         try:
-            print("tentando exluir")
             self.label_failedlogin.destroy()
         except:
             pass
+        self.frame
         print("alternando tela")
     def login(self):
         name = self.entry_name.get()
@@ -60,9 +60,6 @@ class application():
             permissionmasterdata = ""
             for i in data:
                 namedata, passworddata, permissionmasterdata = i
-                print(namedata)
-                print(passworddata)
-                print(permissionmasterdata)
             
             
             if password != passworddata or name != namedata or name == "" or password == "":
