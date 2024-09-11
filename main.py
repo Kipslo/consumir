@@ -43,8 +43,11 @@ class application():
         self.button_temp.destroy()
         self.label_person.destroy()
         del self.personimg
-        if self.label_failedlogin:
+        try:
+            print("tentando exluir")
             self.label_failedlogin.destroy()
+        except:
+            pass
         print("alternando tela")
     def login(self):
         name = self.entry_name.get()
@@ -52,6 +55,7 @@ class application():
         self.connectconts()
         try:
             data = self.contscursor.execute("""SELECT * FROM Conts WHERE name = ?""", (name, ))
+            namedata = ""
             passworddata = ""
             permissionmasterdata = ""
             for i in data:
@@ -59,16 +63,23 @@ class application():
                 print(namedata)
                 print(passworddata)
                 print(permissionmasterdata)
-            if passworddata == password and permissionmasterdata == "Y":
-                print("login efetuado")
-                self.mainwindow()
-            else:
-                raise Exception("nome ou senha incorretos")
+            
+            
+            if password != passworddata or name != namedata or name == "" or password == "":
+                raise Exception("NOME OU SENHA INCORRETOS")
+            elif permissionmasterdata == "N" and passworddata == password:
+                raise Exception("ESSE USUÁRIO NÃO TEM PERMISSÃO")
                 
         except Exception as error:
-            print(error)
-            self.label_failedlogin = ctk.CTkLabel(self.root, text="NOME E/OU SENHA INCORRETOS", font=("Arial", 18))
+            try:
+                self.label_failedlogin.destroy()
+            except:
+                pass
+            self.label_failedlogin = ctk.CTkLabel(self.root, text=error, font=("Arial", 18))
             self.label_failedlogin.place(relx=0.4, rely=0.70, relwidth=0.2, relheight=0.05)
+        if passworddata == password and permissionmasterdata == "Y" and name == namedata:
+            print("login efetuado")
+            self.mainwindow()
         self.desconnectconts()
     def connectconts(self):
         self.conts = sql.connect("sql.db")
@@ -78,7 +89,7 @@ class application():
         self.conts.close()
     def addcont(self):
         self.connectconts()
-        name = "Viviane"
+        name = "Gabriel"
         password = "sim123"
         permissionmaster = "Y"
         self.contscursor.execute("""INSERT INTO Conts (name, password, permissionmaster) VALUES (?, ?, ?)""", (name, password, permissionmaster))
