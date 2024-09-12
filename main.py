@@ -56,10 +56,10 @@ class application():
 
         print("alternando tela")
     def changemainbutton(self, button):
-        mainimgs = [tk.PhotoImage("imgs/caixa.png"), tk.PhotoImage("imgs/relógio.png"), tk.PhotoImage("imgs/tables.png"), tk.PhotoImage("imgs/troféu.png")]
-        productimgs = [tk.PhotoImage(""), tk.PhotoImage("")]
-        mainbuttons = [ctk.CTkButton(master= self.frame_tab, image= ), ]
-        productbuttons = [ctk.CTkButton(master= self.frame_tab, image= ), ]
+        mainimgs = [tk.PhotoImage("imgs/caixa.png"), tk.PhotoImage("imgs/relógio.png"), tk.PhotoImage("imgs/tables.png"),tk.PhotoImage("img/garçom.png"), tk.PhotoImage("imgs/troféu.png"), tk.PhotoImage("imgs/relógio.png"), tk.PhotoImage("imgs/garçom.png")]
+        #productimgs = [tk.PhotoImage(""), tk.PhotoImage("")]
+        mainbuttons = [[ctk.CTkButton(master= self.frame_tab, image= mainimgs[0]), "ABRIR OU FECHAR CAIXA"], []]
+        #productbuttons = [ctk.CTkButton(master= self.frame_tab, image= productimgs[0]), ]
         self.button_main.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
         self.button_product.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
         button.configure(fg_color="#383838", hover_color="#383838")
