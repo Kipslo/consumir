@@ -56,15 +56,13 @@ class application():
 
         print("alternando tela")
     def changemainbutton(self, button):
-        mainimgs = [ctk.CTkImage(Image.open("imgs/caixa.png")), ctk.CTkImage(Image.open("imgs/relogio.jpg")), ctk.CTkImage(Image.open("imgs/tables.png")), ctk.CTkImage(Image.open("imgs/clientes.png")), ctk.CTkImage(Image.open("imgs/trofeu.png")), ctk.CTkImage(Image.open("imgs/relogio.jpg")), ctk.CTkImage(Image.open("imgs/garçom.png"))]
-        #productimgs = [ctk.CTkImage(""), ctk.CTkImage("")]
-        self.mainbuttons = [[ctk.CTkButton(master= self.frame_tab, image= mainimgs[0]), "ABRIR OU FECHAR CAIXA"], [ctk.CTkButton(master= self.frame_tab, image= mainimgs[1]), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, image= mainimgs[2]), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, image= mainimgs[3]), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab, image= mainimgs[4]), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab, image= mainimgs[5]), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab, image= mainimgs[6]), "RANKING DE ATENDIMENTOS"]]
-        #self.productbuttons = [ctk.CTkButton(master= self.frame_tab, image= productimgs[0]), ]
+        
+        
+        
         self.button_main.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
         self.button_product.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
         button.configure(fg_color="#383838", hover_color="#383838")
         text = button.cget("text")
-        self.currentmain = ""
         
         try:
             for i in self.currentmain:
@@ -73,13 +71,27 @@ class application():
         except:
             pass
         if text == "PRINCIPAL":
-            self.currentmain = self.mainbuttons
+
+            mainimgs = [ctk.CTkImage(Image.open("imgs/caixa.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tables.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/clientes.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/trofeu.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/garçom.png"), size=(60,60))]
+            
+            mainbuttons = [[ctk.CTkButton(master= self.frame_tab), "ABRIR OU FECHAR CAIXA"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
+            
+            self.currentmain = mainbuttons
+            self.currentimgs = mainimgs
         elif text == "PRODUTO":
-            self.currentmain = self.productbuttons
+            
+            productimgs = [ctk.CTkImage(""), ctk.CTkImage("")]
+            
+            productbuttons = [ctk.CTkButton(master= self.frame_tab, image= productimgs[0]), ]
+            
+            self.currentmain = productbuttons
+            self.currentimgs = productimgs
         for i, m in enumerate(self.currentmain):
             buttontemp, texttemp = m
-            
-             
+            buttontemp.configure(text=texttemp, fg_color="#4f4f4f", hover_color="#3f3f3f", image=self.currentimgs[i], compound="top", anchor="bottom")
+            #self.currentmain[i][1] = ctk.CTkLabel(self.frame_tab, text=texttemp, fg_color="transparent")
+            #self.currentmain[i][1].place(relx=0.1*i, rely=0.785, relwidth=0.1, relheight=0.215)
+            buttontemp.place(relx=0.1*i, rely=0.285, relwidth=0.1, relheight=0.715)
     def login(self):
         name = self.entry_name.get()
         password = self.entry_password.get()
