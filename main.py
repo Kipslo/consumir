@@ -46,6 +46,8 @@ class application():
         self.frame_tab = ctk.CTkFrame(self.root, fg_color="#383838", border_color="#1f1f1f")
         self.frame_tab.place(relx=0, rely=0, relwidth=1, relheight=0.14)
 
+        #self.frame_down =ctk.CTkFrame(self.root, )
+
         self.label_none = ctk.CTkLabel(self.frame_tab, fg_color="#585858", text="")
         self.label_none.place(relx=0.2, rely=0, relwidth=0.8, relheight=0.285)
 
@@ -54,6 +56,8 @@ class application():
         self.button_product = ctk.CTkButton(self.frame_tab, text="PRODUTO", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbuttons(self.button_product))
         self.button_product.place(relx=0.1, rely=0, relwidth=0.1, relheight=0.285)
 
+        self.button_config = ctk.CTkButton(self.frame_tab, text="CONFIGURAÇÕES", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbuttons(self.button_config))
+        self.button_config.place(relx=0.2, rely=0, relwidth=0.1, relheight=0.285)
         print("alternando tela")
     def changemainbuttons(self, button):
         
@@ -86,11 +90,11 @@ class application():
             
             self.currentmain = productbuttons
             self.currentimgs = productimgs
+        elif text == "CONFIGURAÇÕES":
+            pass
         for i, m in enumerate(self.currentmain):
             buttontemp, texttemp = m
             buttontemp.configure(text=texttemp, fg_color="#4f4f4f", hover_color="#3f3f3f", image=self.currentimgs[i], compound="top", anchor="bottom")
-            #self.currentmain[i][1] = ctk.CTkLabel(self.frame_tab, text=texttemp, fg_color="transparent")
-            #self.currentmain[i][1].place(relx=0.1*i, rely=0.785, relwidth=0.1, relheight=0.215)
             buttontemp.place(relx=0.1*i, rely=0.285, relwidth=0.1, relheight=0.715)
     def login(self):
         name = self.entry_name.get()
