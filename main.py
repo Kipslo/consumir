@@ -4,6 +4,7 @@ import customtkinter as ctk
 import sqlite3 as sql
 from PIL import Image
 import threading
+
 #class funcs():
 
 
@@ -12,11 +13,11 @@ class application():
     def __init__(self):
         ctk.set_appearance_mode("dark")
         self.root = ctk.CTk()
-        self.initwindow()
+        self.loginwindow()
         self.createtables()
 
         self.root.mainloop()
-    def initwindow(self):
+    def loginwindow(self):
 
         self.root.attributes("-fullscreen", True)
         self.entry_name = ctk.CTkEntry(self.root, bg_color="#7f7f7f", placeholder_text="NOME")
@@ -35,20 +36,32 @@ class application():
 
         self.button_temp = ctk.CTkButton(self.root, fg_color="#7f7f7f", text="add cont", hover_color="#6f6f6f", command=self.addcont)
         self.button_temp.place(relx=0.8, rely=0.95, relwidth=0.2, relheight=0.05)
-
     def mainwindow(self):
-        self.entry_name.destroy()
-        self.entry_password.destroy()
-        self.button_login.destroy()
-        self.button_temp.destroy()
-        self.label_person.destroy()
+        self.entry_name.destroy(); self.entry_password.destroy(); self.button_login.destroy(); self.button_temp.destroy(); self.label_person.destroy()
         del self.personimg
         try:
             self.label_failedlogin.destroy()
         except:
             pass
-        self.frame
+        self.frame_tab = ctk.CTkFrame(self.root, fg_color="#383838", border_color="#1f1f1f")
+        self.frame_tab.place(relx=0, rely=0, relwidth=1, relheight=0.14)
+
+        self.label_none = ctk.CTkLabel(self.frame_tab, fg_color="#585858", text="")
+        self.label_none.place(relx=0.2, rely=0, relwidth=0.8, relheight=0.285)
+
+        self.button_main = ctk.CTkButton(self.frame_tab, text="PRINCIPAL", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbutton(self.button_main))
+        self.button_main.place(relx=0, rely=0, relwidth=0.1, relheight=0.285)
+        self.button_product = ctk.CTkButton(self.frame_tab, text="PRODUTO", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbutton(self.button_product))
+        self.button_product.place(relx=0.1, rely=0, relwidth=0.1, relheight=0.285)
+
         print("alternando tela")
+    def changemainbutton(self, button):
+        dictionary = {"PRINCIPAL": [], "PRODUTO": []}
+        self.button_main.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
+        self.button_product.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
+        button.configure(fg_color="#383838", hover_color="#383838")
+
+
     def login(self):
         name = self.entry_name.get()
         password = self.entry_password.get()
@@ -76,6 +89,9 @@ class application():
             self.label_failedlogin.place(relx=0.4, rely=0.70, relwidth=0.2, relheight=0.05)
         if passworddata == password and permissionmasterdata == "Y" and name == namedata:
             print("login efetuado")
+            self.namelogin = namedata
+            self.passwordlogin = passworddata
+            self.permissionmaster = permissionmasterdata
             self.mainwindow()
         self.desconnectconts()
     def connectconts(self):
