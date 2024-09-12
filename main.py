@@ -56,15 +56,30 @@ class application():
 
         print("alternando tela")
     def changemainbutton(self, button):
-        mainimgs = [tk.PhotoImage("imgs/caixa.png"), tk.PhotoImage("imgs/relógio.png"), tk.PhotoImage("imgs/tables.png"),tk.PhotoImage("img/garçom.png"), tk.PhotoImage("imgs/troféu.png"), tk.PhotoImage("imgs/relógio.png"), tk.PhotoImage("imgs/garçom.png")]
-        #productimgs = [tk.PhotoImage(""), tk.PhotoImage("")]
-        mainbuttons = [[ctk.CTkButton(master= self.frame_tab, image= mainimgs[0]), "ABRIR OU FECHAR CAIXA"], []]
-        #productbuttons = [ctk.CTkButton(master= self.frame_tab, image= productimgs[0]), ]
+        mainimgs = [ctk.CTkImage(Image.open("imgs/caixa.png")), ctk.CTkImage(Image.open("imgs/relogio.jpg")), ctk.CTkImage(Image.open("imgs/tables.png")), ctk.CTkImage(Image.open("imgs/clientes.png")), ctk.CTkImage(Image.open("imgs/trofeu.png")), ctk.CTkImage(Image.open("imgs/relogio.jpg")), ctk.CTkImage(Image.open("imgs/garçom.png"))]
+        #productimgs = [ctk.CTkImage(""), ctk.CTkImage("")]
+        self.mainbuttons = [[ctk.CTkButton(master= self.frame_tab, image= mainimgs[0]), "ABRIR OU FECHAR CAIXA"], [ctk.CTkButton(master= self.frame_tab, image= mainimgs[1]), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, image= mainimgs[2]), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, image= mainimgs[3]), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab, image= mainimgs[4]), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab, image= mainimgs[5]), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab, image= mainimgs[6]), "RANKING DE ATENDIMENTOS"]]
+        #self.productbuttons = [ctk.CTkButton(master= self.frame_tab, image= productimgs[0]), ]
         self.button_main.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
         self.button_product.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
         button.configure(fg_color="#383838", hover_color="#383838")
-        text = button.text()
-        print(text)
+        text = button.cget("text")
+        self.currentmain = ""
+        
+        try:
+            for i in self.currentmain:
+                buttontemp, texttemp = i
+                buttontemp.destroy()
+        except:
+            pass
+        if text == "PRINCIPAL":
+            self.currentmain = self.mainbuttons
+        elif text == "PRODUTO":
+            self.currentmain = self.productbuttons
+        for i, m in enumerate(self.currentmain):
+            buttontemp, texttemp = m
+            
+             
     def login(self):
         name = self.entry_name.get()
         password = self.entry_password.get()
