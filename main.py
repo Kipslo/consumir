@@ -56,12 +56,15 @@ class application():
 
         print("alternando tela")
     def changemainbutton(self, button):
-        dictionary = {"PRINCIPAL": [], "PRODUTO": []}
+        mainimgs = [tk.PhotoImage("imgs/caixa.png"), tk.PhotoImage("imgs/relógio.png"), tk.PhotoImage("imgs/tables.png"), tk.PhotoImage("imgs/troféu.png")]
+        productimgs = [tk.PhotoImage(""), tk.PhotoImage("")]
+        mainbuttons = [ctk.CTkButton(master= self.frame_tab, image= ), ]
+        productbuttons = [ctk.CTkButton(master= self.frame_tab, image= ), ]
         self.button_main.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
         self.button_product.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
         button.configure(fg_color="#383838", hover_color="#383838")
-
-
+        text = button.text()
+        print(text)
     def login(self):
         name = self.entry_name.get()
         password = self.entry_password.get()
