@@ -49,13 +49,13 @@ class application():
         self.label_none = ctk.CTkLabel(self.frame_tab, fg_color="#585858", text="")
         self.label_none.place(relx=0.2, rely=0, relwidth=0.8, relheight=0.285)
 
-        self.button_main = ctk.CTkButton(self.frame_tab, text="PRINCIPAL", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbutton(self.button_main))
+        self.button_main = ctk.CTkButton(self.frame_tab, text="PRINCIPAL", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbuttons(self.button_main))
         self.button_main.place(relx=0, rely=0, relwidth=0.1, relheight=0.285)
-        self.button_product = ctk.CTkButton(self.frame_tab, text="PRODUTO", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbutton(self.button_product))
+        self.button_product = ctk.CTkButton(self.frame_tab, text="PRODUTO", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbuttons(self.button_product))
         self.button_product.place(relx=0.1, rely=0, relwidth=0.1, relheight=0.285)
 
         print("alternando tela")
-    def changemainbutton(self, button):
+    def changemainbuttons(self, button):
         
         
         
