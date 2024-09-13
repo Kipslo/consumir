@@ -60,6 +60,18 @@ class application():
         self.button_config.place(relx=0.2, rely=0, relwidth=0.1, relheight=0.285)
 
 
+        self.str_searchcommands = tk.StringVar()
+        self.str_searchcommands.set("")
+        self.label_searchcommand = ctk.CTkLabel(self.root, fg_color="#666666", textvariable=self.str_searchcommands, font=("Arial", 20))
+        self.label_searchcommand.place(relx=0.01, rely=0.15, relwidth=0.40, relheight=0.05)
+
+        
+        self.root.bind("<KeyPress>", self.presskey)
+
+        self.frame_commands = ctk.CTkScrollableFrame(self.root, fg_color="#2f2f2f")
+        self.frame_commands.place(relx=0.01, rely=0.21, relwidth=0.98, relheight=0.71)
+
+        
         self.frame_down = ctk.CTkFrame(self.root, fg_color="#3f3f3f", border_color="#1f1f1f")
         self.frame_down.place(relx=0, rely=0.93, relwidth=1, relheight=0.07)
 
@@ -68,6 +80,70 @@ class application():
 
         self.button_updatecommand = ctk.CTkButton(self.frame_down, fg_color="#4f4f4f", text="ATUALIZAR", hover_color="#484848")
         self.button_updatecommand.place(relx=0.02, rely=0.175, relwidth=0.1, relheight=0.65)
+
+        self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color="#4f4f4f", text="JUNTAR COMANDAS", hover_color="#484848")
+        self.button_mergecommands.place(relx=0.135, rely=0.175, relwidth=0.15, relheight=0.65)
+
+        self.root.bind("<Button-1>", self.click)
+    def click(self, event):
+        x = event.x
+        y = event.y
+        
+        print(event)
+        print(x)
+        print(y)
+        xentry_namecommand = self.entry_namecommand.winfo_rootx
+        yentry_namecommand = self.entry_namecommand.winfo_rooty
+        widthentrynamecommand = self.entry_namecommand.winfo_width
+        heightentrynamecommand = self.entry_namecommand.winfo_height
+        print(xentry_namecommand)
+        print(yentry_namecommand)
+        print(widthentrynamecommand)
+        print(heightentrynamecommand)
+
+    def presskey(self, event):
+        key = event.keysym
+        n = self.entry_namecommand.get()
+        print(n)
+        if n == "":
+            if key == "0":
+                self.changesearchcommandlabel("0")
+            elif key == "1":
+                self.changesearchcommandlabel("1")
+            elif key == "2":
+                self.changesearchcommandlabel("2")
+            elif key == "3":
+                self.changesearchcommandlabel("3")
+            elif key == "4":
+                self.changesearchcommandlabel("4")
+            elif key == "5":
+                self.changesearchcommandlabel("5")
+            elif key == "6":
+                self.changesearchcommandlabel("6")
+            elif key == "7":
+                self.changesearchcommandlabel("7")
+            elif key == "8":
+                self.changesearchcommandlabel("8")
+            elif key == "9":
+                self.changesearchcommandlabel("9")
+            elif key == "Return":
+                self.changesearchcommandlabel()
+            elif key == "BackSpace":
+                self.changesearchcommandlabel("o")
+            else:
+                self.changesearchcommandlabel()
+        elif key == "Delete":
+            self.entry_namecommand.delete(0, "end")
+        print(key)
+    def changesearchcommandlabel(self, a = ""):
+        i = self.str_searchcommands.get()
+        print(i)
+        if a != "" and a != "o":
+            self.str_searchcommands.set(i + a)
+        elif a == "o":
+            self.str_searchcommands.set(i[0:-1])
+        else:
+            self.str_searchcommands.set("")
     def changemainbuttons(self, button):
         
         
