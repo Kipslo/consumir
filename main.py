@@ -22,13 +22,13 @@ class application():
     def loginwindow(self):
 
         self.root.attributes("-fullscreen", True)
-        self.entry_name = ctk.CTkEntry(self.root, bg_color="#7f7f7f", placeholder_text="NOME")
+        self.entry_name = ctk.CTkEntry(self.root, bg_color="#7f7f7f", placeholder_text="NOME", font=("Arial", 20))
         self.entry_name.place(relx=0.4, rely=0.45, relwidth=0.2, relheight=0.05)
 
-        self.entry_password = ctk.CTkEntry(self.root, bg_color="#7f7f7f", placeholder_text="SENHA", show="*")
+        self.entry_password = ctk.CTkEntry(self.root, bg_color="#7f7f7f", placeholder_text="SENHA", show="*", font=("Arial", 20))
         self.entry_password.place(relx=0.4, rely=0.55, relwidth=0.2, relheight=0.05)
         
-        self.button_login = ctk.CTkButton(self.root, fg_color="#7f7f7f", text="LOGIN", hover_color="#6f6f6f", command=self.login)
+        self.button_login = ctk.CTkButton(self.root, fg_color="#7f7f7f", text="LOGIN", hover_color="#6f6f6f", command=self.login, font=("Arial", 20))
         self.button_login.place(relx=0.4, rely=0.65, relwidth=0.2, relheight=0.05)
         
 
@@ -224,6 +224,12 @@ class application():
     def desconnectconts(self):
         self.conts.commit()
         self.conts.close()
+    def connectcommands(self):
+        self.commands = sql.connect("commands.db")
+        self.commandscursor = self.commands.cursor()
+    def desconnectcommands(self):
+        self.commands.commit()
+        self.commands.close()
     def addcont(self):
         self.connectconts()
         name = "Gabriel"
@@ -238,5 +244,19 @@ class application():
                                  password VARCHAR(30) NOT NULL,
                                  permissionmaster CHAR(1) NOT NULL)""")
         self.desconnectconts()
-        
+        self.connectcommands()
+        self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS CommandsActive(
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    )""")
+        self.desconnectcommands()
 application()
