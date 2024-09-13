@@ -53,18 +53,19 @@ class application():
 
         self.button_main = ctk.CTkButton(self.frame_tab, text="PRINCIPAL", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbuttons(self.button_main))
         self.button_main.place(relx=0, rely=0, relwidth=0.1, relheight=0.285)
+
         self.button_product = ctk.CTkButton(self.frame_tab, text="PRODUTO", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbuttons(self.button_product))
         self.button_product.place(relx=0.1, rely=0, relwidth=0.1, relheight=0.285)
 
         self.button_config = ctk.CTkButton(self.frame_tab, text="CONFIGURAÇÕES", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbuttons(self.button_config))
         self.button_config.place(relx=0.2, rely=0, relwidth=0.1, relheight=0.285)
-        print("alternando tela")
     def changemainbuttons(self, button):
         
         
         
         self.button_main.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
         self.button_product.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
+        self.button_config.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
         button.configure(fg_color="#383838", hover_color="#383838")
         text = button.cget("text")
         
@@ -84,9 +85,9 @@ class application():
             self.currentimgs = mainimgs
         elif text == "PRODUTO":
             
-            productimgs = [ctk.CTkImage(""), ctk.CTkImage("")]
+            productimgs = [ctk.CTkImage(Image.opne("imgs/produtos.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/complementos.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/anotacoes.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/categorias.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/tiposetamanhos.png"), size(60,60))]
             
-            productbuttons = [ctk.CTkButton(master= self.frame_tab, image= productimgs[0]), ]
+            productbuttons = [[ctk.CTkButton(master= self.frame_tab, image= productimgs[0]), ""], ]
             
             self.currentmain = productbuttons
             self.currentimgs = productimgs
