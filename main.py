@@ -85,9 +85,9 @@ class application():
             self.currentimgs = mainimgs
         elif text == "PRODUTO":
             
-            productimgs = [ctk.CTkImage(Image.opne("imgs/produtos.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/complementos.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/anotacoes.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/categorias.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/tiposetamanhos.png"), size(60,60))]
+            productimgs = [ctk.CTkImage(Image.opne("imgs/produtos.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/complementos.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/anotacoes.jpg"), size(60,60)), ctk.CTkImage(Image.open("imgs/tiposetamanhos.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/categorias.jpg"), size(60,60)), ctk.CTkImage(Image.open("imgs/promocoes.png"), size(60,60))]
             
-            productbuttons = [[ctk.CTkButton(master= self.frame_tab, image= productimgs[0]), ""], ]
+            productbuttons = [[ctk.CTkButton(master= self.frame_tab), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab), ""], [ctk.CTkButton(master= self.frame_tab), ""], ]
             
             self.currentmain = productbuttons
             self.currentimgs = productimgs
@@ -128,6 +128,7 @@ class application():
             self.passwordlogin = passworddata
             self.permissionmaster = permissionmasterdata
             self.mainwindow()
+            self.changemainbuttons(self.button_main)
         self.desconnectconts()
     def connectconts(self):
         self.conts = sql.connect("sql.db")
