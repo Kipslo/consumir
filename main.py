@@ -38,6 +38,11 @@ class application():
 
         self.button_temp = ctk.CTkButton(self.root, fg_color="#7f7f7f", text="add cont", hover_color="#6f6f6f", command=self.addcont)
         self.button_temp.place(relx=0.8, rely=0.95, relwidth=0.2, relheight=0.05)
+        self.root.bind("<KeyPress>", self.keypresslogin)
+    def keypresslogin(self, event):
+        n = event.keysym
+        if n == "Return":
+            self.login()
     def mainwindow(self):
         self.entry_name.destroy(); self.entry_password.destroy(); self.button_login.destroy(); self.button_temp.destroy(); self.label_person.destroy()
         del self.personimg
@@ -64,9 +69,11 @@ class application():
 
         self.str_searchcommands = tk.StringVar()
         self.str_searchcommands.set("")
-        self.label_searchcommand = ctk.CTkLabel(self.root, fg_color="#666666", textvariable=self.str_searchcommands, font=("Arial", 20))
-        self.label_searchcommand.place(relx=0.01, rely=0.15, relwidth=0.40, relheight=0.05)
+        self.label_searchcommand = ctk.CTkLabel(self.root, fg_color="#2f2f2f", textvariable=self.str_searchcommands, font=("Arial", 20))
+        self.label_searchcommand.place(relx=0.01, rely=0.15, relwidth=0.88, relheight=0.05)
 
+        self.button_addcommand = ctk.CTkButton(self.root, fg_color="#3f3f3f", text="ADICIONAR COMANDA", hover_color="#383838")
+        self.button_addcommand.place(relx=0.90, rely=0.15, relwidth=0.09, relheight=0.05)
         
         self.root.bind("<KeyPress>", self.presskey)
 
@@ -77,13 +84,13 @@ class application():
         self.frame_down = ctk.CTkFrame(self.root, fg_color="#3f3f3f", border_color="#1f1f1f")
         self.frame_down.place(relx=0, rely=0.93, relwidth=1, relheight=0.07)
 
-        self.entry_namecommand = ctk.CTkEntry(self.frame_down, placeholder_text="PESQUISAR POR NOME", fg_color="#4f4f4f")
+        self.entry_namecommand = ctk.CTkEntry(self.frame_down, placeholder_text="PESQUISAR POR NOME", fg_color="#5f5f5f", font=("Arial", 20))
         self.entry_namecommand.place(relx=0.3, rely=0.175 , relwidth=0.15, relheight=0.65)
 
-        self.button_updatecommand = ctk.CTkButton(self.frame_down, fg_color="#4f4f4f", text="ATUALIZAR", hover_color="#484848")
+        self.button_updatecommand = ctk.CTkButton(self.frame_down, fg_color="#5f5f5f", text="ATUALIZAR", hover_color="#585858")
         self.button_updatecommand.place(relx=0.02, rely=0.175, relwidth=0.1, relheight=0.65)
 
-        self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color="#4f4f4f", text="JUNTAR COMANDAS", hover_color="#484848")
+        self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color="#5f5f5f", text="JUNTAR COMANDAS", hover_color="#585858")
         self.button_mergecommands.place(relx=0.135, rely=0.175, relwidth=0.15, relheight=0.65)
 
         self.root.bind_all("<Button-1>", self.click)
@@ -104,7 +111,6 @@ class application():
     def presskey(self, event):
         key = event.keysym
         n = self.entry_namecommand.get()
-        print(n)
         if n == "":
             if key == "0":
                 self.changesearchcommandlabel("0")
@@ -134,10 +140,8 @@ class application():
                 self.changesearchcommandlabel()
         elif key == "Delete":
             self.entry_namecommand.delete(0, "end")
-        print(key)
     def changesearchcommandlabel(self, a = ""):
         i = self.str_searchcommands.get()
-        print(i)
         if a != "" and a != "o":
             self.str_searchcommands.set(i + a)
         elif a == "o":
