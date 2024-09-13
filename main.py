@@ -43,7 +43,7 @@ class application():
             self.label_failedlogin.destroy()
         except:
             pass
-        self.frame_tab = ctk.CTkFrame(self.root, fg_color="#383838", border_color="#1f1f1f")
+        self.frame_tab = ctk.CTkFrame(self.root, fg_color="#5f5f5f", border_color="#1f1f1f")
         self.frame_tab.place(relx=0, rely=0, relwidth=1, relheight=0.14)
 
         #self.frame_down =ctk.CTkFrame(self.root, )
@@ -63,10 +63,10 @@ class application():
         
         
         
-        self.button_main.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
-        self.button_product.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
-        self.button_config.configure(fg_color="#4f4f4f", hover_color="#3f3f3f")
-        button.configure(fg_color="#383838", hover_color="#383838")
+        self.button_main.configure(fg_color="#5f5f5f", hover_color="#4f4f4f")
+        self.button_product.configure(fg_color="#5f5f5f", hover_color="#4f4f4f")
+        self.button_config.configure(fg_color="#5f5f5f", hover_color="#4f4f4f")
+        button.configure(fg_color="#484848", hover_color="#484848")
         text = button.cget("text")
         
         try:
@@ -85,9 +85,9 @@ class application():
             self.currentimgs = mainimgs
         elif text == "PRODUTO":
             
-            productimgs = [ctk.CTkImage(Image.opne("imgs/produtos.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/complementos.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/anotacoes.jpg"), size(60,60)), ctk.CTkImage(Image.open("imgs/tiposetamanhos.png"), size(60,60)), ctk.CTkImage(Image.open("imgs/categorias.jpg"), size(60,60)), ctk.CTkImage(Image.open("imgs/promocoes.png"), size(60,60))]
+            productimgs = [ctk.CTkImage(Image.open("imgs/produtos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/complementos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tiposetamanhos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/categorias.jpg"), size=(60,60)), ctk.CTkImage(Image.open("imgs/promocoes.png"), size=(60,60))]
             
-            productbuttons = [[ctk.CTkButton(master= self.frame_tab), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab), ""], [ctk.CTkButton(master= self.frame_tab), ""], ]
+            productbuttons = [[ctk.CTkButton(master= self.frame_tab), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
             
             self.currentmain = productbuttons
             self.currentimgs = productimgs
@@ -95,7 +95,7 @@ class application():
             pass
         for i, m in enumerate(self.currentmain):
             buttontemp, texttemp = m
-            buttontemp.configure(text=texttemp, fg_color="#4f4f4f", hover_color="#3f3f3f", image=self.currentimgs[i], compound="top", anchor="bottom")
+            buttontemp.configure(text=texttemp, fg_color="#484848", hover_color="#383838", image=self.currentimgs[i], compound="top", anchor="bottom")
             buttontemp.place(relx=0.1*i, rely=0.285, relwidth=0.1, relheight=0.715)
     def login(self):
         name = self.entry_name.get()
