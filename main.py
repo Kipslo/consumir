@@ -81,6 +81,8 @@ class application():
         self.frame_commands.place(relx=0.01, rely=0.21, relwidth=0.98, relheight=0.71)
 
         
+        
+        
         self.frame_down = ctk.CTkFrame(self.root, fg_color="#3f3f3f", border_color="#1f1f1f")
         self.frame_down.place(relx=0, rely=0.93, relwidth=1, relheight=0.07)
 
@@ -244,8 +246,8 @@ class application():
                                  password VARCHAR(30) NOT NULL,
                                  permissionmaster CHAR(1) NOT NULL)""")
         self.desconnectconts()
-        self.connectcommands()
-        self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS CommandsActive(
+        #self.connectcommands()
+        #self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS CommandsActive(
                                     
                                     
                                     
@@ -257,6 +259,6 @@ class application():
                                     
                                     
                                     
-                                    )""")
-        self.desconnectcommands()
+        #                            )""")
+        #self.desconnectcommands()
 application()
