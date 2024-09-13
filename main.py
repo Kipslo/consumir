@@ -4,6 +4,7 @@ import customtkinter as ctk
 import sqlite3 as sql
 from PIL import Image
 import threading
+import pyautogui as pa
 
 #class funcs():
 
@@ -11,6 +12,7 @@ import threading
 
 class application():
     def __init__(self):
+        self.positionp = True
         ctk.set_appearance_mode("dark")
         self.root = ctk.CTk()
         self.loginwindow()
@@ -84,22 +86,20 @@ class application():
         self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color="#4f4f4f", text="JUNTAR COMANDAS", hover_color="#484848")
         self.button_mergecommands.place(relx=0.135, rely=0.175, relwidth=0.15, relheight=0.65)
 
-        self.root.bind("<Button-1>", self.click)
+        self.root.bind_all("<Button-1>", self.click)
+
     def click(self, event):
-        x = event.x
-        y = event.y
-        
-        print(event)
-        print(x)
-        print(y)
-        xentry_namecommand = self.entry_namecommand.winfo_rootx
-        yentry_namecommand = self.entry_namecommand.winfo_rooty
-        widthentrynamecommand = self.entry_namecommand.winfo_width
-        heightentrynamecommand = self.entry_namecommand.winfo_height
-        print(xentry_namecommand)
-        print(yentry_namecommand)
-        print(widthentrynamecommand)
-        print(heightentrynamecommand)
+        position = pa.position()
+        if self.positionp:
+            self.position_namecommand = pa.locateOnScreen("imgs/buttonname.PNG", confidence=0.8)
+            self.positionp = False
+        if position.x > self.position_namecommand[0] and position.x < self.position_namecommand[0] + self.position_namecommand[3]:
+            if position.y > self.position_namecommand[1] and position.y < self.position_namecommand[1] + position.y[3]:
+                pass
+            else:
+                event.widget.focus_set()
+        else:
+            event.widget.focus_set()
 
     def presskey(self, event):
         key = event.keysym
