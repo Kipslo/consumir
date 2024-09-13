@@ -46,7 +46,6 @@ class application():
         self.frame_tab = ctk.CTkFrame(self.root, fg_color="#5f5f5f", border_color="#1f1f1f")
         self.frame_tab.place(relx=0, rely=0, relwidth=1, relheight=0.14)
 
-        #self.frame_down =ctk.CTkFrame(self.root, )
 
         self.label_none = ctk.CTkLabel(self.frame_tab, fg_color="#585858", text="")
         self.label_none.place(relx=0.2, rely=0, relwidth=0.8, relheight=0.285)
@@ -59,6 +58,16 @@ class application():
 
         self.button_config = ctk.CTkButton(self.frame_tab, text="CONFIGURAÇÕES", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbuttons(self.button_config))
         self.button_config.place(relx=0.2, rely=0, relwidth=0.1, relheight=0.285)
+
+
+        self.frame_down = ctk.CTkFrame(self.root, fg_color="#3f3f3f", border_color="#1f1f1f")
+        self.frame_down.place(relx=0, rely=0.93, relwidth=1, relheight=0.07)
+
+        self.entry_namecommand = ctk.CTkEntry(self.frame_down, placeholder_text="PESQUISAR POR NOME", fg_color="#4f4f4f")
+        self.entry_namecommand.place(relx=0.3, rely=0.175 , relwidth=0.15, relheight=0.65)
+
+        self.button_updatecommand = ctk.CTkButton(self.frame_down, fg_color="#4f4f4f", text="ATUALIZAR", hover_color="#484848")
+        self.button_updatecommand.place(relx=0.02, rely=0.175, relwidth=0.1, relheight=0.65)
     def changemainbuttons(self, button):
         
         
@@ -84,7 +93,6 @@ class application():
             self.currentmain = mainbuttons
             self.currentimgs = mainimgs
         elif text == "PRODUTO":
-            
             productimgs = [ctk.CTkImage(Image.open("imgs/produtos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/complementos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tiposetamanhos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/categorias.jpg"), size=(60,60)), ctk.CTkImage(Image.open("imgs/promocoes.png"), size=(60,60))]
             
             productbuttons = [[ctk.CTkButton(master= self.frame_tab), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
