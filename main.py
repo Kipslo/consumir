@@ -39,6 +39,10 @@ class application():
         self.button_temp = ctk.CTkButton(self.root, fg_color="#7f7f7f", text="add cont", hover_color="#6f6f6f", command=self.addcont)
         self.button_temp.place(relx=0.8, rely=0.95, relwidth=0.2, relheight=0.05)
         self.root.bind("<KeyPress>", self.keypresslogin)
+    def searchnameentry(self):
+        if self.positionp == True:
+            self.position_namecommand = pa.locateOnScreen("imgs/buttonname.PNG", confidence=0.8)
+            self.positionp = False
     def keypresslogin(self, event):
         n = event.keysym
         if n == "Return":
@@ -80,7 +84,17 @@ class application():
         self.frame_commands = ctk.CTkScrollableFrame(self.root, fg_color="#2f2f2f")
         self.frame_commands.place(relx=0.01, rely=0.21, relwidth=0.98, relheight=0.71)
 
-        
+        self.button = ctk.CTkButton(self.frame_commands, fg_color="#5f5f5f", text="OIOI")
+        self.button.place(relx=0, rely=0.93, relwidth=1, relheight=0.07)
+
+        self.button1 = ctk.CTkButton(self.frame_commands, fg_color="#5f5f5f", text="OIOI")
+        self.button1.place(relx=0, rely=1, relwidth=1, relheight=0.07)
+
+        self.button2 = ctk.CTkButton(self.frame_commands, fg_color="#5f5f5f", text="OIOI")
+        self.button2.place(relx=0, rely=1.08, relwidth=0.1, relheight=0.07)
+
+        self.button3 = ctk.CTkButton(self.frame_commands, fg_color="#5f5f5f", text="OIOI")
+        self.button3.place(relx=0, rely=0.85, relwidth=0.1, relheight=0.07)
         
         
         self.frame_down = ctk.CTkFrame(self.root, fg_color="#3f3f3f", border_color="#1f1f1f")
@@ -95,13 +109,12 @@ class application():
         self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color="#5f5f5f", text="JUNTAR COMANDAS", hover_color="#585858")
         self.button_mergecommands.place(relx=0.135, rely=0.175, relwidth=0.15, relheight=0.65)
 
+        self.root.after(1000, self.searchnameentry)
+
         self.root.bind_all("<Button-1>", self.click)
 
     def click(self, event):
         position = pa.position()
-        if self.positionp:
-            self.position_namecommand = pa.locateOnScreen("imgs/buttonname.PNG", confidence=0.8)
-            self.positionp = False
         if position.x > self.position_namecommand[0] and position.x < self.position_namecommand[0] + self.position_namecommand[3]:
             if position.y > self.position_namecommand[1] and position.y < self.position_namecommand[1] + position.y[3]:
                 pass
