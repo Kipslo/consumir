@@ -13,10 +13,30 @@ import pyautogui as pa
 class application():
     def __init__(self):
         self.positionp = True
+        self.cod, self.stylemode, self.maxcommands = "", "", ""
+        mod, up = False, False
+        self.createtables()
+        self.connectconfig()
+        self.currentconfig = self.configcursor.execute("""SELECT * FROM Config WHERE cod = 1""") 
+        for i in self.currentconfig:
+            self.cod, self.stylemode, self.maxcommands = i
+        if self.cod == "":
+            self.cod = 1
+            mod = True
+        if self.stylemode == "":
+            self.stylemode = "DARK"
+            up = True
+        if self.maxcommands == "":
+            self.maxcommands = 400
+            up = True
+        if mod:
+            self.configcursor.execute("""INSERT INTO Config (stylemode, maxcommands) VALUES (?, ?)""", (self.stylemode, self.maxcommands))
+        elif mod == False and up == True:
+            self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ? WHERE cod = 1""", (self.stylemode, self.maxcommands))
+        self.desconnectconfig()
         ctk.set_appearance_mode("dark")
         self.root = ctk.CTk()
         self.loginwindow()
-        self.createtables()
 
         self.root.mainloop()
     def loginwindow(self):
@@ -42,10 +62,11 @@ class application():
     def searchnameentry(self, n = True):
         if self.positionp == True:
             try:
+                pa.moveTo(0,0)
                 self.position_namecommand = pa.locateOnScreen("imgs/buttonname.PNG", confidence=0.7)
                 self.positionp = False
             except:
-                self.root.after(1000, self.searchnameentry)
+                self.root.after(500, self.searchnameentry)
     def keypresslogin(self, event):
         n = event.keysym
         if n == "Return":
@@ -79,7 +100,7 @@ class application():
         self.label_searchcommand = ctk.CTkLabel(self.root, fg_color="#2f2f2f", textvariable=self.str_searchcommands, font=("Arial", 20))
         self.label_searchcommand.place(relx=0.01, rely=0.15, relwidth=0.88, relheight=0.05)
 
-        self.button_addcommand = ctk.CTkButton(self.root, fg_color="#3f3f3f", text="ADICIONAR COMANDA", hover_color="#383838")
+        self.button_addcommand = ctk.CTkButton(self.root, fg_color="#3f3f3f", text="ADICIONAR COMANDA", hover_color="#383838", command=self.newcommands)
         self.button_addcommand.place(relx=0.90, rely=0.15, relwidth=0.09, relheight=0.05)
         
         self.root.bind("<KeyPress>", self.presskey)
@@ -87,8 +108,7 @@ class application():
         self.frame_commands = ctk.CTkScrollableFrame(self.root, fg_color="#2f2f2f")
         self.frame_commands.place(relx=0.01, rely=0.21, relwidth=0.98, relheight=0.71)
 
-        self.button = ctk.CTkButton(self.frame_commands, width=100, height= 50)
-        self.button.grid(row=0, column=0, padx=50)
+        
 
         self.frame_down = ctk.CTkFrame(self.root, fg_color="#3f3f3f", border_color="#1f1f1f")
         self.frame_down.place(relx=0, rely=0.93, relwidth=1, relheight=0.07)
@@ -102,19 +122,48 @@ class application():
         self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color="#5f5f5f", text="JUNTAR COMANDAS", hover_color="#585858")
         self.button_mergecommands.place(relx=0.135, rely=0.175, relwidth=0.15, relheight=0.65)
 
-        self.root.after(2000, self.searchnameentry)
+        self.root.after(500, self.searchnameentry)
 
         self.root.bind_all("<Button-1>", self.click)
-
+    def reloadcommands(self):
+        try:
+            for i in self.currentcommands:
+                i.destroy()
+        except:
+            pass
+        self.connectcommands()
+        currentcommands = self.commandscursor.execute("""SELECT * FROM CommandsActive""")
+        for i, self.command in enumerate(currentcommands):
+            number, initdate, nameclient, idclient = self.command
+            self.currentcommands[i] = ctk.CTkButton(self.frame_commands, width=500, height= 150, text=number + " "+ nameclient +"\n" + "TEMPO: ", font=("Arial", 15))
+            self.currentcommands[i].grid(row=0, column=0, padx=20, pady=10)
+        
+        
+        
+        
+        self.desconnectcommands()
+    def newcommands (self):
+        self.rootnewcom = tk.Toplevel()
+        self.rootnewcom.title("ADICIONAR COMANDA")
+        #self.rootnewcom.iconbitmap('imagens\Icon.ico')
+        self.rootnewcom.geometry("500x400")
+        self.rootnewcom.resizable(True, True)
+        self.rootnewcom.transient(self.root)
+        self.rootnewcom.grab_set()
     def click(self, event):
-        position = pa.position()
-        if position.x > self.position_namecommand[0] and position.x < self.position_namecommand[0] + self.position_namecommand[3]:
-            if position.y > self.position_namecommand[1] and position.y < self.position_namecommand[1] + position.y[3]:
-                pass
-            else:
-                event.widget.focus_set()
+        if "self.rootnewcom" in globals():
+            pass
         else:
-            event.widget.focus_set()
+            position = pa.position()
+            if position.x > self.position_namecommand[0] and position.x < self.position_namecommand[0] + self.position_namecommand[3]:
+                if position.y > self.position_namecommand[1] and position.y < self.position_namecommand[1] + position.y[3]:
+                    pass
+                else:
+                    self.entry_namecommand.delete(0, "end")
+                    event.widget.focus_set()
+            else:
+                self.entry_namecommand.delete(0, "end")
+                event.widget.focus_set()
     def presskey(self, event):
         key = event.keysym
         n = self.entry_namecommand.get()
@@ -226,26 +275,36 @@ class application():
         permissionmaster = "Y"
         self.contscursor.execute("""INSERT INTO Conts (name, password, permissionmaster) VALUES (?, ?, ?)""", (name, password, permissionmaster))
         self.desconnectconts()
+    def connectconfig(self):
+        self.config = sql.connect("config.db")
+        self.configcursor = self.config.cursor()
+    def desconnectconfig(self):
+        self.config.commit()
+        self.config.close()
     def createtables(self):
+        self.connectconfig()
+        self.configcursor.execute("""CREATE TABLE IF NOT EXISTS Config(
+                                  cod INTEGER PRIMARY KEY,
+                                  stylemode VARCHAR,
+                                  maxcommands INTEGER(4)
+                                  
+                                  
+                                  
+                                  
+                                  )""")
+        self.desconnectconfig()
         self.connectconts()
         self.contscursor.execute("""CREATE TABLE IF NOT EXISTS Conts(
                                  name VARCHAR(30) NOT NULL,
                                  password VARCHAR(30) NOT NULL,
                                  permissionmaster CHAR(1) NOT NULL)""")
         self.desconnectconts()
-        #self.connectcommands()
-        #self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS CommandsActive(
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-        #                            )""")
-        #self.desconnectcommands()
+        self.connectcommands()
+        self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS CommandsActive(
+                                    number INTEGER(4),
+                                    initdate CHAR(10),
+                                    nameclient VARCHAR(30),
+                                    idclient INTEGER(5)
+                                    )""")
+        self.desconnectcommands()
 application()
