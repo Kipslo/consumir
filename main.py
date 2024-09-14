@@ -143,7 +143,7 @@ class application():
         
         self.desconnectcommands()
     def newcommands (self):
-        self.rootnewcom = tk.Toplevel()
+        self.rootnewcom = ctk.CTkToplevel()
         self.rootnewcom.title("ADICIONAR COMANDA")
         #self.rootnewcom.iconbitmap('imagens\Icon.ico')
         self.rootnewcom.geometry("500x400")
