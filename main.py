@@ -94,7 +94,7 @@ class application():
         self.button2.place(relx=0, rely=1.08, relwidth=0.1, relheight=0.07)
 
         self.button3 = ctk.CTkButton(self.frame_commands, fg_color="#5f5f5f", text="OIOI")
-        self.button3.place(relx=0, rely=0.85, relwidth=0.1, relheight=0.07)
+        self.button3.place(relx=0, rely=0.85, relwidth=0.1, relheight=0.15)
         
         
         self.frame_down = ctk.CTkFrame(self.root, fg_color="#3f3f3f", border_color="#1f1f1f")
