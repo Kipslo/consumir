@@ -27,7 +27,7 @@ class application():
             self.stylemode = "DARK"
             up = True
         if self.maxcommands == "":
-            self.maxcommands = 400
+            self.maxcommands = 300
             up = True
         if mod:
             self.configcursor.execute("""INSERT INTO Config (stylemode, maxcommands) VALUES (?, ?)""", (self.stylemode, self.maxcommands))
@@ -133,9 +133,10 @@ class application():
             pass
         self.connectcommands()
         currentcommands = self.commandscursor.execute("""SELECT * FROM CommandsActive""")
+        self.currentcommands = []
         for i, self.command in enumerate(currentcommands):
             number, initdate, nameclient, idclient = self.command
-            self.currentcommands[i] = ctk.CTkButton(self.frame_commands, width=500, height= 150, text=number + " "+ nameclient +"\n" + "TEMPO: ", font=("Arial", 15))
+            self.currentcommands.append(ctk.CTkButton(self.frame_commands, width=500, height= 150, text=number + " "+ nameclient +"\n" + "TEMPO: ", font=("Arial", 15)))
             self.currentcommands[i].grid(row=0, column=0, padx=20, pady=10)
         
         
@@ -146,12 +147,37 @@ class application():
         self.rootnewcom = ctk.CTkToplevel()
         self.rootnewcom.title("ADICIONAR COMANDA")
         #self.rootnewcom.iconbitmap('imagens\Icon.ico')
-        self.rootnewcom.geometry("500x400")
+        self.rootnewcom.geometry("800x600")
         self.rootnewcom.resizable(True, True)
         self.rootnewcom.transient(self.root)
         self.rootnewcom.grab_set()
+        self.frame_newcommands = ctk.CTkScrollableFrame(master=self.rootnewcom, fg_color="#2f2f2f")
+        self.frame_newcommands.place(relx=0.01, rely=0.01, relwidth= 0.98, relheight= 0.98)
+        commandsactives = []
+        try:
+            for i in self.button_newcommand:
+                i.destroy()
+        except:
+            pass
+        self.button_newcommand = []
+        try:
+            for i in self.currentcommands:
+                commandsactives.append(i[0])
+        except:
+            pass
+        for i in range(int(self.maxcommands)):
+            print(i)
+            k = False
+            number = i + 1
+            for m in commandsactives:
+                if m == number:
+                    k = True
+            self.button_newcommand.append(ctk.CTkButton(self.frame_newcommands, fg_color="#006f00", text=str(number), font=("Arial", 15), width=150, height=75))
+            if k:
+                self.button_newcommand[i].configure(fg_color="#6f0000")
+            self.button_newcommand[i].grid(row=int(i/4), column=i%4, padx=10 ,pady=10)
     def click(self, event):
-        if "self.rootnewcom" in globals():
+        if "self.rootnewcom" in globals() or "self.rootnewcom" in locals():
             pass
         else:
             position = pa.position()
