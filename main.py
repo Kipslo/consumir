@@ -39,10 +39,13 @@ class application():
         self.button_temp = ctk.CTkButton(self.root, fg_color="#7f7f7f", text="add cont", hover_color="#6f6f6f", command=self.addcont)
         self.button_temp.place(relx=0.8, rely=0.95, relwidth=0.2, relheight=0.05)
         self.root.bind("<KeyPress>", self.keypresslogin)
-    def searchnameentry(self):
+    def searchnameentry(self, n = True):
         if self.positionp == True:
-            self.position_namecommand = pa.locateOnScreen("imgs/buttonname.PNG", confidence=0.8)
-            self.positionp = False
+            try:
+                self.position_namecommand = pa.locateOnScreen("imgs/buttonname.PNG", confidence=0.7)
+                self.positionp = False
+            except:
+                self.root.after(1000, self.searchnameentry)
     def keypresslogin(self, event):
         n = event.keysym
         if n == "Return":
@@ -84,19 +87,9 @@ class application():
         self.frame_commands = ctk.CTkScrollableFrame(self.root, fg_color="#2f2f2f")
         self.frame_commands.place(relx=0.01, rely=0.21, relwidth=0.98, relheight=0.71)
 
-        self.button = ctk.CTkButton(self.frame_commands, fg_color="#5f5f5f", text="OIOI")
-        self.button.place(relx=0, rely=0.93, relwidth=1, relheight=0.07)
+        self.button = ctk.CTkButton(self.frame_commands, width=100, height= 50)
+        self.button.grid(row=0, column=0, padx=50)
 
-        self.button1 = ctk.CTkButton(self.frame_commands, fg_color="#5f5f5f", text="OIOI")
-        self.button1.place(relx=0, rely=1, relwidth=1, relheight=0.07)
-
-        self.button2 = ctk.CTkButton(self.frame_commands, fg_color="#5f5f5f", text="OIOI")
-        self.button2.place(relx=0, rely=1.08, relwidth=0.1, relheight=0.07)
-
-        self.button3 = ctk.CTkButton(self.frame_commands, fg_color="#5f5f5f", text="OIOI")
-        self.button3.place(relx=0, rely=0.85, relwidth=0.1, relheight=0.15)
-        
-        
         self.frame_down = ctk.CTkFrame(self.root, fg_color="#3f3f3f", border_color="#1f1f1f")
         self.frame_down.place(relx=0, rely=0.93, relwidth=1, relheight=0.07)
 
@@ -109,7 +102,7 @@ class application():
         self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color="#5f5f5f", text="JUNTAR COMANDAS", hover_color="#585858")
         self.button_mergecommands.place(relx=0.135, rely=0.175, relwidth=0.15, relheight=0.65)
 
-        self.root.after(1000, self.searchnameentry)
+        self.root.after(2000, self.searchnameentry)
 
         self.root.bind_all("<Button-1>", self.click)
 
@@ -122,31 +115,12 @@ class application():
                 event.widget.focus_set()
         else:
             event.widget.focus_set()
-
     def presskey(self, event):
         key = event.keysym
         n = self.entry_namecommand.get()
         if n == "":
-            if key == "0":
-                self.changesearchcommandlabel("0")
-            elif key == "1":
-                self.changesearchcommandlabel("1")
-            elif key == "2":
-                self.changesearchcommandlabel("2")
-            elif key == "3":
-                self.changesearchcommandlabel("3")
-            elif key == "4":
-                self.changesearchcommandlabel("4")
-            elif key == "5":
-                self.changesearchcommandlabel("5")
-            elif key == "6":
-                self.changesearchcommandlabel("6")
-            elif key == "7":
-                self.changesearchcommandlabel("7")
-            elif key == "8":
-                self.changesearchcommandlabel("8")
-            elif key == "9":
-                self.changesearchcommandlabel("9")
+            if key == "0" or key == "1" or key == "2" or key == "3" or key == "4" or key == "5" or key == "6" or key == "7" or key == "8" or key == "9":
+                self.changesearchcommandlabel(key)
             elif key == "Return":
                 self.changesearchcommandlabel()
             elif key == "BackSpace":
