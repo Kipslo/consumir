@@ -128,6 +128,9 @@ class application():
 
         self.root.bind_all("<Button-1>", self.click)
         threading.Thread(self.reloadcommands()).start()
+        print("começou")
+    def windowcommand(self, command):
+        pass
     def reloadcommands(self):
         try:
             for i in self.currentcommands:
@@ -135,21 +138,20 @@ class application():
         except:
             pass
         self.connectcommands()
-        currentcommands = self.commandscursor.execute("""SELECT * FROM CommandsActive""")
+        currentcommands = self.commandscursor.execute("""SELECT number, initdate, hour, nameclient FROM CommandsActive""")
         self.currentcommands = []
         for i, command in enumerate(currentcommands):
-            number, initdate, inithour, nameclient, idclient  = command
+            number, initdate, inithour, nameclient  = command
             datenow = str(datetime.datetime.now())[0:19]
             secondnow, minnow, hournow, daynow, mounthnow, yearnow = int(datenow[17:19]), int(datenow[14:16]), int(datenow[11:13]), int(datenow[8:10]), int(datenow[5:7]), int(datenow
             [0:4])
 
             second, min, hour, day, mounth, year = int(inithour[6:8]), int(inithour[3:5]), int(inithour[0:2]), int(initdate[8:10]), int(initdate[5:7]), int(initdate[0:4]) 
             time = str(hournow - hour) +"h" + str(minnow - min) + "m"
-            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color="#3f3f3f", hover_color="#3f3f3f", width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + time, font=("Arial", 15)))
+            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color="#3f3f3f", command=lambda m = number:self.windowcommand[m], hover_color="#3f3f3f", width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + time, font=("Arial", 15)))
             self.currentcommands[i].grid(row=int(i/6), column=i%6, padx=20, pady=10)
-        
-        
-        
+        self.root.after(20000, threading.Thread(self.reloadcommands).start())
+        print("terminou")
         
         self.desconnectcommands()
     def newcommands (self):
