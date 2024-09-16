@@ -36,6 +36,8 @@ class application():
             self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ? WHERE cod = 1""", (self.stylemode, self.maxcommands))
         if self.stylemode == "DARK":
             self.colors = ["#1f1f1f", "#2f2f2f", "#383838", "#3f3f3f", "#484848", "#4f4f4f", "#585858", "#5f5f5f", "#6f6f6f", "#7f7f7f"]
+        elif self.stylemode == "LIGHT":
+            self.colors = ["#8f8f8f", "#8f8f8f", "#787878", "#7f7f7f", "#686868", "#6f6f6f", "#585858", "#5f5f5f", "#5f5f5f", "#4f4f4f"]
         self.desconnectconfig()
         ctk.set_appearance_mode("dark")
         self.root = ctk.CTk()
@@ -130,14 +132,20 @@ class application():
         self.root.bind_all("<Button-1>", self.click)
         threading.Thread(self.reloadcommands()).start()
         print("começou")
-    def windowcommand(self, command):
+    def windowcommand(self, command = 0):
+        try:
+            if int(command) > 0:
+                num = command
+        except Exception as error:
+            print(error)
+            num = ""
+            text = command.cget("text")
+            for i in text:
+                if i == " ":
+                    break
+                num = num + i
         self.rootcommand = ctk.CTkToplevel()
-        text = command.cget("text")
-        num = ""
-        for i in text:
-            if i == " ":
-                break
-            num = num + i
+        
         self.rootcommand.title("COMANDA " + num)
         self.rootcommand.geometry("900x800")
         self.rootcommand.resizable(True, True)
@@ -145,6 +153,7 @@ class application():
         self.rootcommand.grab_set()
 
         self.frameconsume = ctk.CTkFrame(self.rootcommand)
+        self.frameconsume.place(relx=0.3, rely=0.05, relwidth=0.69, relheight=0.75)
 
 
     def reloadcommands(self):
@@ -237,25 +246,32 @@ class application():
     def presskey(self, event):
         key = event.keysym
         n = self.entry_namecommand.get()
+        
+        i = self.str_searchcommands.get()
         if n == "":
             if key == "0" or key == "1" or key == "2" or key == "3" or key == "4" or key == "5" or key == "6" or key == "7" or key == "8" or key == "9":
                 self.changesearchcommandlabel(key)
             elif key == "Return":
-                self.changesearchcommandlabel()
+                self.changesearchcommandlabel("i",n = i)
             elif key == "BackSpace":
                 self.changesearchcommandlabel("o")
             else:
                 self.changesearchcommandlabel()
         elif key == "Delete":
             self.entry_namecommand.delete(0, "end")
-    def changesearchcommandlabel(self, a = ""):
+    def changesearchcommandlabel(self, a = "", n = 0):
+        
         i = self.str_searchcommands.get()
-        if a != "" and a != "o":
+        if a != "" and a != "o" and a != "i":
             self.str_searchcommands.set(i + a)
         elif a == "o":
             self.str_searchcommands.set(i[0:-1])
         else:
             self.str_searchcommands.set("")
+        if n != 0 and a == "i":
+            if int(n) <= self.maxcommands and int(n) >=0:
+                self.windowcommand(n)
+        
     def changemainbuttons(self, button):
         
         
