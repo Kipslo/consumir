@@ -13,7 +13,6 @@ import datetime
 
 class application():
     def __init__(self):
-        self.number = []
         self.positionp = True
         self.cod, self.stylemode, self.maxcommands = "", "", ""
         mod, up = False, False
@@ -130,8 +129,24 @@ class application():
         threading.Thread(self.reloadcommands()).start()
         print("começou")
     def windowcommand(self, command):
-        pass
+        self.rootcommand = ctk.CTkToplevel()
+        text = command.cget("text")
+        num = ""
+        for i in text:
+            if i == " ":
+                break
+            num = num + i
+        self.rootcommand.title("COMANDA " + num)
+        self.rootcommand.geometry("500x700")
+        self.rootcommand.resizable(True, True)
+        self.rootcommand.transient(self.root)
+        self.rootcommand.grab_set()
+        
+
+
+
     def reloadcommands(self):
+        self.number =[]
         try:
             for i in self.currentcommands:
                 i.destroy()
@@ -148,9 +163,9 @@ class application():
 
             second, min, hour, day, mounth, year = int(inithour[6:8]), int(inithour[3:5]), int(inithour[0:2]), int(initdate[8:10]), int(initdate[5:7]), int(initdate[0:4]) 
             time = str(hournow - hour) +"h" + str(minnow - min) + "m"
-            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color="#3f3f3f", command=lambda m = number:self.windowcommand[m], hover_color="#3f3f3f", width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + time, font=("Arial", 15)))
-            self.currentcommands[i].grid(row=int(i/6), column=i%6, padx=20, pady=10)
-        self.root.after(20000, threading.Thread(self.reloadcommands).start())
+            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color="#3f3f3f", command=lambda m = number:self.windowcommand(self.currentcommands[m]), hover=False, width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + time, font=("Arial", 15)))
+            self.currentcommands[i].grid(row=int(i/6), column=i%6, padx=10, pady=5)
+            self.number.append(number)
         print("terminou")
         
         self.desconnectcommands()
@@ -174,30 +189,27 @@ class application():
         threading.Thread(self.addnewcommandwindow()).start()
     def addnewcommandactive(self, command):
         num = command.cget("text")
-        print(num)
         self.connectcommands()
         number = ""
-        com = self.commandscursor.execute("""SELECT * FROM CommandsActive WHERE number = ?""", (num, ))
+        com = self.commandscursor.execute("""SELECT number FROM CommandsActive WHERE number = ?""", (num, ))
         for i in com:
-            number = i[0]
+            number = i
         if number == "":
             date = datetime.datetime.now()
             date = str(date)[0:19]
             date, hour = date[0:10], date[11:20]
             nameclient = ""
             idclient = ""
-            print(hour)
-            print(date)
-            print(num)
             self.commandscursor.execute("""INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)""", (num, date, hour, nameclient, idclient))
+            self.rootnewcom.destroy()
         self.desconnectcommands()
-        self.rootnewcom.destroy()
         threading.Thread(self.reloadcommands()).start()
     def addnewcommandwindow(self):
         for i in range(int(self.maxcommands)):
             k = False
-            for m in self.currentcommands:
-                if m.cget("text") == i + 1:
+            for m in self.number:
+                if m == i + 1:
+                    print(m)
                     k = True
             self.button_newcommand.append(ctk.CTkButton(self.frame_newcommands, command=lambda m=i:self.addnewcommandactive(self.button_newcommand[m]), fg_color="#006f00", text=str(i+ 1), font=("Arial", 15), width=150, height=75))
             if k == True:
