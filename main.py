@@ -5,6 +5,7 @@ import sqlite3 as sql
 from PIL import Image
 import threading
 import pyautogui as pa
+import datetime
 
 #class funcs():
 
@@ -12,6 +13,13 @@ import pyautogui as pa
 
 class application():
     def __init__(self):
+        self.connectcommands()
+        temp = self.commandscursor.execute("SELECT * FROM CommandsActive")
+        for i in temp:
+            temp1, b, c, d, e = i
+            print(temp1)
+        self.desconnectcommands()
+        self.number = []
         self.positionp = True
         self.cod, self.stylemode, self.maxcommands = "", "", ""
         mod, up = False, False
@@ -27,7 +35,7 @@ class application():
             self.stylemode = "DARK"
             up = True
         if self.maxcommands == "":
-            self.maxcommands = 300
+            self.maxcommands = 400
             up = True
         if mod:
             self.configcursor.execute("""INSERT INTO Config (stylemode, maxcommands) VALUES (?, ?)""", (self.stylemode, self.maxcommands))
@@ -165,31 +173,56 @@ class application():
                 commandsactives.append(i[0])
         except:
             pass
+        threading.Thread(self.addnewcommandwindow(commandsactives)).start()
+
+    def addnewcommandactive(self, command, n):
+        print(n)
+        num = command[n].cget("text")
+        print(num)
+        self.connectcommands()
+        number = ""
+        com = self.commandscursor.execute("""SELECT * FROM CommandsActive WHERE number = ?""", (num, ))
+        for i in com:
+            number = i[0]
+        if number == "":
+            date = datetime.datetime.now()
+            date = str(date)[0:19]
+            date, hour = date[0:10], date[11:20]
+            print(hour)
+            print(date)
+            print(num)
+            self.commandscursor.execute("""INSERT INTO CommandsActive (number, initdate, hour) VALUES (?, ?, ?)""", (num, date, hour))
+        self.desconnectcommands()
+        self.rootnewcom.destroy()
+    def addnewcommandwindow(self, commandsactives):
+        num = []
         for i in range(int(self.maxcommands)):
-            print(i)
+            self.number.append(i)
+        for i in self.number:
             k = False
-            number = i + 1
             for m in commandsactives:
-                if m == number:
+                if m == self.number + 1:
                     k = True
-            self.button_newcommand.append(ctk.CTkButton(self.frame_newcommands, fg_color="#006f00", text=str(number), font=("Arial", 15), width=150, height=75))
-            if k:
-                self.button_newcommand[i].configure(fg_color="#6f0000")
+            self.button_newcommand.append(ctk.CTkButton(self.frame_newcommands, command=lambda m=i:self.addnewcommandactive(self.button_newcommand, self.number[m]), fg_color="#006f00", text=str(self.number[i]+1), font=("Arial", 15), width=150, height=75))
+            if k == True:
+                self.button_newcommand[i].configure(fg_color="#6f0000", hover_color="#4f0000")
             self.button_newcommand[i].grid(row=int(i/4), column=i%4, padx=10 ,pady=10)
+        
     def click(self, event):
-        if "self.rootnewcom" in globals() or "self.rootnewcom" in locals():
-            pass
-        else:
-            position = pa.position()
-            if position.x > self.position_namecommand[0] and position.x < self.position_namecommand[0] + self.position_namecommand[3]:
-                if position.y > self.position_namecommand[1] and position.y < self.position_namecommand[1] + position.y[3]:
-                    pass
+        if not "self.rootnewcom" in globals():
+            if "self.rootnewcom" in globals() or "self.rootnewcom" in locals():
+                pass
+            else:
+                position = pa.position()
+                if position.x > self.position_namecommand[0] and position.x < self.position_namecommand[0] + self.position_namecommand[3]:
+                    if position.y > self.position_namecommand[1] and position.y < self.position_namecommand[1] + position.y[3]:
+                        pass
+                    else:
+                        self.entry_namecommand.delete(0, "end")
+                        event.widget.focus_set()
                 else:
                     self.entry_namecommand.delete(0, "end")
                     event.widget.focus_set()
-            else:
-                self.entry_namecommand.delete(0, "end")
-                event.widget.focus_set()
     def presskey(self, event):
         key = event.keysym
         n = self.entry_namecommand.get()
@@ -330,7 +363,8 @@ class application():
                                     number INTEGER(4),
                                     initdate CHAR(10),
                                     nameclient VARCHAR(30),
-                                    idclient INTEGER(5)
+                                    idclient INTEGER(5),
+                                    hour CHAR(5)
                                     )""")
         self.desconnectcommands()
 application()
