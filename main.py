@@ -13,12 +13,6 @@ import datetime
 
 class application():
     def __init__(self):
-        self.connectcommands()
-        temp = self.commandscursor.execute("SELECT * FROM CommandsActive")
-        for i in temp:
-            temp1, b, c, d, e = i
-            print(temp1)
-        self.desconnectcommands()
         self.number = []
         self.positionp = True
         self.cod, self.stylemode, self.maxcommands = "", "", ""
@@ -133,6 +127,7 @@ class application():
         self.root.after(500, self.searchnameentry)
 
         self.root.bind_all("<Button-1>", self.click)
+        self.reloadcommands()
     def reloadcommands(self):
         try:
             for i in self.currentcommands:
@@ -142,10 +137,19 @@ class application():
         self.connectcommands()
         currentcommands = self.commandscursor.execute("""SELECT * FROM CommandsActive""")
         self.currentcommands = []
-        for i, self.command in enumerate(currentcommands):
-            number, initdate, nameclient, idclient = self.command
-            self.currentcommands.append(ctk.CTkButton(self.frame_commands, width=500, height= 150, text=number + " "+ nameclient +"\n" + "TEMPO: ", font=("Arial", 15)))
-            self.currentcommands[i].grid(row=0, column=0, padx=20, pady=10)
+        for i, command in enumerate(currentcommands):
+            number, initdate, inithour, nameclient, idclient  = command
+            datenow = str(datetime.datetime.now())[0:19]
+            print(initdate)
+            print(inithour)
+            secondnow, minnow, hournow, daynow, mounthnow, yearnow = int(datenow[17:19]), int(datenow[14:16]), int(datenow[11:13]), int(datenow[8:10]), int(datenow[5:7]), int(datenow
+            [0:4])
+
+            second, min, hour, day, mounth, year = int(inithour[6:8]), int(inithour[3:5]), int(inithour[0:2]), int(initdate[8:10]), int(initdate[5:7]), int(initdate[0:4])
+            
+            time = str(hournow - hour) +"h" + str(minnow - min) + "m"
+            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color="#3f3f3f", hover_color="#3f3f3f", width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + time, font=("Arial", 15)))
+            self.currentcommands[i].grid(row=int(i/6), column=i%6, padx=20, pady=10)
         
         
         
@@ -168,16 +172,9 @@ class application():
         except:
             pass
         self.button_newcommand = []
-        try:
-            for i in self.currentcommands:
-                commandsactives.append(i[0])
-        except:
-            pass
-        threading.Thread(self.addnewcommandwindow(commandsactives)).start()
-
-    def addnewcommandactive(self, command, n):
-        print(n)
-        num = command[n].cget("text")
+        threading.Thread(self.addnewcommandwindow()).start()
+    def addnewcommandactive(self, command):
+        num = command.cget("text")
         print(num)
         self.connectcommands()
         number = ""
@@ -188,22 +185,22 @@ class application():
             date = datetime.datetime.now()
             date = str(date)[0:19]
             date, hour = date[0:10], date[11:20]
+            nameclient = ""
+            idclient = ""
             print(hour)
             print(date)
             print(num)
-            self.commandscursor.execute("""INSERT INTO CommandsActive (number, initdate, hour) VALUES (?, ?, ?)""", (num, date, hour))
+            self.commandscursor.execute("""INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)""", (num, date, hour, nameclient, idclient))
         self.desconnectcommands()
         self.rootnewcom.destroy()
-    def addnewcommandwindow(self, commandsactives):
-        num = []
+        self.reloadcommands()
+    def addnewcommandwindow(self):
         for i in range(int(self.maxcommands)):
-            self.number.append(i)
-        for i in self.number:
             k = False
-            for m in commandsactives:
-                if m == self.number + 1:
+            for m in self.currentcommands:
+                if m.cget("text") == i + 1:
                     k = True
-            self.button_newcommand.append(ctk.CTkButton(self.frame_newcommands, command=lambda m=i:self.addnewcommandactive(self.button_newcommand, self.number[m]), fg_color="#006f00", text=str(self.number[i]+1), font=("Arial", 15), width=150, height=75))
+            self.button_newcommand.append(ctk.CTkButton(self.frame_newcommands, command=lambda m=i:self.addnewcommandactive(self.button_newcommand[m]), fg_color="#006f00", text=str(i+ 1), font=("Arial", 15), width=150, height=75))
             if k == True:
                 self.button_newcommand[i].configure(fg_color="#6f0000", hover_color="#4f0000")
             self.button_newcommand[i].grid(row=int(i/4), column=i%4, padx=10 ,pady=10)
@@ -360,11 +357,11 @@ class application():
         self.desconnectconts()
         self.connectcommands()
         self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS CommandsActive(
-                                    number INTEGER(4),
+                                    number INTEGER PRIMARY KEY,
                                     initdate CHAR(10),
+                                    hour CHAR(5),
                                     nameclient VARCHAR(30),
-                                    idclient INTEGER(5),
-                                    hour CHAR(5)
+                                    idclient INTEGER(5)
                                     )""")
         self.desconnectcommands()
 application()
