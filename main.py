@@ -76,6 +76,8 @@ class application():
         n = event.keysym
         if n == "Return":
             self.login()
+    def on_closing(self, n):
+        print("fechou uma janela" + str(n))
     def mainwindow(self):
         self.entry_name.destroy(); self.entry_password.destroy(); self.button_login.destroy(); self.button_temp.destroy(); self.label_person.destroy()
         del self.personimg
@@ -136,8 +138,7 @@ class application():
         try:
             if int(command) > 0:
                 num = command
-        except Exception as error:
-            print(error)
+        except:
             num = ""
             text = command.cget("text")
             for i in text:
@@ -154,7 +155,8 @@ class application():
 
         self.frameconsume = ctk.CTkFrame(self.rootcommand)
         self.frameconsume.place(relx=0.3, rely=0.05, relwidth=0.69, relheight=0.75)
-
+        
+        self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closing(123))
 
     def reloadcommands(self):
         self.number =[]
@@ -227,7 +229,8 @@ class application():
             if k == True:
                 self.button_newcommand[i].configure(fg_color="#6f0000", hover_color="#4f0000")
             self.button_newcommand[i].grid(row=int(i/4), column=i%4, padx=10 ,pady=10)
-        
+    def productwindow(self):
+        pass
     def click(self, event):
         if not "self.rootnewcom" in globals():
             if "self.rootnewcom" in globals() or "self.rootnewcom" in locals():
@@ -259,6 +262,8 @@ class application():
                 self.changesearchcommandlabel()
         elif key == "Delete":
             self.entry_namecommand.delete(0, "end")
+        elif key == "Return":
+            pass
     def changesearchcommandlabel(self, a = "", n = 0):
         
         i = self.str_searchcommands.get()
