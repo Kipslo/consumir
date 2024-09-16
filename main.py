@@ -13,10 +13,10 @@ import datetime
 
 class application():
     def __init__(self):
+        self.createtables()
         self.positionp = True
         self.cod, self.stylemode, self.maxcommands = "", "", ""
         mod, up = False, False
-        self.createtables()
         self.connectconfig()
         self.currentconfig = self.configcursor.execute("""SELECT * FROM Config WHERE cod = 1""") 
         for i in self.currentconfig:
@@ -34,6 +34,8 @@ class application():
             self.configcursor.execute("""INSERT INTO Config (stylemode, maxcommands) VALUES (?, ?)""", (self.stylemode, self.maxcommands))
         elif mod == False and up == True:
             self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ? WHERE cod = 1""", (self.stylemode, self.maxcommands))
+        if self.stylemode == "DARK":
+            self.colors = ["#1f1f1f", "#2f2f2f", "#383838", "#3f3f3f", "#484848", "#4f4f4f", "#585858", "#5f5f5f", "#6f6f6f", "#7f7f7f"]
         self.desconnectconfig()
         ctk.set_appearance_mode("dark")
         self.root = ctk.CTk()
@@ -43,13 +45,13 @@ class application():
     def loginwindow(self):
 
         self.root.attributes("-fullscreen", True)
-        self.entry_name = ctk.CTkEntry(self.root, bg_color="#7f7f7f", placeholder_text="NOME", font=("Arial", 20))
+        self.entry_name = ctk.CTkEntry(self.root, bg_color=self.colors[9], placeholder_text="NOME", font=("Arial", 20))
         self.entry_name.place(relx=0.4, rely=0.45, relwidth=0.2, relheight=0.05)
 
-        self.entry_password = ctk.CTkEntry(self.root, bg_color="#7f7f7f", placeholder_text="SENHA", show="*", font=("Arial", 20))
+        self.entry_password = ctk.CTkEntry(self.root, bg_color=self.colors[9], placeholder_text="SENHA", show="*", font=("Arial", 20))
         self.entry_password.place(relx=0.4, rely=0.55, relwidth=0.2, relheight=0.05)
         
-        self.button_login = ctk.CTkButton(self.root, fg_color="#7f7f7f", text="LOGIN", hover_color="#6f6f6f", command=self.login, font=("Arial", 20))
+        self.button_login = ctk.CTkButton(self.root, fg_color=self.colors[9], text="LOGIN", hover_color=self.colors[8], command=self.login, font=("Arial", 20))
         self.button_login.place(relx=0.4, rely=0.65, relwidth=0.2, relheight=0.05)
         
 
@@ -57,7 +59,7 @@ class application():
         self.label_person = ctk.CTkLabel(self.root, image = self.personimg, bg_color="#242424", text="")
         self.label_person.place(relx=0.423, rely=0.15)
 
-        self.button_temp = ctk.CTkButton(self.root, fg_color="#7f7f7f", text="add cont", hover_color="#6f6f6f", command=self.addcont)
+        self.button_temp = ctk.CTkButton(self.root, fg_color=self.colors[9], text="add cont", hover_color=self.colors[8], command=self.addcont)
         self.button_temp.place(relx=0.8, rely=0.95, relwidth=0.2, relheight=0.05)
         self.root.bind("<KeyPress>", self.keypresslogin)
     def searchnameentry(self, n = True):
@@ -79,48 +81,48 @@ class application():
             self.label_failedlogin.destroy()
         except:
             pass
-        self.frame_tab = ctk.CTkFrame(self.root, fg_color="#5f5f5f", border_color="#1f1f1f")
+        self.frame_tab = ctk.CTkFrame(self.root, fg_color=self.colors[7], border_color=self.colors[0])
         self.frame_tab.place(relx=0, rely=0, relwidth=1, relheight=0.14)
 
 
-        self.label_none = ctk.CTkLabel(self.frame_tab, fg_color="#585858", text="")
+        self.label_none = ctk.CTkLabel(self.frame_tab, fg_color=self.colors[6], text="")
         self.label_none.place(relx=0.2, rely=0, relwidth=0.8, relheight=0.285)
 
-        self.button_main = ctk.CTkButton(self.frame_tab, text="PRINCIPAL", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbuttons(self.button_main))
+        self.button_main = ctk.CTkButton(self.frame_tab, text="PRINCIPAL", hover_color=self.colors[4], fg_color=self.colors[5], command=lambda:self.changemainbuttons(self.button_main))
         self.button_main.place(relx=0, rely=0, relwidth=0.1, relheight=0.285)
 
-        self.button_product = ctk.CTkButton(self.frame_tab, text="PRODUTO", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbuttons(self.button_product))
+        self.button_product = ctk.CTkButton(self.frame_tab, text="PRODUTO", hover_color=self.colors[4], fg_color=self.colors[5], command=lambda:self.changemainbuttons(self.button_product))
         self.button_product.place(relx=0.1, rely=0, relwidth=0.1, relheight=0.285)
 
-        self.button_config = ctk.CTkButton(self.frame_tab, text="CONFIGURAÇÕES", hover_color="#484848", fg_color="#4f4f4f", command=lambda:self.changemainbuttons(self.button_config))
+        self.button_config = ctk.CTkButton(self.frame_tab, text="CONFIGURAÇÕES", hover_color=self.colors[4], fg_color=self.colors[5], command=lambda:self.changemainbuttons(self.button_config))
         self.button_config.place(relx=0.2, rely=0, relwidth=0.1, relheight=0.285)
 
 
         self.str_searchcommands = tk.StringVar()
         self.str_searchcommands.set("")
-        self.label_searchcommand = ctk.CTkLabel(self.root, fg_color="#2f2f2f", textvariable=self.str_searchcommands, font=("Arial", 20))
+        self.label_searchcommand = ctk.CTkLabel(self.root, fg_color=self.colors[1], textvariable=self.str_searchcommands, font=("Arial", 20))
         self.label_searchcommand.place(relx=0.01, rely=0.15, relwidth=0.88, relheight=0.05)
 
-        self.button_addcommand = ctk.CTkButton(self.root, fg_color="#3f3f3f", text="ADICIONAR COMANDA", hover_color="#383838", command=self.newcommands)
+        self.button_addcommand = ctk.CTkButton(self.root, fg_color=self.colors[3], text="ADICIONAR COMANDA", hover_color=self.colors[2], command=self.newcommands)
         self.button_addcommand.place(relx=0.90, rely=0.15, relwidth=0.09, relheight=0.05)
         
         self.root.bind("<KeyPress>", self.presskey)
 
-        self.frame_commands = ctk.CTkScrollableFrame(self.root, fg_color="#2f2f2f")
+        self.frame_commands = ctk.CTkScrollableFrame(self.root, fg_color=self.colors[1])
         self.frame_commands.place(relx=0.01, rely=0.21, relwidth=0.98, relheight=0.71)
 
         
 
-        self.frame_down = ctk.CTkFrame(self.root, fg_color="#3f3f3f", border_color="#1f1f1f")
+        self.frame_down = ctk.CTkFrame(self.root, fg_color=self.colors[3], border_color=self.colors[0])
         self.frame_down.place(relx=0, rely=0.93, relwidth=1, relheight=0.07)
 
-        self.entry_namecommand = ctk.CTkEntry(self.frame_down, placeholder_text="PESQUISAR POR NOME", fg_color="#5f5f5f", font=("Arial", 20))
+        self.entry_namecommand = ctk.CTkEntry(self.frame_down, placeholder_text="PESQUISAR POR NOME", fg_color=self.colors[7], font=("Arial", 20))
         self.entry_namecommand.place(relx=0.3, rely=0.175 , relwidth=0.15, relheight=0.65)
 
-        self.button_updatecommand = ctk.CTkButton(self.frame_down, fg_color="#5f5f5f", text="ATUALIZAR", hover_color="#585858")
+        self.button_updatecommand = ctk.CTkButton(self.frame_down, fg_color=self.colors[7], text="ATUALIZAR", hover_color=self.colors[6])
         self.button_updatecommand.place(relx=0.02, rely=0.175, relwidth=0.1, relheight=0.65)
 
-        self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color="#5f5f5f", text="JUNTAR COMANDAS", hover_color="#585858")
+        self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color=self.colors[7], text="JUNTAR COMANDAS", hover_color=self.colors[6])
         self.button_mergecommands.place(relx=0.135, rely=0.175, relwidth=0.15, relheight=0.65)
 
         self.root.after(500, self.searchnameentry)
@@ -137,12 +139,12 @@ class application():
                 break
             num = num + i
         self.rootcommand.title("COMANDA " + num)
-        self.rootcommand.geometry("500x700")
+        self.rootcommand.geometry("900x800")
         self.rootcommand.resizable(True, True)
         self.rootcommand.transient(self.root)
         self.rootcommand.grab_set()
-        
 
+        self.frameconsume = ctk.CTkFrame(self.rootcommand)
 
 
     def reloadcommands(self):
@@ -163,7 +165,8 @@ class application():
 
             second, min, hour, day, mounth, year = int(inithour[6:8]), int(inithour[3:5]), int(inithour[0:2]), int(initdate[8:10]), int(initdate[5:7]), int(initdate[0:4]) 
             time = str(hournow - hour) +"h" + str(minnow - min) + "m"
-            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color="#3f3f3f", command=lambda m = number:self.windowcommand(self.currentcommands[m]), hover=False, width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + time, font=("Arial", 15)))
+            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color=self.colors[3], command=lambda m = i:self.windowcommand(self.currentcommands[m]), hover=False, width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + time, font=("Arial", 15)))
+            
             self.currentcommands[i].grid(row=int(i/6), column=i%6, padx=10, pady=5)
             self.number.append(number)
         print("terminou")
@@ -177,7 +180,7 @@ class application():
         self.rootnewcom.resizable(True, True)
         self.rootnewcom.transient(self.root)
         self.rootnewcom.grab_set()
-        self.frame_newcommands = ctk.CTkScrollableFrame(master=self.rootnewcom, fg_color="#2f2f2f")
+        self.frame_newcommands = ctk.CTkScrollableFrame(master=self.rootnewcom, fg_color=self.colors[1])
         self.frame_newcommands.place(relx=0.01, rely=0.01, relwidth= 0.98, relheight= 0.98)
         commandsactives = []
         try:
@@ -257,10 +260,10 @@ class application():
         
         
         
-        self.button_main.configure(fg_color="#5f5f5f", hover_color="#4f4f4f")
-        self.button_product.configure(fg_color="#5f5f5f", hover_color="#4f4f4f")
-        self.button_config.configure(fg_color="#5f5f5f", hover_color="#4f4f4f")
-        button.configure(fg_color="#484848", hover_color="#484848")
+        self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5])
+        self.button_product.configure(fg_color=self.colors[7], hover_color=self.colors[5])
+        self.button_config.configure(fg_color=self.colors[7], hover_color=self.colors[5])
+        button.configure(fg_color=self.colors[4], hover=False)
         text = button.cget("text")
         
         try:
@@ -288,7 +291,7 @@ class application():
             pass
         for i, m in enumerate(self.currentmain):
             buttontemp, texttemp = m
-            buttontemp.configure(text=texttemp, fg_color="#484848", hover_color="#383838", image=self.currentimgs[i], compound="top", anchor="bottom")
+            buttontemp.configure(text=texttemp, fg_color=self.colors[4], hover_color=self.colors[2], image=self.currentimgs[i], compound="top", anchor="bottom")
             buttontemp.place(relx=0.1*i, rely=0.285, relwidth=0.1, relheight=0.715)
     def login(self):
         name = self.entry_name.get()
