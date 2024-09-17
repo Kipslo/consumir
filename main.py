@@ -76,8 +76,8 @@ class application():
         n = event.keysym
         if n == "Return":
             self.login()
-    def on_closing(self, n):
-        print("fechou uma janela" + str(n))
+    def on_closing(self):
+        self.root.bind_all("<Button-1>", self.click)
     def mainwindow(self):
         self.entry_name.destroy(); self.entry_password.destroy(); self.button_login.destroy(); self.button_temp.destroy(); self.label_person.destroy()
         del self.personimg
@@ -131,7 +131,7 @@ class application():
 
         self.root.after(500, self.searchnameentry)
 
-        self.root.bind_all("<Button-1>", self.click)
+        self.root.bind_all("<Button-1>", self.clickmain)
         threading.Thread(self.reloadcommands()).start()
         print("começou")
     def windowcommand(self, command = 0):
@@ -229,9 +229,12 @@ class application():
             if k == True:
                 self.button_newcommand[i].configure(fg_color="#6f0000", hover_color="#4f0000")
             self.button_newcommand[i].grid(row=int(i/4), column=i%4, padx=10 ,pady=10)
-    def productwindow(self):
-        pass
-    def click(self, event):
+    def newproductwindow(self):
+        self.rootproduct = ctk.CTkToplevel(self.root)
+        self.rootproduct.title("PRODUTOS")
+        self.rootproduct.geometry("")
+
+    def clickmain(self, event):
         if not "self.rootnewcom" in globals():
             if "self.rootnewcom" in globals() or "self.rootnewcom" in locals():
                 pass
@@ -359,6 +362,13 @@ class application():
     def desconnectcommands(self):
         self.commands.commit()
         self.commands.close()
+    def connectproduct(self):
+        self.product = sql.connect("products.db")
+        self.productcursor = self.product.cursor()
+    def desconnectproduct(self):
+        self.product.commit()
+        self.product.close()
+    
     def addcont(self):
         self.connectconts()
         name = "Gabriel"
@@ -399,4 +409,18 @@ class application():
                                     idclient INTEGER(5)
                                     )""")
         self.desconnectcommands()
+        self.connectproduct()
+        self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Products(
+                                   name
+                                   type
+                                   )""")
+        self.productcursor.execute("""CREATE TABLE IF NOT EXISTS ProductNormal(
+                                   
+                                   
+                                   )""")
+        self.productcursor.execute("""CREATE TABLE IF NOT EXISTS ProductSize(
+                                   
+                                   
+                                   )""")
+        self.desconnectproduct()
 application()
