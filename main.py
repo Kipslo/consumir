@@ -411,16 +411,28 @@ class application():
         self.desconnectcommands()
         self.connectproduct()
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Products(
-                                   name
-                                   type
+                                   name VARCHAR(30),
+                                   type VARCHAR(10)
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS ProductNormal(
-                                   
-                                   
+                                   name VARCHAR(30),
+                                   price VARCHAR(8),
+                                   cost VARCHAR(8)
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS ProductSize(
-                                   
-                                   
+                                   name VARCHAR(30),
+                                   size VARCHAR(10),
+                                   price VARCHAR(8),
+                                   cost VARCHAR(8)
+                                   )""")
+        self.productcursor.execute("""CREATE TABLE IF NOT EXISTS CurrentProducts(
+                                   name VARCHAR(30),
+                                   type VARCHAR(10),
+                                   command VARCHAR(10),
+                                   releasedate CHAR(10),
+                                   releasehour CHAR(5),
+                                   releasefunctionary VARCHAR(30),
+                                   currentprice VARCHAR(8)
                                    )""")
         self.desconnectproduct()
 application()
