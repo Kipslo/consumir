@@ -144,11 +144,11 @@ class application():
         self.currentwindow = "PRODUCT"
     def deletewindow(self):
         if self.currentwindow == "MAIN":
-            self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy()
+            self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy();self.button_addcommand.destroy(); self.frame_commands.place_forget()
         elif self.currentwindow == "PRODUCT":
             pass
-        self.root.bind("<KeyPress>", None)
-        self.root.bind_all("<Button-1>", None)
+        self.root.bind("<KeyPress>", self.nonclick)
+        self.root.bind_all("<Button-1>", self.nonclick)
     def windowcommand(self, command = 0):
         try:
             if int(command) > 0:
@@ -172,7 +172,8 @@ class application():
         self.frameconsume.place(relx=0.3, rely=0.05, relwidth=0.69, relheight=0.75)
         
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closing(123))
-
+    def nonclick(self, event):
+        pass
     def reloadcommands(self):
         self.number =[]
         try:
