@@ -144,19 +144,28 @@ class application():
         self.currentwindow = "PRODUCT"
 
         self.frame_modproducts = ctk.CTkFrame(self.root, fg_color=self.colors[3])
-        self.frame_modproducts.place(relx=0.01, rely=, relwidth=, relheight=)
+        self.frame_modproducts.place(relx=0, rely=0.14, relwidth=1, relheight=0.05)
         
-        self.frame_producttypes = ctk.CTkFrame(self.root, fg_color=self.colors[3])
-        self.frame_producttypes.place(relx=, rely=, relwidth=, relheight=)
+        self.frame_producttypes = ctk.CTkFrame(self.root, fg_color=self.colors[4])
+        self.frame_producttypes.place(relx=0, rely=0.19, relwidth=1, relheight=0.05)
 
-        self.button_product = ctk.CTkButton(self.frame_producttypes, text="PRODUTOS", hover_color=self.colors[4], fg_color=self.colors[5], command=lambda:self.changeproductbuttons(self.button_product))
-        self.button_product.place(relx=, rely=, relwidth=, relheight=)
+        self.entry_searchproducts = ctk.CTkEntry(self.frame_modproducts, fg_color=self.colors[5], placeholder_text="PESQUISAR PRODUTO")
+        self.entry_searchproducts.place(relx=0.01, rely=0.1, relwidth=0.19, relheight=0.80)
 
-        self.button_producttypes = ctk.CTkButton(self.frame_producttypes, text="PRODUTOS POR TAMANHO", hover_color=self.colors[4], fg_color=self.colors[5], command=lambda:self.changeproductbuttons(self.button_producttypes))
-        self.button_producttypes.place(relx=, rely=, relwidth=, relheight=)
+        self.button_editproduct = ctk.CTkButton(self.frame_modproducts, fg_color=self.colors[5], hover_color=self.colors[4], text="EDITAR")
+        self.button_editproduct.place(relx=0.6, rely=0.1, relwidth=0.19, relheight=0.80)
 
-        self.button_productcombos = ctk.CTkButton(self.frame_producttypes, text="COMBOS", hover_color=self.colors[4], fg_color=self.colors[5], command=lambda:self.changeproductbuttons(self.button_productcombos))
-        self.button_productcombos.place(relx=, rely=, relwidth=, relheight=)
+        self.button_addproduct = ctk.CTkButton(self.frame_modproducts, fg_color=self.colors[5], hover_color=self.colors[4], text="ADICIONAR")
+        self.button_addproduct.place(relx=0.8, rely=0.1, relwidth=0.19, relheight=0.80)
+
+        self.button_product = ctk.CTkButton(self.frame_producttypes, text="PRODUTOS", hover_color=self.colors[5], fg_color=self.colors[6], command=lambda:self.changeproductbuttons(self.button_product))
+        self.button_product.place(relx=0, rely=0, relwidth=0.1, relheight=1)
+
+        self.button_producttypes = ctk.CTkButton(self.frame_producttypes, text="PRODUTOS POR TAMANHO", hover_color=self.colors[5], fg_color=self.colors[6], command=lambda:self.changeproductbuttons(self.button_producttypes))
+        self.button_producttypes.place(relx=0.1, rely=0, relwidth=0.15, relheight=1)
+
+        self.button_productcombos = ctk.CTkButton(self.frame_producttypes, text="COMBOS", hover_color=self.colors[5], fg_color=self.colors[6], command=lambda:self.changeproductbuttons(self.button_productcombos))
+        self.button_productcombos.place(relx=0.25, rely=0, relwidth=0.1, relheight=1)
 
     def changeproductbuttons(self, button):
         self.button_product.configure(fg_color=self.colors[5], hover_color=self.colors[4])
@@ -165,14 +174,14 @@ class application():
         button.configure(fg_color=self.colors[3], hover=False)
 
         try:
-            
+            pass
         except:
-            
+            pass
     def deletewindow(self):
         if self.currentwindow == "MAIN":
             self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy();self.button_addcommand.destroy(); self.frame_commands.place_forget()
         elif self.currentwindow == "PRODUCT":
-            pass
+            self.frame_producttypes.destroy(); self.frame_modproducts.destroy()
         self.root.bind("<KeyPress>", self.nonclick)
         self.root.bind_all("<Button-1>", self.nonclick)
     def windowcommand(self, command = 0):
@@ -476,6 +485,11 @@ class application():
                                    releasehour CHAR(5),
                                    releasefunctionary VARCHAR(30),
                                    currentprice VARCHAR(8)
+                                   )""")
+        self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Category(
+                                   name VARCHAR(10),
+                                   
+                                   
                                    )""")
         self.desconnectproduct()
 application()
