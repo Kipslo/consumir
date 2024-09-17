@@ -45,7 +45,7 @@ class application():
 
         self.root.mainloop()
     def loginwindow(self):
-
+        self.currentwindow = "LOGIN"
         self.root.attributes("-fullscreen", True)
         self.entry_name = ctk.CTkEntry(self.root, bg_color=self.colors[9], placeholder_text="NOME", font=("Arial", 20))
         self.entry_name.place(relx=0.4, rely=0.45, relwidth=0.2, relheight=0.05)
@@ -78,7 +78,7 @@ class application():
             self.login()
     def on_closing(self):
         self.root.bind_all("<Button-1>", self.click)
-    def mainwindow(self):
+    def window(self):
         self.entry_name.destroy(); self.entry_password.destroy(); self.button_login.destroy(); self.button_temp.destroy(); self.label_person.destroy()
         del self.personimg
         try:
@@ -102,6 +102,12 @@ class application():
         self.button_config.place(relx=0.2, rely=0, relwidth=0.1, relheight=0.285)
 
 
+        
+        print("começou")
+    def mainwindow(self):
+        
+        self.deletewindow()
+        self.currentwindow = "MAIN"
         self.str_searchcommands = tk.StringVar()
         self.str_searchcommands.set("")
         self.label_searchcommand = ctk.CTkLabel(self.root, fg_color=self.colors[1], textvariable=self.str_searchcommands, font=("Arial", 20))
@@ -133,7 +139,16 @@ class application():
 
         self.root.bind_all("<Button-1>", self.clickmain)
         threading.Thread(self.reloadcommands()).start()
-        print("começou")
+    def productwindow(self):
+        self.deletewindow()
+        self.currentwindow = "PRODUCT"
+    def deletewindow(self):
+        if self.currentwindow == "MAIN":
+            self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy()
+        elif self.currentwindow == "PRODUCT":
+            pass
+        self.root.bind("<KeyPress>", None)
+        self.root.bind_all("<Button-1>", None)
     def windowcommand(self, command = 0):
         try:
             if int(command) > 0:
@@ -300,14 +315,14 @@ class application():
 
             mainimgs = [ctk.CTkImage(Image.open("imgs/caixa.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tables.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/clientes.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/trofeu.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/garçom.png"), size=(60,60))]
             
-            mainbuttons = [[ctk.CTkButton(master= self.frame_tab), "ABRIR OU FECHAR CAIXA"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
+            mainbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "ABRIR OU FECHAR CAIXA"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
             
             self.currentmain = mainbuttons
             self.currentimgs = mainimgs
         elif text == "PRODUTO":
             productimgs = [ctk.CTkImage(Image.open("imgs/produtos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/complementos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tiposetamanhos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/categorias.jpg"), size=(60,60)), ctk.CTkImage(Image.open("imgs/promocoes.png"), size=(60,60))]
             
-            productbuttons = [[ctk.CTkButton(master= self.frame_tab), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
+            productbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.productwindow), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
             
             self.currentmain = productbuttons
             self.currentimgs = productimgs
@@ -347,6 +362,7 @@ class application():
             self.namelogin = namedata
             self.passwordlogin = passworddata
             self.permissionmaster = permissionmasterdata
+            self.window()
             self.mainwindow()
             self.changemainbuttons(self.button_main)
         self.desconnectconts()
