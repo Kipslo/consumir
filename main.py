@@ -142,6 +142,32 @@ class application():
     def productwindow(self):
         self.deletewindow()
         self.currentwindow = "PRODUCT"
+
+        self.frame_modproducts = ctk.CTkFrame(self.root, fg_color=self.colors[3])
+        self.frame_modproducts.place(relx=0.01, rely=, relwidth=, relheight=)
+        
+        self.frame_producttypes = ctk.CTkFrame(self.root, fg_color=self.colors[3])
+        self.frame_producttypes.place(relx=, rely=, relwidth=, relheight=)
+
+        self.button_product = ctk.CTkButton(self.frame_producttypes, text="PRODUTOS", hover_color=self.colors[4], fg_color=self.colors[5], command=lambda:self.changeproductbuttons(self.button_product))
+        self.button_product.place(relx=, rely=, relwidth=, relheight=)
+
+        self.button_producttypes = ctk.CTkButton(self.frame_producttypes, text="PRODUTOS POR TAMANHO", hover_color=self.colors[4], fg_color=self.colors[5], command=lambda:self.changeproductbuttons(self.button_producttypes))
+        self.button_producttypes.place(relx=, rely=, relwidth=, relheight=)
+
+        self.button_productcombos = ctk.CTkButton(self.frame_producttypes, text="COMBOS", hover_color=self.colors[4], fg_color=self.colors[5], command=lambda:self.changeproductbuttons(self.button_productcombos))
+        self.button_productcombos.place(relx=, rely=, relwidth=, relheight=)
+
+    def changeproductbuttons(self, button):
+        self.button_product.configure(fg_color=self.colors[5], hover_color=self.colors[4])
+        self.button_producttypes.configure(fg_color=self.colors[5], hover_color=self.colors[4])
+        self.button_productcombos.configure(fg_color=self.colors[5], hover_color=self.colors[4])
+        button.configure(fg_color=self.colors[3], hover=False)
+
+        try:
+            
+        except:
+            
     def deletewindow(self):
         if self.currentwindow == "MAIN":
             self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy();self.button_addcommand.destroy(); self.frame_commands.place_forget()
