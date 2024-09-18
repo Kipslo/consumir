@@ -178,18 +178,22 @@ class application():
         button.configure(fg_color=self.colors[3], hover=False)
         temp = button.cget("text")
         style = ttk.Style()
-        style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Calibri', 11)) # Modify the font of the body
-        style.configure("mystyle.Treeview.Heading", font=('Calibri', 13,'bold'))
+        style.configure("Treeview", highlightthickness=0, bd=0, font=('Calibri', 11), foreground="red") # Modify the font of the body
+        style.configure("Treeview.Heading", font=('Calibri', 13,'bold'), foreground="green")
+        style.configure(".", font=('Helvetica', 8), foreground="white")
         try:
             self.treeview_products.destroy()
         except:
             pass
         if temp == "PRODUTOS":
             self.treeview_products = ttk.Treeview(self.frame_productreeviews, height=, columns=("",""), style=style)
+            self.treeview_products.heading("#0", text="")
+
+            self.treeview_products.column("#", width=,)
         elif temp == "PRODUTOS POR TAMANHO":
-            self.treeview_products = ttk.Treeview(self.frame_productreeviews)
+            self.treeview_products = ttk.Treeview(self.frame_productreeviews, height=, columns=("",""), style=style)
         elif temp == "COMBOS":
-            self.treeview_products = ttk.Treeview(self.frame_productreeviews)
+            self.treeview_products = ttk.Treeview(self.frame_productreeviews, height=, columns=("",""), style=style)
     def deletewindow(self):
         if self.currentwindow == "MAIN":
             self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy();self.button_addcommand.destroy(); self.frame_commands.place_forget()
