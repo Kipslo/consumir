@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import socket
 import customtkinter as ctk
 import sqlite3 as sql
@@ -167,21 +168,33 @@ class application():
         self.button_productcombos = ctk.CTkButton(self.frame_producttypes, text="COMBOS", hover_color=self.colors[5], fg_color=self.colors[6], command=lambda:self.changeproductbuttons(self.button_productcombos))
         self.button_productcombos.place(relx=0.25, rely=0, relwidth=0.1, relheight=1)
 
+        self.frame_productreeviews = ctk.CTkFrame(self.root, fg_color=self.colors[3])
+        self.frame_productreeviews.place(relx=0, rely=0.24, relwidth=1, relheight=0.76)
+        self.changeproductbuttons(self.button_product)
     def changeproductbuttons(self, button):
         self.button_product.configure(fg_color=self.colors[5], hover_color=self.colors[4])
         self.button_producttypes.configure(fg_color=self.colors[5], hover_color=self.colors[4])
         self.button_productcombos.configure(fg_color=self.colors[5], hover_color=self.colors[4])
         button.configure(fg_color=self.colors[3], hover=False)
-
+        temp = button.cget("text")
+        style = ttk.Style()
+        style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Calibri', 11)) # Modify the font of the body
+        style.configure("mystyle.Treeview.Heading", font=('Calibri', 13,'bold'))
         try:
-            pass
+            self.treeview_products.destroy()
         except:
             pass
+        if temp == "PRODUTOS":
+            self.treeview_products = ttk.Treeview(self.frame_productreeviews, height=, columns=("",""), style=style)
+        elif temp == "PRODUTOS POR TAMANHO":
+            self.treeview_products = ttk.Treeview(self.frame_productreeviews)
+        elif temp == "COMBOS":
+            self.treeview_products = ttk.Treeview(self.frame_productreeviews)
     def deletewindow(self):
         if self.currentwindow == "MAIN":
             self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy();self.button_addcommand.destroy(); self.frame_commands.place_forget()
         elif self.currentwindow == "PRODUCT":
-            self.frame_producttypes.destroy(); self.frame_modproducts.destroy()
+            self.frame_producttypes.destroy(); self.frame_modproducts.destroy(); self.frame_producttreviews.destroy()
         self.root.bind("<KeyPress>", self.nonclick)
         self.root.bind_all("<Button-1>", self.nonclick)
     def windowcommand(self, command = 0):
@@ -464,18 +477,24 @@ class application():
         self.connectproduct()
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Products(
                                    name VARCHAR(30),
-                                   type VARCHAR(10)
+                                   type VARCHAR(10),
+                                   category VARCHAR(10)
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS ProductNormal(
-                                   name VARCHAR(30),
+                                   product VARCHAR(30),
                                    price VARCHAR(8),
                                    cost VARCHAR(8)
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS ProductSize(
-                                   name VARCHAR(30),
+                                   product VARCHAR(30),
                                    size VARCHAR(10),
                                    price VARCHAR(8),
                                    cost VARCHAR(8)
+                                   )""")
+        self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Combo(
+                                   name VARCHAR(30),
+                                   price VARCHAR(8),
+                                   products VARCHAR(50)
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS CurrentProducts(
                                    name VARCHAR(30),
@@ -487,8 +506,7 @@ class application():
                                    currentprice VARCHAR(8)
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Category(
-                                   name VARCHAR(10),
-                                   
+                                   name VARCHAR(10)
                                    
                                    )""")
         self.desconnectproduct()
