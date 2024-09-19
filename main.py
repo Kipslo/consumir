@@ -201,6 +201,13 @@ class application():
         self.frame_categoriesmod = ctk.CTkFrame(self.root, fg_color=self.colors[2])
         self.frame_categoriesmod.place(relx=0, rely=0.14, relwidth=1, relheight=0.07)
 
+        
+        self.entry_addcategoryname = ctk.CTkEntry(self.frame_categoriesmod, fg_color=self.colors[3], placeholder_text="NOME DA CATEGORIA")
+        self.entry_addcategoryname.place(relx=0.3, rely=0.1, relwidth=0.2, relheight=0.8)
+
+        self.entry_positioncategory = ctk.CTkEntry(self.frame_categoriesmod, fg_color=self.colors[3], placeholder_text="POSIÇÃO")
+        self.entry_positioncategory.place(relx=0.05, rely=0.1, relwidth=0.2, relheight=0.8)
+
         self.button_addcategorie = ctk.CTkButton(self.frame_categoriesmod, text="ADICIONAR", fg_color=self.colors[4], hover_color=self.colors[5], command=self.addcategorywindow)
         self.button_addcategorie.place(relx=0.85, rely=0.1, relwidth=0.1, relheight=0.8)
 
@@ -208,25 +215,13 @@ class application():
         self.treeview_categories.place(relx=0, rely=0.21, relwidth=1, relheight=0.79)
 
         self.categoriesheadingname = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3])
+
+        self.reloadcategories()
     def addcategorywindow(self):
-        self.rootcategorywindow = ctk.CTkToplevel(self.root, fg_color=self.colors[1])
-        self.rootcategorywindow.geometry("400x300")
-        self.rootcategorywindow.title("ADICIONAR CATEGORIA")
-        self.rootcategorywindow.resizable(True, True)
-        self.rootcategorywindow.transient(self.root)
-        self.rootcategorywindow.grab_set()
         
-        self.connectproduct()
-        temp = self.productcursor.execute("SELECT * FROM Categories")
-        self.desconnectproduct()
-
-        self.entry_addcategoryname = ctk.CTkEntry(self.rootcategorywindow, fg_color=self.colors[3], placeholder_text="NOME DA CATEGORIA")
-        self.entry_addcategoryname.place(relx=, rely=, relwidth=, relheight=)
-
-        self.entry_positioncategory = ctk.CTkEntry(self.rootcategorywindow, fg_color=self.colors[3], placeholder_text="POSIÇÃO")
-
-        self.button_confirmnewentry
-
+        self.reloadcategories()
+    def reloadcategories(self):
+        pass
     def windowcommand(self, command = 0):
         try:
             if int(command) > 0:
@@ -535,7 +530,7 @@ class application():
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Category(
                                    cod INTEGER PRIMARY KEY,
-                                   name VARCHAR(10)
+                                   name VARCHAR(30)
                                    
                                    )""")
         self.desconnectproduct()
