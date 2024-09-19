@@ -209,18 +209,23 @@ class application():
 
         self.categoriesheadingname = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3])
     def addcategorywindow(self):
-        self.categorywindow = ctk.CTkToplevel(self.root, fg_color=self.colors[1])
-        self.categorywindow.geometry("600x500")
-        self.categorywindow.title("ADICIONAR CATEGORIA")
-        self.categorywindow.resizable(True, True)
-        self.categorywindow.transient(self.root)
-        self.categorywindow.grab_set()
+        self.rootcategorywindow = ctk.CTkToplevel(self.root, fg_color=self.colors[1])
+        self.rootcategorywindow.geometry("400x300")
+        self.rootcategorywindow.title("ADICIONAR CATEGORIA")
+        self.rootcategorywindow.resizable(True, True)
+        self.rootcategorywindow.transient(self.root)
+        self.rootcategorywindow.grab_set()
         
         self.connectproduct()
         temp = self.productcursor.execute("SELECT * FROM Categories")
         self.desconnectproduct()
 
-        self.
+        self.entry_addcategoryname = ctk.CTkEntry(self.rootcategorywindow, fg_color=self.colors[3], placeholder_text="NOME DA CATEGORIA")
+        self.entry_addcategoryname.place(relx=, rely=, relwidth=, relheight=)
+
+        self.entry_positioncategory = ctk.CTkEntry(self.rootcategorywindow, fg_color=self.colors[3], placeholder_text="POSIÇÃO")
+
+        self.button_confirmnewentry
 
     def windowcommand(self, command = 0):
         try:
