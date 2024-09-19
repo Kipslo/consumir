@@ -8,11 +8,7 @@ import threading
 import pyautogui as pa
 import datetime
 
-#class funcs():
-
-
-
-class application():
+class application(mainwindowclass):
     def __init__(self):
         self.createtables()
         self.positionp = True
@@ -140,9 +136,9 @@ class application():
 
         self.root.bind_all("<Button-1>", self.clickmain)
         threading.Thread(self.reloadcommands()).start()
-    def productwindow(self):
+    def productswindow(self):
         self.deletewindow()
-        self.currentwindow = "PRODUCT"
+        self.currentwindow = "PRODUCTS"
 
         self.frame_modproducts = ctk.CTkFrame(self.root, fg_color=self.colors[3])
         self.frame_modproducts.place(relx=0, rely=0.14, relwidth=1, relheight=0.05)
@@ -159,48 +155,57 @@ class application():
         self.button_addproduct = ctk.CTkButton(self.frame_modproducts, fg_color=self.colors[5], hover_color=self.colors[4], text="ADICIONAR")
         self.button_addproduct.place(relx=0.8, rely=0.1, relwidth=0.19, relheight=0.80)
 
-        self.button_product = ctk.CTkButton(self.frame_producttypes, text="PRODUTOS", hover_color=self.colors[5], fg_color=self.colors[6], command=lambda:self.changeproductbuttons(self.button_product))
-        self.button_product.place(relx=0, rely=0, relwidth=0.1, relheight=1)
+        self.button_products = ctk.CTkButton(self.frame_producttypes, text="PRODUTOS", hover_color=self.colors[5], fg_color=self.colors[6], command=lambda:self.changeproductlistbuttons(self.button_products))
+        self.button_products.place(relx=0, rely=0, relwidth=0.1, relheight=1)
 
-        self.button_producttypes = ctk.CTkButton(self.frame_producttypes, text="PRODUTOS POR TAMANHO", hover_color=self.colors[5], fg_color=self.colors[6], command=lambda:self.changeproductbuttons(self.button_producttypes))
+        self.button_producttypes = ctk.CTkButton(self.frame_producttypes, text="PRODUTOS POR TAMANHO", hover_color=self.colors[5], fg_color=self.colors[6], command=lambda:self.changeproductlistbuttons(self.button_producttypes))
         self.button_producttypes.place(relx=0.1, rely=0, relwidth=0.15, relheight=1)
 
-        self.button_productcombos = ctk.CTkButton(self.frame_producttypes, text="COMBOS", hover_color=self.colors[5], fg_color=self.colors[6], command=lambda:self.changeproductbuttons(self.button_productcombos))
+        self.button_productcombos = ctk.CTkButton(self.frame_producttypes, text="COMBOS", hover_color=self.colors[5], fg_color=self.colors[6], command=lambda:self.changeproductlistbuttons(self.button_productcombos))
         self.button_productcombos.place(relx=0.25, rely=0, relwidth=0.1, relheight=1)
 
-        self.frame_productreeviews = ctk.CTkFrame(self.root, fg_color=self.colors[3])
+        self.frame_productreeviews = ctk.CTkScrollableFrame(self.root, fg_color=self.colors[3])
         self.frame_productreeviews.place(relx=0, rely=0.24, relwidth=1, relheight=0.76)
-        self.changeproductbuttons(self.button_product)
-    def changeproductbuttons(self, button):
-        self.button_product.configure(fg_color=self.colors[5], hover_color=self.colors[4])
+        self.changeproductlistbuttons(self.button_products)
+    def changeproductlistbuttons(self, button):
+        self.button_products.configure(fg_color=self.colors[5], hover_color=self.colors[4])
         self.button_producttypes.configure(fg_color=self.colors[5], hover_color=self.colors[4])
         self.button_productcombos.configure(fg_color=self.colors[5], hover_color=self.colors[4])
         button.configure(fg_color=self.colors[3], hover=False)
         temp = button.cget("text")
-        style = ttk.Style()
-        style.configure("Treeview", highlightthickness=0, bd=0, font=('Calibri', 11), foreground="red") # Modify the font of the body
-        style.configure("Treeview.Heading", font=('Calibri', 13,'bold'), foreground="green")
-        style.configure(".", font=('Helvetica', 8), foreground="white")
-        try:
-            self.treeview_products.destroy()
-        except:
+        if self.current_productlisttab == "PRODUTOS":
+            pass
+        elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
+            pass
+        elif self.current_productlisttab == "COMBOS":
             pass
         if temp == "PRODUTOS":
-            self.treeview_products = ttk.Treeview(self.frame_productreeviews, height=, columns=("",""), style=style)
-            self.treeview_products.heading("#0", text="")
-
-            self.treeview_products.column("#", width=,)
+            self.current_productlisttab = "PRODUTOS"
         elif temp == "PRODUTOS POR TAMANHO":
-            self.treeview_products = ttk.Treeview(self.frame_productreeviews, height=, columns=("",""), style=style)
+            self.current_productlisttab = "PRODUTOS POR TAMANHO"
         elif temp == "COMBOS":
-            self.treeview_products = ttk.Treeview(self.frame_productreeviews, height=, columns=("",""), style=style)
+            self.current_productlisttab = "COMBOS"
     def deletewindow(self):
         if self.currentwindow == "MAIN":
             self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy();self.button_addcommand.destroy(); self.frame_commands.place_forget()
-        elif self.currentwindow == "PRODUCT":
-            self.frame_producttypes.destroy(); self.frame_modproducts.destroy(); self.frame_producttreviews.destroy()
+        elif self.currentwindow == "PRODUCTS":
+            self.frame_producttypes.destroy(); self.frame_modproducts.destroy(); self.frame_productreeviews.destroy(); self.frame_productreeviews.place_forget()
+        elif self.currentwindow == "CATEGORIES":
+            self.treeview_categories.destroy(); self.treeview_categories.place_forget()
         self.root.bind("<KeyPress>", self.nonclick)
         self.root.bind_all("<Button-1>", self.nonclick)
+    def categorieswindow(self):
+        self.deletewindow()
+        self.currentwindow = "CATEGORIES"
+
+        self.frame_categoriesmod = ctk.CTkFrame(self.root, fg_color=self.colors[2])
+        self.frame_categoriesmod.place(relx=0, rely=, relwidht=1, relheight=)
+
+        self.button_addcategorie = ctk.CTkButton(self.frame_categoriesmod, text="ADICIONAR", fg_color=self.colors[3], hover_color=self.colors[4])
+        self.button_addcategorie.place(relx=0.85, rely=0.1, relwidht=0.1, relheight=0.8)
+
+        self.treeview_categories = ctk.CTkScrollableFrame(self.root, fg_color=self.colors[1])
+        self.treeview_categories.place(relx=0, rely=, relwidht=1, relheight=)
     def windowcommand(self, command = 0):
         try:
             if int(command) > 0:
@@ -350,8 +355,6 @@ class application():
         
     def changemainbuttons(self, button):
         
-        
-        
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5])
         self.button_product.configure(fg_color=self.colors[7], hover_color=self.colors[5])
         self.button_config.configure(fg_color=self.colors[7], hover_color=self.colors[5])
@@ -375,7 +378,7 @@ class application():
         elif text == "PRODUTO":
             productimgs = [ctk.CTkImage(Image.open("imgs/produtos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/complementos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tiposetamanhos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/categorias.jpg"), size=(60,60)), ctk.CTkImage(Image.open("imgs/promocoes.png"), size=(60,60))]
             
-            productbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.productwindow), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
+            productbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.productswindow), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab, command=self.categorieswindow), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
             
             self.currentmain = productbuttons
             self.currentimgs = productimgs
