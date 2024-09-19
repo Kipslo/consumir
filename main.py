@@ -218,7 +218,20 @@ class application():
 
         self.reloadcategories()
     def addcategorywindow(self):
-        
+        name = self.entry_addcategoryname.get()
+        id = self.entry_positioncategory.get()
+
+        self.connectproduct
+        names = self.productcursor.execute("SELECT * FROM Category WHERE name = ?", (name, ))
+        cd = ""; nm = ""
+        for i in names:
+            cd, nm = i
+        if nm == "":
+            ids = self.productcursor.execute("SELECT * FROM Category WHERE cod = ?", (id, ))
+            cd, nm = "", ""
+            for i in ids:
+                        
+        self.desconnectproduct
         self.reloadcategories()
     def reloadcategories(self):
         pass
