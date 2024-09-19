@@ -199,23 +199,28 @@ class application():
         self.currentwindow = "CATEGORIES"
 
         self.frame_categoriesmod = ctk.CTkFrame(self.root, fg_color=self.colors[2])
-        self.frame_categoriesmod.place(relx=0, rely=0.14, relwidth=1, relheight=0.7)
+        self.frame_categoriesmod.place(relx=0, rely=0.14, relwidth=1, relheight=0.07)
 
-        self.button_addcategorie = ctk.CTkButton(self.frame_categoriesmod, text="ADICIONAR", fg_color=self.colors[3], hover_color=self.colors[4], command=self.addcategorywindow)
+        self.button_addcategorie = ctk.CTkButton(self.frame_categoriesmod, text="ADICIONAR", fg_color=self.colors[4], hover_color=self.colors[5], command=self.addcategorywindow)
         self.button_addcategorie.place(relx=0.85, rely=0.1, relwidth=0.1, relheight=0.8)
 
         self.treeview_categories = ctk.CTkScrollableFrame(self.root, fg_color=self.colors[1])
         self.treeview_categories.place(relx=0, rely=0.21, relwidth=1, relheight=0.79)
+
+        self.categoriesheadingname = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3])
     def addcategorywindow(self):
         self.categorywindow = ctk.CTkToplevel(self.root, fg_color=self.colors[1])
-        self.categorywindow.geometry("x")
+        self.categorywindow.geometry("600x500")
+        self.categorywindow.title("ADICIONAR CATEGORIA")
         self.categorywindow.resizable(True, True)
         self.categorywindow.transient(self.root)
         self.categorywindow.grab_set()
         
         self.connectproduct()
-        self.productcursor.execute("SELECT * FROM ")
+        temp = self.productcursor.execute("SELECT * FROM Categories")
         self.desconnectproduct()
+
+        self.
 
     def windowcommand(self, command = 0):
         try:
@@ -260,7 +265,7 @@ class application():
 
             second, min, hour, day, mounth, year = int(inithour[6:8]), int(inithour[3:5]), int(inithour[0:2]), int(initdate[8:10]), int(initdate[5:7]), int(initdate[0:4]) 
             time = str(hournow - hour) +"h" + str(minnow - min) + "m"
-            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color=self.colors[3], command=lambda m = i:self.windowcommand(self.currentcommands[m]), hover=False, width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + time, font=("Arial", 15)))
+            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color=self.colors[3], command=lambda m = i:self.windowcommand(self.currentcommands[m]), hover=False, width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + time, font=("Arial", 20)))
             
             self.currentcommands[i].grid(row=int(i/6), column=i%6, padx=10, pady=5)
             self.number.append(number)
@@ -524,6 +529,7 @@ class application():
                                    currentprice VARCHAR(8)
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Category(
+                                   cod INTEGER PRIMARY KEY,
                                    name VARCHAR(10)
                                    
                                    )""")
