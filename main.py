@@ -8,7 +8,7 @@ import threading
 import pyautogui as pa
 import datetime
 
-class application(mainwindowclass):
+class application():
     def __init__(self):
         self.createtables()
         self.positionp = True
@@ -191,7 +191,7 @@ class application(mainwindowclass):
         elif self.currentwindow == "PRODUCTS":
             self.frame_producttypes.destroy(); self.frame_modproducts.destroy(); self.frame_productreeviews.destroy(); self.frame_productreeviews.place_forget()
         elif self.currentwindow == "CATEGORIES":
-            self.treeview_categories.destroy(); self.treeview_categories.place_forget()
+            self.treeview_categories.destroy(); self.treeview_categories.place_forget(); self.frame_categoriesmod.destroy()
         self.root.bind("<KeyPress>", self.nonclick)
         self.root.bind_all("<Button-1>", self.nonclick)
     def categorieswindow(self):
@@ -199,13 +199,24 @@ class application(mainwindowclass):
         self.currentwindow = "CATEGORIES"
 
         self.frame_categoriesmod = ctk.CTkFrame(self.root, fg_color=self.colors[2])
-        self.frame_categoriesmod.place(relx=0, rely=, relwidht=1, relheight=)
+        self.frame_categoriesmod.place(relx=0, rely=0.14, relwidth=1, relheight=0.7)
 
-        self.button_addcategorie = ctk.CTkButton(self.frame_categoriesmod, text="ADICIONAR", fg_color=self.colors[3], hover_color=self.colors[4])
-        self.button_addcategorie.place(relx=0.85, rely=0.1, relwidht=0.1, relheight=0.8)
+        self.button_addcategorie = ctk.CTkButton(self.frame_categoriesmod, text="ADICIONAR", fg_color=self.colors[3], hover_color=self.colors[4], command=self.addcategorywindow)
+        self.button_addcategorie.place(relx=0.85, rely=0.1, relwidth=0.1, relheight=0.8)
 
         self.treeview_categories = ctk.CTkScrollableFrame(self.root, fg_color=self.colors[1])
-        self.treeview_categories.place(relx=0, rely=, relwidht=1, relheight=)
+        self.treeview_categories.place(relx=0, rely=0.21, relwidth=1, relheight=0.79)
+    def addcategorywindow(self):
+        self.categorywindow = ctk.CTkToplevel(self.root, fg_color=self.colors[1])
+        self.categorywindow.geometry("x")
+        self.categorywindow.resizable(True, True)
+        self.categorywindow.transient(self.root)
+        self.categorywindow.grab_set()
+        
+        self.connectproduct()
+        self.productcursor.execute("SELECT * FROM ")
+        self.desconnectproduct()
+
     def windowcommand(self, command = 0):
         try:
             if int(command) > 0:
