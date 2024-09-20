@@ -226,12 +226,22 @@ class application():
         self.categoriesheadingdelete = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3], width=100, height=50, text="DELETAR")
         self.categoriesheadingdelete.grid(row=1, column=4, padx=1,pady=1)
 
+        self.button_reload = ctk.CTkButton(self.frame_categoriesmod, command=self.reloadcategories, fg_color=self.colors[4])
+        self.button_reload.place(relx=0.5, rely=0.1, relwidth=0.1, relheight=0.8)
         self.reloadcategories()
     def addcategoryfunc(self):
+        def insert(id, name):
+            try:
+                temp = self.productcursor.execute("SELECT * FROM Category WHERE cod = ?", (id, ))
+                for i in temp:
+                    cod, nm = i
+                self.productcursor.execute("UPDATE Category SET name = ? WHERE cod = ?", (name, id))
+                insert(int(cod) + 1, nm)
+            except Exception as error:
+                self.productcursor.execute("INSERT INTO Category (name) VALUES (?)", (name,) )
         name = self.entry_addcategoryname.get()
         id = self.entry_positioncategory.get()
-
-        self.connectproduct
+        self.connectproduct()
         names = self.productcursor.execute("SELECT * FROM Category WHERE name = ?", (name, ))
         cd, nm = "", ""
         for i in names:
@@ -239,23 +249,20 @@ class application():
         if nm == "":
             if id != "":
                 ids = self.productcursor.execute("SELECT * FROM Category WHERE cod = ?", (id, ))
-                cd, nm = "", ""
+                cod, nm = "", ""
                 for i in ids:
                     cod, nm = i
                 if cod == "":
                     self.productcursor.execute("INSERT INTO Category (name) VALUES (?)", (name,) )
                 else:
-                    temp = self.productcursor.execute("SELECT * FROM Category")
-                    for i, date in enumerate(temp):
-                        cd, nm = date
-                        if i + 1 >= id:
-                            self.productcursor.execute("UPDATE Category SET name = ? WHERE id = ?", (name, id))
-                            name, id = nm, cd
-                    self.productcursor.execute("INSERT INTO Category (name) VALUES (?)", (name,) )
+                    insert(id, name)
+                    
             else:
+                print("inserindo")
                 self.productcursor.execute("INSERT INTO Category (name) VALUES (?)", (name,))
+                print("inserido")
                         
-        self.desconnectproduct
+        self.desconnectproduct()
         self.reloadcategories()
     def reloadcategories(self):
         try:
@@ -268,10 +275,10 @@ class application():
             pass
         self.currentcategory = []
         self.connectproduct()
-        temp = self.productcursor.execute("SELECT * FROM Category")
+        temp = self.productcursor.execute("SELECT cod, name FROM Category")
         for i, date in enumerate(temp):
             id, name = date
-            self.currentcategory.append([ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[4], text=id), ctk.CTkLabel(self.treeview_categories,fg_color=self.colors[4], text=name), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("imgs/pencil.jpg")), fg_color=self.colors[4], hover=False), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("imgs/lixeira.png")), fg_color=self.colors[4], hover=False)])
+            self.currentcategory.append([ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[4], text=id), ctk.CTkLabel(self.treeview_categories,fg_color=self.colors[4], text=name), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("imgs/pencil.jpg")), fg_color=self.colors[4], hover=False, text=""), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("imgs/lixeira.png")), fg_color=self.colors[4], hover=False, text="")])
             self.currentcategory[i][0].grid(row= i + 2, column= 1, padx= 1, pady=1)
             self.currentcategory[i][1].grid(row= i + 2, column= 2, padx= 1, pady=1)
             self.currentcategory[i][2].grid(row= i + 2, column= 3, padx= 1, pady=1)
