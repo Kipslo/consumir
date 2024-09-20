@@ -217,10 +217,14 @@ class application():
         self.categoriesheadingid = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3], width=100, height=50, text="ID")
         self.categoriesheadingid.grid(row=1, column=1, padx=0, pady=0)
 
-        self.categoriesheadingname = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3], width=200, height=50, text="NOME")
+        self.categoriesheadingname = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3], width=400, height=50, text="NOME")
         self.categoriesheadingname.grid(row=1, column=2, padx=1, pady=1)
 
-        self.
+        self.categoriesheadingedit = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3], width=100, height=50, text="EDITAR")
+        self.categoriesheadingedit.grid(row=1, column=3, padx=1, pady=1)
+
+        self.categoriesheadingdelete = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3], width=100, height=50, text="DELETAR")
+        self.categoriesheadingdelete.grid(row=1, column=4, padx=1,pady=1)
 
         self.reloadcategories()
     def addcategoryfunc(self):
@@ -254,7 +258,25 @@ class application():
         self.desconnectproduct
         self.reloadcategories()
     def reloadcategories(self):
-        pass
+        try:
+            for i in self.currentcategory:
+                i[0].destroy()
+                i[1].destroy()
+                i[2].destroy()
+                i[3].destroy()
+        except:
+            pass
+        self.currentcategory = []
+        self.connectproduct()
+        temp = self.productcursor.execute("SELECT * FROM Category")
+        for i, date in enumerate(temp):
+            id, name = date
+            self.currentcategory.append([ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[4], text=id), ctk.CTkLabel(self.treeview_categories,fg_color=self.colors[4], text=name), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("imgs/pencil.jpg")), fg_color=self.colors[4], hover=False), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("imgs/lixeira.png")), fg_color=self.colors[4], hover=False)])
+            self.currentcategory[i][0].grid(row= i + 2, column= 1, padx= 1, pady=1)
+            self.currentcategory[i][1].grid(row= i + 2, column= 2, padx= 1, pady=1)
+            self.currentcategory[i][2].grid(row= i + 2, column= 3, padx= 1, pady=1)
+            self.currentcategory[i][3].grid(row= i + 2, column= 4, padx= 1, pady=1)
+        self.desconnectproduct()
     def windowcommand(self, command = 0):
         try:
             if int(command) > 0:
