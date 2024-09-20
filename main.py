@@ -208,28 +208,48 @@ class application():
         self.entry_positioncategory = ctk.CTkEntry(self.frame_categoriesmod, fg_color=self.colors[3], placeholder_text="POSIÇÃO")
         self.entry_positioncategory.place(relx=0.05, rely=0.1, relwidth=0.2, relheight=0.8)
 
-        self.button_addcategorie = ctk.CTkButton(self.frame_categoriesmod, text="ADICIONAR", fg_color=self.colors[4], hover_color=self.colors[5], command=self.addcategorywindow)
+        self.button_addcategorie = ctk.CTkButton(self.frame_categoriesmod, text="ADICIONAR", fg_color=self.colors[4], hover_color=self.colors[5], command=self.addcategoryfunc)
         self.button_addcategorie.place(relx=0.85, rely=0.1, relwidth=0.1, relheight=0.8)
 
         self.treeview_categories = ctk.CTkScrollableFrame(self.root, fg_color=self.colors[1])
         self.treeview_categories.place(relx=0, rely=0.21, relwidth=1, relheight=0.79)
 
-        self.categoriesheadingname = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3])
+        self.categoriesheadingid = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3], width=100, height=50, text="ID")
+        self.categoriesheadingid.grid(row=1, column=1, padx=0, pady=0)
+
+        self.categoriesheadingname = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3], width=200, height=50, text="NOME")
+        self.categoriesheadingname.grid(row=1, column=2, padx=1, pady=1)
+
+        self.
 
         self.reloadcategories()
-    def addcategorywindow(self):
+    def addcategoryfunc(self):
         name = self.entry_addcategoryname.get()
         id = self.entry_positioncategory.get()
 
         self.connectproduct
         names = self.productcursor.execute("SELECT * FROM Category WHERE name = ?", (name, ))
-        cd = ""; nm = ""
+        cd, nm = "", ""
         for i in names:
             cd, nm = i
         if nm == "":
-            ids = self.productcursor.execute("SELECT * FROM Category WHERE cod = ?", (id, ))
-            cd, nm = "", ""
-            for i in ids:
+            if id != "":
+                ids = self.productcursor.execute("SELECT * FROM Category WHERE cod = ?", (id, ))
+                cd, nm = "", ""
+                for i in ids:
+                    cod, nm = i
+                if cod == "":
+                    self.productcursor.execute("INSERT INTO Category (name) VALUES (?)", (name,) )
+                else:
+                    temp = self.productcursor.execute("SELECT * FROM Category")
+                    for i, date in enumerate(temp):
+                        cd, nm = date
+                        if i + 1 >= id:
+                            self.productcursor.execute("UPDATE Category SET name = ? WHERE id = ?", (name, id))
+                            name, id = nm, cd
+                    self.productcursor.execute("INSERT INTO Category (name) VALUES (?)", (name,) )
+            else:
+                self.productcursor.execute("INSERT INTO Category (name) VALUES (?)", (name,))
                         
         self.desconnectproduct
         self.reloadcategories()
