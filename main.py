@@ -214,7 +214,7 @@ class application():
         self.treeview_categories = ctk.CTkScrollableFrame(self.root, fg_color=self.colors[1])
         self.treeview_categories.place(relx=0, rely=0.21, relwidth=1, relheight=0.79)
 
-        self.categoriesheadingid = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3], width=100, height=50, text="ID")
+        self.categoriesheadingid = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3], width=100, height=50, text="POSIÇÃO")
         self.categoriesheadingid.grid(row=1, column=1, padx=0, pady=0)
 
         self.categoriesheadingname = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3], width=400, height=50, text="NOME")
@@ -226,8 +226,6 @@ class application():
         self.categoriesheadingdelete = ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[3], width=100, height=50, text="DELETAR")
         self.categoriesheadingdelete.grid(row=1, column=4, padx=1,pady=1)
 
-        self.button_reload = ctk.CTkButton(self.frame_categoriesmod, command=self.reloadcategories, fg_color=self.colors[4])
-        self.button_reload.place(relx=0.5, rely=0.1, relwidth=0.1, relheight=0.8)
         self.reloadcategories()
     def addcategoryfunc(self):
         def insert(id, name):
@@ -258,12 +256,39 @@ class application():
                     insert(id, name)
                     
             else:
-                print("inserindo")
                 self.productcursor.execute("INSERT INTO Category (name) VALUES (?)", (name,))
-                print("inserido")
                         
         self.desconnectproduct()
         self.reloadcategories()
+    def editcategorybutton(self, name, id):
+        self.entry_positioncategory.delete(0, "end")
+        self.entry_addcategoryname.delete(0, "end")
+        try:
+            self.button_editcategory.destroy()
+        except:
+            pass
+        self.button_editcategory = ctk.CTkButton(self.frame_categoriesmod, hover_color=self.colors[5], fg_color=self.colors[4], text="EDITAR", command=lambda:self.editcategoryfunc(id))
+        self.button_editcategory.place(relx=0.7, rely=0.1, relwidth=0.1, relheight=0.8)
+        self.entry_positioncategory.insert(0, id)
+        self.entry_addcategoryname.insert(0, name)
+    def editcategoryfunc(self, id):
+        newname = self.entry_addcategoryname.get()
+        newid = self.entry_positioncategory.get()
+        self.connectproduct()
+        print(id)
+        print(newid)
+        if int(newid) != int(id):
+            temp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (newid))
+            for i in temp:
+                nm = i[0]
+            print(nm)
+            self.productcursor.execute("UPDATE Category SET name = ? WHERE COD = ?", (newname, newid))
+            self.productcursor.execute("UPDATE Category SET name = ? WHERE COD = ?", (nm, id))
+        else:
+            self.productcursor.execute("UPDATE Category SET name = ? WHERE COD = ?", (newname, id))
+        self.desconnectproduct()
+        self.reloadcategories()
+        self.editcategorybutton(newname, newid)
     def reloadcategories(self):
         try:
             for i in self.currentcategory:
@@ -278,12 +303,26 @@ class application():
         temp = self.productcursor.execute("SELECT cod, name FROM Category")
         for i, date in enumerate(temp):
             id, name = date
-            self.currentcategory.append([ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[4], text=id), ctk.CTkLabel(self.treeview_categories,fg_color=self.colors[4], text=name), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("imgs/pencil.jpg")), fg_color=self.colors[4], hover=False, text=""), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("imgs/lixeira.png")), fg_color=self.colors[4], hover=False, text="")])
+            self.currentcategory.append([ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[4], text=id, width=100, height=40), ctk.CTkLabel(self.treeview_categories,fg_color=self.colors[4], text=name, width=400, height=40), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)),command=lambda x=id, y=name:self.editcategorybutton(y, x), fg_color=self.colors[4], hover=False, text="", width=100, height=40), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30, 30)), command=lambda x=id:self.deletecategory(x), fg_color=self.colors[4], hover=False, text="", width=100, height=40)])
             self.currentcategory[i][0].grid(row= i + 2, column= 1, padx= 1, pady=1)
             self.currentcategory[i][1].grid(row= i + 2, column= 2, padx= 1, pady=1)
             self.currentcategory[i][2].grid(row= i + 2, column= 3, padx= 1, pady=1)
             self.currentcategory[i][3].grid(row= i + 2, column= 4, padx= 1, pady=1)
         self.desconnectproduct()
+    def deletecategory(self, id):
+        def revert(id2):
+            try:
+                temp = self.productcursor.execute("SELECT * FROM Category WHERE cod = ?", (str(id2 + 1), ))
+                for i in temp:
+                    cod, name = i
+                self.productcursor.execute("UPDATE Category SET name = ? WHERE cod = ?", (name, str(id2)))
+                revert(cod)
+            except:
+                self.productcursor.execute("DELETE FROM Category WHERE cod = ?", (str(id2), ))
+        self.connectproduct()
+        revert(id)
+        self.desconnectproduct()
+        self.reloadcategories()
     def windowcommand(self, command = 0):
         try:
             if int(command) > 0:
