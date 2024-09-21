@@ -181,6 +181,14 @@ class application():
             pass
         if temp == "PRODUTOS":
             self.current_productlisttab = "PRODUTOS"
+            
+            self.productcategory_heading = ctk.CTkLabel(self.frame_productreeviews, text="CATEGORIA")
+
+            self.productname = ctk.CTkLabel(self.frame_productreeviews, text="PRODUTO")
+
+            self.productprice = ctk.CTkLabel(self.frame_productreeviews, text="PREÇO")
+
+            self.
         elif temp == "PRODUTOS POR TAMANHO":
             self.current_productlisttab = "PRODUTOS POR TAMANHO"
         elif temp == "COMBOS":
