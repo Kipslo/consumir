@@ -173,22 +173,27 @@ class application():
         self.button_productcombos.configure(fg_color=self.colors[5], hover_color=self.colors[4])
         button.configure(fg_color=self.colors[3], hover=False)
         temp = button.cget("text")
-        if self.current_productlisttab == "PRODUTOS":
-            pass
-        elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
-            pass
-        elif self.current_productlisttab == "COMBOS":
+        try:
+            if self.current_productlisttab == "PRODUTOS":
+                self.productcategory_heading.destroy(); self.productname_heading.destroy(); self.productprice_heading.destroy()
+            elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
+                pass
+            elif self.current_productlisttab == "COMBOS":
+                pass
+        except:
             pass
         if temp == "PRODUTOS":
             self.current_productlisttab = "PRODUTOS"
             
-            self.productcategory_heading = ctk.CTkLabel(self.frame_productreeviews, text="CATEGORIA")
+            self.productcategory_heading = ctk.CTkLabel(self.frame_productreeviews, text="CATEGORIA", width=100, height=50, fg_color=self.colors[4])
+            self.productcategory_heading.grid(row=1, column=1, padx=1, pady=1)
 
-            self.productname = ctk.CTkLabel(self.frame_productreeviews, text="PRODUTO")
+            self.productname_heading = ctk.CTkLabel(self.frame_productreeviews, text="PRODUTO", width=400, height=50, fg_color=self.colors[4])
+            self.productname_heading.grid(row=1, column=2, padx=1, pady=1)
 
-            self.productprice = ctk.CTkLabel(self.frame_productreeviews, text="PREÇO")
+            self.productprice_heading = ctk.CTkLabel(self.frame_productreeviews, text="PREÇO", width=100, height=50, fg_color=self.colors[4])
+            self.productprice_heading.grid(row=1, column=3, padx=1, pady=1)
 
-            self.
         elif temp == "PRODUTOS POR TAMANHO":
             self.current_productlisttab = "PRODUTOS POR TAMANHO"
         elif temp == "COMBOS":
