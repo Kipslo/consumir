@@ -149,10 +149,7 @@ class application():
         self.entry_searchproducts = ctk.CTkEntry(self.frame_modproducts, fg_color=self.colors[5], placeholder_text="PESQUISAR PRODUTO")
         self.entry_searchproducts.place(relx=0.01, rely=0.1, relwidth=0.19, relheight=0.80)
 
-        self.button_editproduct = ctk.CTkButton(self.frame_modproducts, fg_color=self.colors[5], hover_color=self.colors[4], text="EDITAR")
-        self.button_editproduct.place(relx=0.6, rely=0.1, relwidth=0.19, relheight=0.80)
-
-        self.button_addproduct = ctk.CTkButton(self.frame_modproducts, fg_color=self.colors[5], hover_color=self.colors[4], text="ADICIONAR")
+        self.button_addproduct = ctk.CTkButton(self.frame_modproducts, fg_color=self.colors[5], hover_color=self.colors[4], text="ADICIONAR", command=self.addproductwindow())
         self.button_addproduct.place(relx=0.8, rely=0.1, relwidth=0.19, relheight=0.80)
 
         self.button_products = ctk.CTkButton(self.frame_producttypes, text="PRODUTOS", hover_color=self.colors[5], fg_color=self.colors[6], command=lambda:self.changeproductlistbuttons(self.button_products))
@@ -231,13 +228,18 @@ class application():
         self.root.bind("<KeyPress>", self.nonclick)
         self.root.bind_all("<Button-1>", self.nonclick)
     def addproductwindow(self):
-        self.rootnewproduct = ctk.CTkToplevel()
-        self.rootnewproduct.title("ADICIONAR PRODUTO")
-        self.rootnewproduct.geometry("500x500")
-        self.rootnewproduct.transient(self.root)
-        self.rootnewproduct.grab_set()
+        if self.current_productlisttab == "PRODUTOS":
+            self.rootnewproduct = ctk.CTkToplevel()
+            self.rootnewproduct.title("ADICIONAR PRODUTO")
+            self.rootnewproduct.geometry("500x500")
+            self.rootnewproduct.transient(self.root)
+            self.rootnewproduct.grab_set()
 
-        self.entry_namenewproduct = ctk.CTkEntry(self.rootnewproduct, placeholder_text="NOME", fg_color=self.colors[4], )
+            self.frame_mainnewproduct = ctk.CTkFrame()
+            self.frame_mainnewproduct.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.49)
+
+            self.entry_namenewproduct = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="NOME", fg_color=self.colors[4])
+            self.entry_namenewproduct.place(relx=0.01, rely=0.01, relwidth=0.29, relheight=0.49)
 
     def categorieswindow(self):
         self.deletewindow()
