@@ -175,7 +175,10 @@ class application():
         temp = button.cget("text")
         try:
             if self.current_productlisttab == "PRODUTOS":
-                self.productcategory_heading.destroy(); self.productname_heading.destroy(); self.productprice_heading.destroy()
+                self.productcategory_heading.destroy(); self.productname_heading.destroy(); self.productprice_heading.destroy(), self.productedit_heading.destroy()
+                for i in self.current_productslist:
+                    for n in i:
+                        n.destroy()
             elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
                 pass
             elif self.current_productlisttab == "COMBOS":
@@ -212,7 +215,7 @@ class application():
             tmp2 = self.productcursor.execute("SELECT * FROM Productsnormal WHERE name = ?", (name, ))
             for n in tmp2:
                 name, price, cust = n
-            self.current_productslist = [ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40)]
+            self.current_productslist = [ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40)]
             self.current_productslist[0].grid(row=i + 2, column=1, padx=1, pady=1)
             self.current_productslist[1].grid(row=i + 2, column=2, padx=1, pady=1)
             self.current_productslist[2].grid(row=i + 2, column=3, padx=1, pady=1)
@@ -227,6 +230,15 @@ class application():
             self.treeview_categories.destroy(); self.treeview_categories.place_forget(); self.frame_categoriesmod.destroy()
         self.root.bind("<KeyPress>", self.nonclick)
         self.root.bind_all("<Button-1>", self.nonclick)
+    def addproductwindow(self):
+        self.rootnewproduct = ctk.CTkToplevel()
+        self.rootnewproduct.title("ADICIONAR PRODUTO")
+        self.rootnewproduct.geometry("500x500")
+        self.rootnewproduct.transient(self.root)
+        self.rootnewproduct.grab_set()
+
+        self.entry_namenewproduct = ctk.CTkEntry(self.rootnewproduct, placeholder_text="NOME", fg_color=self.colors[4], )
+
     def categorieswindow(self):
         self.deletewindow()
         self.currentwindow = "CATEGORIES"
