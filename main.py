@@ -180,6 +180,7 @@ class application():
                 pass
             elif self.current_productlisttab == "COMBOS":
                 pass
+        
         except:
             pass
         if temp == "PRODUTOS":
@@ -194,10 +195,29 @@ class application():
             self.productprice_heading = ctk.CTkLabel(self.frame_productreeviews, text="PREÇO", width=100, height=50, fg_color=self.colors[4])
             self.productprice_heading.grid(row=1, column=3, padx=1, pady=1)
 
+            self.productedit_heading = ctk.CTkLabel(self.frame_productreeviews, text="EDITAR", width=100, height=50, fg_color=self.colors[4])
+            self.productedit_heading.grid(row=1, column=4, padx=1, pady=1)
+
+            self.reloadproductsnormal()
+
         elif temp == "PRODUTOS POR TAMANHO":
             self.current_productlisttab = "PRODUTOS POR TAMANHO"
         elif temp == "COMBOS":
             self.current_productlisttab = "COMBOS"
+    def reloadproductsnormal(self):
+        self.connectproduct()
+        tmp = self.productcursor.execute("SELECT * FROM Products")
+        for i in tmp:
+            name, ttype, category = i
+            tmp2 = self.productcursor.execute("SELECT * FROM Productsnormal WHERE name = ?", (name, ))
+            for n in tmp2:
+                name, price, cust = n
+            self.current_productslist = [ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40)]
+            self.current_productslist[0].grid(row=i + 2, column=1, padx=1, pady=1)
+            self.current_productslist[1].grid(row=i + 2, column=2, padx=1, pady=1)
+            self.current_productslist[2].grid(row=i + 2, column=3, padx=1, pady=1)
+            self.current_productslist[3].grid(row=i + 2, column=4, padx=1, pady=1)
+            self.desconnectproduct()
     def deletewindow(self):
         if self.currentwindow == "MAIN":
             self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy();self.button_addcommand.destroy(); self.frame_commands.place_forget()
