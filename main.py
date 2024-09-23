@@ -228,19 +228,41 @@ class application():
         self.root.bind("<KeyPress>", self.nonclick)
         self.root.bind_all("<Button-1>", self.nonclick)
     def addproductwindow(self):
+        def addproductfunc():
+            name =
+            category =
+            price =
+            self.connectproduct()
+            self.productcursor.execute("INSERT INTO Products (name, type, category) VALUES (?,?,?)", ())
+            self.productcursor.execute("INSERT INTO ProductNormal (name, price) VALUES (?,?)", ())
+            self.desconnectproduct()
+            self.reloadproductsnormal()
         if self.current_productlisttab == "PRODUTOS":
             self.rootnewproduct = ctk.CTkToplevel()
             self.rootnewproduct.title("ADICIONAR PRODUTO")
-            self.rootnewproduct.geometry("500x500")
+            self.rootnewproduct.geometry("500x300")
             self.rootnewproduct.transient(self.root)
             self.rootnewproduct.grab_set()
 
             self.frame_mainnewproduct = ctk.CTkFrame(self.rootnewproduct, fg_color=self.colors[2])
             self.frame_mainnewproduct.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.49)
 
-            self.entry_namenewproduct = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="NOME", fg_color=self.colors[4])
-            self.entry_namenewproduct.place(relx=0.01, rely=0.01, relwidth=0.29, relheight=0.49)
+            self.entry_price = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="PREÇO", fg_color=self.colors[4])
 
+            self.entry_namenewproduct = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="NOME", fg_color=self.colors[4])
+            self.entry_namenewproduct.place(relx=0.01, rely=0.11, relwidth=0.29, relheight=0.39)
+            categories = []
+            self.connectproduct()
+            temp = self.productcursor.execute("SELECT name FROM Category")
+            for i in temp:
+                categories.append(i[0])
+            self.desconnectproduct()
+
+            self.combobox_categoryname = ctk.CTkComboBox(self.frame_mainnewproduct, fg_color=self.colors[4], values=categories, width=200,height=60)
+            self.combobox_categoryname.place(relx=0.5, rely=0.6)
+
+            self.button_addproductconfirm = ctk.CTkButton(self.rootnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command=addproductfunc)
+            self.button_addproductconfirm.place(relx=0.7, rely=0.6, relwidth=0.29, relheight=0.2)
     def categorieswindow(self):
         self.deletewindow()
         self.currentwindow = "CATEGORIES"
