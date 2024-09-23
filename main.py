@@ -149,7 +149,7 @@ class application():
         self.entry_searchproducts = ctk.CTkEntry(self.frame_modproducts, fg_color=self.colors[5], placeholder_text="PESQUISAR PRODUTO")
         self.entry_searchproducts.place(relx=0.01, rely=0.1, relwidth=0.19, relheight=0.80)
 
-        self.button_addproduct = ctk.CTkButton(self.frame_modproducts, fg_color=self.colors[5], hover_color=self.colors[4], text="ADICIONAR", command=self.addproductwindow())
+        self.button_addproduct = ctk.CTkButton(self.frame_modproducts, fg_color=self.colors[5], hover_color=self.colors[4], text="ADICIONAR", command=self.addproductwindow)
         self.button_addproduct.place(relx=0.8, rely=0.1, relwidth=0.19, relheight=0.80)
 
         self.button_products = ctk.CTkButton(self.frame_producttypes, text="PRODUTOS", hover_color=self.colors[5], fg_color=self.colors[6], command=lambda:self.changeproductlistbuttons(self.button_products))
@@ -235,7 +235,7 @@ class application():
             self.rootnewproduct.transient(self.root)
             self.rootnewproduct.grab_set()
 
-            self.frame_mainnewproduct = ctk.CTkFrame()
+            self.frame_mainnewproduct = ctk.CTkFrame(self.rootnewproduct, fg_color=self.colors[2])
             self.frame_mainnewproduct.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.49)
 
             self.entry_namenewproduct = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="NOME", fg_color=self.colors[4])
