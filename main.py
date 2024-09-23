@@ -186,7 +186,7 @@ class application():
         if temp == "PRODUTOS":
             self.current_productlisttab = "PRODUTOS"
             
-            self.productcategory_heading = ctk.CTkLabel(self.frame_productreeviews, text="CATEGORIA", width=100, height=50, fg_color=self.colors[4])
+            self.productcategory_heading = ctk.CTkLabel(self.frame_productreeviews, text="CATEGORIA", width=400, height=50, fg_color=self.colors[4])
             self.productcategory_heading.grid(row=1, column=1, padx=1, pady=1)
 
             self.productname_heading = ctk.CTkLabel(self.frame_productreeviews, text="PRODUTO", width=400, height=50, fg_color=self.colors[4])
@@ -207,16 +207,16 @@ class application():
     def reloadproductsnormal(self):
         self.connectproduct()
         tmp = self.productcursor.execute("SELECT * FROM Products")
-        for i in tmp:
+        for k, i in enumerate(tmp):
             name, ttype, category = i
-            tmp2 = self.productcursor.execute("SELECT * FROM Productsnormal WHERE name = ?", (name, ))
+            tmp2 = self.productcursor.execute("SELECT * FROM ProductNormal WHERE product = ?", (name, ))
             for n in tmp2:
                 name, price, cust = n
-            self.current_productslist = [ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40)]
-            self.current_productslist[0].grid(row=i + 2, column=1, padx=1, pady=1)
-            self.current_productslist[1].grid(row=i + 2, column=2, padx=1, pady=1)
-            self.current_productslist[2].grid(row=i + 2, column=3, padx=1, pady=1)
-            self.current_productslist[3].grid(row=i + 2, column=4, padx=1, pady=1)
+            self.current_productslist = [ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40)]
+            self.current_productslist[0].grid(row=k + 2, column=1, padx=1, pady=1)
+            self.current_productslist[1].grid(row=k + 2, column=2, padx=1, pady=1)
+            self.current_productslist[2].grid(row=k + 2, column=3, padx=1, pady=1)
+            self.current_productslist[3].grid(row=k + 2, column=4, padx=1, pady=1)
             self.desconnectproduct()
     def deletewindow(self):
         if self.currentwindow == "MAIN":
@@ -228,15 +228,7 @@ class application():
         self.root.bind("<KeyPress>", self.nonclick)
         self.root.bind_all("<Button-1>", self.nonclick)
     def addproductwindow(self):
-        def addproductfunc():
-            name =
-            category =
-            price =
-            self.connectproduct()
-            self.productcursor.execute("INSERT INTO Products (name, type, category) VALUES (?,?,?)", ())
-            self.productcursor.execute("INSERT INTO ProductNormal (name, price) VALUES (?,?)", ())
-            self.desconnectproduct()
-            self.reloadproductsnormal()
+    
         if self.current_productlisttab == "PRODUTOS":
             self.rootnewproduct = ctk.CTkToplevel()
             self.rootnewproduct.title("ADICIONAR PRODUTO")
@@ -248,6 +240,7 @@ class application():
             self.frame_mainnewproduct.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.49)
 
             self.entry_price = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="PREÇO", fg_color=self.colors[4])
+            self.entry_price.place(relx=0.41, rely=0.11, relwidth=0.39, relheight=0.39)
 
             self.entry_namenewproduct = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="NOME", fg_color=self.colors[4])
             self.entry_namenewproduct.place(relx=0.01, rely=0.11, relwidth=0.29, relheight=0.39)
@@ -261,8 +254,18 @@ class application():
             self.combobox_categoryname = ctk.CTkComboBox(self.frame_mainnewproduct, fg_color=self.colors[4], values=categories, width=200,height=60)
             self.combobox_categoryname.place(relx=0.5, rely=0.6)
 
-            self.button_addproductconfirm = ctk.CTkButton(self.rootnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command=addproductfunc)
+            self.button_addproductconfirm = ctk.CTkButton(self.rootnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command=self.addproductfunc)
             self.button_addproductconfirm.place(relx=0.7, rely=0.6, relwidth=0.29, relheight=0.2)
+    def addproductfunc(self):
+        name = self.entry_namenewproduct.get()
+        category = self.combobox_categoryname.get()
+        price = self.entry_price.get()
+        self.connectproduct()
+        self.productcursor.execute("INSERT INTO Products (name, type, category) VALUES (?,?,?)", (name, "NORMAL", category))
+        self.productcursor.execute("INSERT INTO ProductNormal (product, price) VALUES (?,?)", (name, price))
+        self.desconnectproduct()
+        self.reloadproductsnormal()
+        self.rootnewproduct.destroy()
     def categorieswindow(self):
         self.deletewindow()
         self.currentwindow = "CATEGORIES"
