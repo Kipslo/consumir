@@ -173,13 +173,15 @@ class application():
         try:
             if self.current_productlisttab == "PRODUTOS":
                 self.productcategory_heading.destroy(); self.productname_heading.destroy(); self.productprice_heading.destroy(), self.productedit_heading.destroy(); self.productedel_heading.destroy()
+                print(self.current_productslist)
                 for i in self.current_productslist:
-                    print(i)
-                    i[0].grid_forget()
-                    i[1].grid_forget()
-                    i[2].grid_forget()
-                    i[3].grid_forget()
-                    i[4].grid_forget()
+                    print("nada")
+                    i[0].destroy()
+                    i[1].destroy()
+                    i[2].destroy()
+                    i[3].destroy()
+                    i[4].destroy()
+                    print("terminou")
             elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
                 pass
             elif self.current_productlisttab == "COMBOS":
@@ -215,7 +217,6 @@ class application():
         self.connectproduct()
         try:
             for i in self.current_productslist:
-                print(i)
                 i[0].destroy()
                 i[1].destroy()
                 i[2].destroy()
@@ -230,17 +231,18 @@ class application():
             number = number + 1
             name, ttype, category = i
             listen.append([name, ttype, category])
+        self.current_productslist = []
         for k, i in enumerate(listen):
             name, ttype, category = i
             tmp2 = self.productcursor.execute("SELECT * FROM ProductNormal WHERE product = ?", (name, ))
             for n in tmp2:
                 name, price, cust = n
-            self.current_productslist = [ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40), ctk.CTkButton(self.frame_productreeviews, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), text="", fg_color=self.colors[5], width=100)]
-            self.current_productslist[0].grid(row=k + 2, column=1, padx=1, pady=1)
-            self.current_productslist[1].grid(row=k + 2, column=2, padx=1, pady=1)
-            self.current_productslist[2].grid(row=k + 2, column=3, padx=1, pady=1)
-            self.current_productslist[3].grid(row=k + 2, column=4, padx=1, pady=1)
-            self.current_productslist[4].grid(row=k + 2, column=5, padx=1, pady=1)
+            self.current_productslist.append([ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40), ctk.CTkButton(self.frame_productreeviews, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), text="", fg_color=self.colors[5], width=100, hover=False)])
+            self.current_productslist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
+            self.current_productslist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
+            self.current_productslist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
+            self.current_productslist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
+            self.current_productslist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
         self.desconnectproduct()
     def deleteproductnormal(self, name):
         pass
