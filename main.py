@@ -172,19 +172,21 @@ class application():
         temp = button.cget("text")
         try:
             if self.current_productlisttab == "PRODUTOS":
-                self.productcategory_heading.destroy(); self.productname_heading.destroy(); self.productprice_heading.destroy(), self.productedit_heading.destroy()
+                self.productcategory_heading.destroy(); self.productname_heading.destroy(); self.productprice_heading.destroy(), self.productedit_heading.destroy(); self.productedel_heading.destroy()
                 for i in self.current_productslist:
-                    i[0].destroy()
-                    i[1].destroy()
-                    i[2].destroy()
-                    i[3].destroy()
+                    print(i)
+                    i[0].grid_forget()
+                    i[1].grid_forget()
+                    i[2].grid_forget()
+                    i[3].grid_forget()
+                    i[4].grid_forget()
             elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
                 pass
             elif self.current_productlisttab == "COMBOS":
                 pass
         
-        except:
-            pass
+        except Exception as error:
+            print(error)
         if temp == "PRODUTOS":
             self.current_productlisttab = "PRODUTOS"
             
@@ -200,6 +202,9 @@ class application():
             self.productedit_heading = ctk.CTkLabel(self.frame_productreeviews, text="EDITAR", width=100, height=50, fg_color=self.colors[4])
             self.productedit_heading.grid(row=1, column=4, padx=1, pady=1)
 
+            self.productedel_heading = ctk.CTkLabel(self.frame_productreeviews, text="EXCLUIR", width=100, height=50, fg_color=self.colors[4])
+            self.productedel_heading.grid(row=1, column=5, padx=1, pady=1)
+
             self.reloadproductsnormal()
 
         elif temp == "PRODUTOS POR TAMANHO":
@@ -208,12 +213,21 @@ class application():
             self.current_productlisttab = "COMBOS"
     def reloadproductsnormal(self):
         self.connectproduct()
+        try:
+            for i in self.current_productslist:
+                print(i)
+                i[0].destroy()
+                i[1].destroy()
+                i[2].destroy()
+                i[3].destroy()
+                i[4].destroy()
+        except:
+            pass
         tmp = self.productcursor.execute("SELECT * FROM Products")
         listen = []
         number = 0
         for i in tmp:
             number = number + 1
-            print(i)
             name, ttype, category = i
             listen.append([name, ttype, category])
         for k, i in enumerate(listen):
@@ -221,12 +235,15 @@ class application():
             tmp2 = self.productcursor.execute("SELECT * FROM ProductNormal WHERE product = ?", (name, ))
             for n in tmp2:
                 name, price, cust = n
-            self.current_productslist = [ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40)]
+            self.current_productslist = [ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40), ctk.CTkButton(self.frame_productreeviews, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), text="", fg_color=self.colors[5], width=100)]
             self.current_productslist[0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.current_productslist[1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.current_productslist[2].grid(row=k + 2, column=3, padx=1, pady=1)
             self.current_productslist[3].grid(row=k + 2, column=4, padx=1, pady=1)
+            self.current_productslist[4].grid(row=k + 2, column=5, padx=1, pady=1)
         self.desconnectproduct()
+    def deleteproductnormal(self, name):
+        pass
     def deletewindow(self):
         if self.currentwindow == "MAIN":
             self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy();self.button_addcommand.destroy(); self.frame_commands.place_forget()
