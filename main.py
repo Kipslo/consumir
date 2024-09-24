@@ -237,7 +237,7 @@ class application():
             tmp2 = self.productcursor.execute("SELECT * FROM ProductNormal WHERE product = ?", (name, ))
             for n in tmp2:
                 name, price, cust = n
-            self.current_productslist.append([ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40), ctk.CTkButton(self.frame_productreeviews, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), text="", fg_color=self.colors[5], width=100, hover=False)])
+            self.current_productslist.append([ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=400, height=40), ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), ctk.CTkLabel(image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40), ctk.CTkButton(self.frame_productreeviews, command=lambda x=name:self.deleteproductnormal(x), image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), text="", fg_color=self.colors[5], width=100, hover=False)])
             self.current_productslist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.current_productslist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.current_productslist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
@@ -245,7 +245,11 @@ class application():
             self.current_productslist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
         self.desconnectproduct()
     def deleteproductnormal(self, name):
-        pass
+        self.connectproduct()
+        self.productcursor.execute("DELETE FROM Products WHERE name = ?", (name, ))
+        self.productcursor.execute("DELETE FROM ProductNormal WHERE product = ?", ( name, ))
+        self.desconnectproduct()
+        self.reloadproductsnormal()
     def deletewindow(self):
         if self.currentwindow == "MAIN":
             self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy();self.button_addcommand.destroy(); self.frame_commands.place_forget()
