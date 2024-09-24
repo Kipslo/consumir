@@ -174,8 +174,10 @@ class application():
             if self.current_productlisttab == "PRODUTOS":
                 self.productcategory_heading.destroy(); self.productname_heading.destroy(); self.productprice_heading.destroy(), self.productedit_heading.destroy()
                 for i in self.current_productslist:
-                    for n in i:
-                        n.destroy()
+                    i[0].destroy()
+                    i[1].destroy()
+                    i[2].destroy()
+                    i[3].destroy()
             elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
                 pass
             elif self.current_productlisttab == "COMBOS":
@@ -207,7 +209,14 @@ class application():
     def reloadproductsnormal(self):
         self.connectproduct()
         tmp = self.productcursor.execute("SELECT * FROM Products")
-        for k, i in enumerate(tmp):
+        listen = []
+        number = 0
+        for i in tmp:
+            number = number + 1
+            print(i)
+            name, ttype, category = i
+            listen.append([name, ttype, category])
+        for k, i in enumerate(listen):
             name, ttype, category = i
             tmp2 = self.productcursor.execute("SELECT * FROM ProductNormal WHERE product = ?", (name, ))
             for n in tmp2:
@@ -217,7 +226,7 @@ class application():
             self.current_productslist[1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.current_productslist[2].grid(row=k + 2, column=3, padx=1, pady=1)
             self.current_productslist[3].grid(row=k + 2, column=4, padx=1, pady=1)
-            self.desconnectproduct()
+        self.desconnectproduct()
     def deletewindow(self):
         if self.currentwindow == "MAIN":
             self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy();self.button_addcommand.destroy(); self.frame_commands.place_forget()
@@ -228,7 +237,7 @@ class application():
         self.root.bind("<KeyPress>", self.nonclick)
         self.root.bind_all("<Button-1>", self.nonclick)
     def addproductwindow(self):
-    
+        
         if self.current_productlisttab == "PRODUTOS":
             self.rootnewproduct = ctk.CTkToplevel()
             self.rootnewproduct.title("ADICIONAR PRODUTO")
@@ -264,8 +273,8 @@ class application():
         self.productcursor.execute("INSERT INTO Products (name, type, category) VALUES (?,?,?)", (name, "NORMAL", category))
         self.productcursor.execute("INSERT INTO ProductNormal (product, price) VALUES (?,?)", (name, price))
         self.desconnectproduct()
-        self.reloadproductsnormal()
         self.rootnewproduct.destroy()
+        self.reloadproductsnormal()
     def categorieswindow(self):
         self.deletewindow()
         self.currentwindow = "CATEGORIES"
