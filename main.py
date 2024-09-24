@@ -172,7 +172,7 @@ class application():
         temp = button.cget("text")
         try:
             if self.current_productlisttab == "PRODUTOS":
-                self.productcategory_heading.destroy(); self.productname_heading.destroy(); self.productprice_heading.destroy(), self.productedit_heading.destroy(); self.productedel_heading.destroy()
+                self.productcategory_heading.destroy(); self.productname_heading.destroy(); self.productprice_heading.destroy(), self.productedit_heading.destroy(); self.productdel_heading.destroy()
                 print(self.current_productslist)
                 for i in self.current_productslist:
                     print("nada")
@@ -183,7 +183,7 @@ class application():
                     i[4].destroy()
                     print("terminou")
             elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
-                pass
+                self.productsizecategory_heading.destroy(); self.productsizename_heading.destroy(); self.productsizeedit_heading.destroy(); self.productsizedel_heading.destroy()
             elif self.current_productlisttab == "COMBOS":
                 pass
         
@@ -204,13 +204,25 @@ class application():
             self.productedit_heading = ctk.CTkLabel(self.frame_productreeviews, text="EDITAR", width=100, height=50, fg_color=self.colors[4])
             self.productedit_heading.grid(row=1, column=4, padx=1, pady=1)
 
-            self.productedel_heading = ctk.CTkLabel(self.frame_productreeviews, text="EXCLUIR", width=100, height=50, fg_color=self.colors[4])
-            self.productedel_heading.grid(row=1, column=5, padx=1, pady=1)
+            self.productdel_heading = ctk.CTkLabel(self.frame_productreeviews, text="EXCLUIR", width=100, height=50, fg_color=self.colors[4])
+            self.productdel_heading.grid(row=1, column=5, padx=1, pady=1)
 
             self.reloadproductsnormal()
 
         elif temp == "PRODUTOS POR TAMANHO":
             self.current_productlisttab = "PRODUTOS POR TAMANHO"
+
+            self.productsizecategory_heading = ctk.CTkLabel(self.frame_productreeviews, text="CATEGORIA", width=400, height=50, fg_color=self.colors[4])
+            self.productsizecategory_heading.grid(row=1, column=1, padx=1, pady=1)
+
+            self.productsizename_heading = ctk.CTkLabel(self.frame_productreeviews, text="PRODUTO", width=400, height=50, fg_color=self.colors[4])
+            self.productsizename_heading.grid(row=1, column=2, padx=1, pady=1)
+
+            self.productsizeedit_heading = ctk.CTkLabel(self.frame_productreeviews, text="EDITAR", width=100, height=50, fg_color=self.colors[4])
+            self.productsizeedit_heading.grid(row=1, column=3, padx=1, pady=1)
+
+            self.productsizedel_heading = ctk.CTkLabel(self.frame_productreeviews, text="EXCLUIR", width=100, height=50, fg_color=self.colors[4])
+            self.productsizedel_heading.grid(row=1, column=4, padx=1, pady=1)
         elif temp == "COMBOS":
             self.current_productlisttab = "COMBOS"
     def reloadproductsnormal(self):
@@ -288,6 +300,8 @@ class application():
 
             self.button_addproductconfirm = ctk.CTkButton(self.rootnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command=self.addproductfunc)
             self.button_addproductconfirm.place(relx=0.7, rely=0.6, relwidth=0.29, relheight=0.2)
+        elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
+            pass
     def addproductfunc(self):
         name = self.entry_namenewproduct.get()
         category = self.combobox_categoryname.get()
@@ -603,7 +617,7 @@ class application():
             
             self.currentmain = productbuttons
             self.currentimgs = productimgs
-        elif text == "CONFIGURAÇÕES":
+        elif text == "CONFIGURAÇÕES":  
             pass
         for i, m in enumerate(self.currentmain):
             buttontemp, texttemp = m
@@ -661,7 +675,12 @@ class application():
     def desconnectproduct(self):
         self.product.commit()
         self.product.close()
-    
+    def connecthistory(self):
+        self.history = sql.connect("his.db")
+        self.historycursor = self.history.cursor()
+    def desconnecthistory(self):
+        self.history.commit()
+        self.historycursor.close()
     def addcont(self):
         self.connectconts()
         name = "Gabriel"
@@ -739,4 +758,7 @@ class application():
                                    
                                    )""")
         self.desconnectproduct()
+        self.connecthistory()
+        #self.historycursor.execute("""CREATE TABLE IF NOT EXISTS """)
+        self.desconnecthistory()
 application()
