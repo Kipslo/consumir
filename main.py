@@ -60,7 +60,7 @@ class application():
 
         self.button_temp = ctk.CTkButton(self.root, fg_color=self.colors[9], text="add cont", hover_color=self.colors[8], command=self.addcont)
         self.button_temp.place(relx=0.8, rely=0.95, relwidth=0.2, relheight=0.05)
-        self.root.bind("<KeyPress>", self.keypresslogin)
+        self.root.bind_all("<KeyPress>", self.keypresslogin)
     def searchnameentry(self, n = True):
         if self.positionp == True:
             try:
@@ -73,8 +73,9 @@ class application():
         n = event.keysym
         if n == "Return":
             self.login()
-    def on_closing(self):
-        self.root.bind_all("<Button-1>", self.click)
+    def on_closingcommandwindow(self):
+        self.root.bind_all("<KeyPress>", self.presskey)
+        self.rootcommand.destroy()
     def window(self):
         self.entry_name.destroy(); self.entry_password.destroy(); self.button_login.destroy(); self.button_temp.destroy(); self.label_person.destroy()
         del self.personimg
@@ -113,7 +114,7 @@ class application():
         self.button_addcommand = ctk.CTkButton(self.root, fg_color=self.colors[3], text="ADICIONAR COMANDA", hover_color=self.colors[2], command=self.newcommands)
         self.button_addcommand.place(relx=0.90, rely=0.15, relwidth=0.09, relheight=0.05)
         
-        self.root.bind("<KeyPress>", self.presskey)
+        self.root.bind_all("<KeyPress>", self.presskey)
 
         self.frame_commands = ctk.CTkScrollableFrame(self.root, fg_color=self.colors[1])
         self.frame_commands.place(relx=0.01, rely=0.21, relwidth=0.98, relheight=0.71)
@@ -134,7 +135,7 @@ class application():
 
         self.root.after(500, self.searchnameentry)
 
-        self.root.bind_all("<Button-1>", self.clickmain)
+        self.root.bind("<Button-1>", self.clickmain)
         threading.Thread(self.reloadcommands()).start()
     def productswindow(self):
         self.deletewindow()
@@ -269,8 +270,8 @@ class application():
             self.frame_producttypes.destroy(); self.frame_modproducts.destroy(); self.frame_productreeviews.destroy(); self.frame_productreeviews.place_forget()
         elif self.currentwindow == "CATEGORIES":
             self.treeview_categories.destroy(); self.treeview_categories.place_forget(); self.frame_categoriesmod.destroy()
-        self.root.bind("<KeyPress>", self.nonclick)
-        self.root.bind_all("<Button-1>", self.nonclick)
+        self.root.bind_all("<KeyPress>", self.nonclick)
+        self.root.bind("<Button-1>", self.nonclick)
     def addproductwindow(self):
         
         if self.current_productlisttab == "PRODUTOS":
@@ -462,8 +463,11 @@ class application():
 
         self.frameconsume = ctk.CTkFrame(self.rootcommand)
         self.frameconsume.place(relx=0.3, rely=0.05, relwidth=0.69, relheight=0.75)
-        
-        self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closing(123))
+        self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
+        self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
+    def presskeycommandwindow(self, event):
+        if event.keysym == "Escape":
+            self.on_closingcommandwindow()
     def nonclick(self, event):
         pass
     def reloadcommands(self):
@@ -564,30 +568,19 @@ class application():
         i = self.str_searchcommands.get()
         if n == "":
             if key == "0" or key == "1" or key == "2" or key == "3" or key == "4" or key == "5" or key == "6" or key == "7" or key == "8" or key == "9":
-                self.changesearchcommandlabel(key)
+                self.str_searchcommands.set(i + key)
             elif key == "Return":
-                self.changesearchcommandlabel("i",n = i)
+                if int(i) <= self.maxcommands and int(i) >=0:
+                    self.str_searchcommands.set("")
+                    self.windowcommand(i)
             elif key == "BackSpace":
-                self.changesearchcommandlabel("o")
+                self.str_searchcommands.set(i[0:-1])
             else:
-                self.changesearchcommandlabel()
+                self.str_searchcommands.set("")
         elif key == "Delete":
             self.entry_namecommand.delete(0, "end")
         elif key == "Return":
-            pass
-    def changesearchcommandlabel(self, a = "", n = 0):
-        
-        i = self.str_searchcommands.get()
-        if a != "" and a != "o" and a != "i":
-            self.str_searchcommands.set(i + a)
-        elif a == "o":
-            self.str_searchcommands.set(i[0:-1])
-        else:
-            self.str_searchcommands.set("")
-        if n != 0 and a == "i":
-            if int(n) <= self.maxcommands and int(n) >=0:
-                self.windowcommand(n)
-        
+            pass    
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5])
