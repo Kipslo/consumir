@@ -461,8 +461,17 @@ class application():
         self.rootcommand.transient(self.root)
         self.rootcommand.grab_set()
 
-        self.frameconsume = ctk.CTkFrame(self.rootcommand)
-        self.frameconsume.place(relx=0.3, rely=0.05, relwidth=0.69, relheight=0.75)
+        self.frame_consume = ctk.CTkFrame(self.rootcommand)
+        self.frame_consume.place(relx=0.3, rely=0.05, relwidth=0.69, relheight=0.75)
+
+        self.frame_infocommand = ctk.CTkFrame(self.rootcommand, fg_color=self.colors[2])
+        self.frame_infocommand.place(relx=0,rely=0,relwidth=0.29,relheight=1)
+
+        self.button_delcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="EXCLUIR COMANDA", hover_color=self.colors[5], )
+        self.button_delcommand.place
+
+        self.button_finishcommand = ctk.CTkButton(self.rootcommand, fg_color=self.colors[4], text="PAGAMENTO", hover_color=self.colors[5])
+
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
     def presskeycommandwindow(self, event):
