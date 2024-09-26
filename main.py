@@ -225,8 +225,14 @@ class application():
             #self.reloadproductssize()
         elif temp == "COMBOS":
             self.current_productlisttab = "COMBOS"
-    def addproductsizewindow((self)):
-        pass
+    def addproductsizewindow(self):
+        self.rootaddproductsize = ctk.CTkToplevel(self.root)
+        self.rootaddproductsize.geometry()
+        self.rootaddproductsize.transient(self.root)
+        self.rootaddproductsize.
+        self.rootaddproductsize.grab_set()
+
+
     def addproductsize(self):
         pass
     def reloadproductssize(self):
