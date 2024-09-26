@@ -231,23 +231,29 @@ class application():
     def reloadproductssize(self):
         self.connectproduct()
         listofproducts = []
-        temp = self.productcursor.execute("SELECT product, size, price FROM Productsize")
+        temp = self.productcursor.execute("SELECT product, size, price, category FROM Productsize")
         for i in temp:
             listofproducts.append(i)
         for i in listofproducts:
-            product, size, price = i
-            temp = self.productcursor.execute("", (product,  ))
-
+            product, size, price, category = i
+            temp = self.productcursor.execute("SELECT name, price FROM SizeofProducts WHERE product = ?", (product,  ))
+            prices = [9999, -1]
+            for n in temp:
+                name, price = n
+                price.replace(",", ".")
+                price = float(price)
+                if prices[0] > price:
+                    prices[0] = price
+                if prices[1] < price:
+                    prices[1] = price
+            self.current_productslist.append()
         self.desconnectproduct()
     def reloadproductsnormal(self):
         self.connectproduct()
         try:
             for i in self.current_productslist:
-                i[0].destroy()
-                i[1].destroy()
-                i[2].destroy()
-                i[3].destroy()
-                i[4].destroy()
+                for n in i:
+                    n.destroy()
         except:
             pass
         tmp = self.productcursor.execute("SELECT * FROM Products")
