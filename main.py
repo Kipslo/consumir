@@ -224,8 +224,21 @@ class application():
 
             self.productsizedel_heading = ctk.CTkLabel(self.frame_productreeviews, text="EXCLUIR", width=100, height=50, fg_color=self.colors[4])
             self.productsizedel_heading.grid(row=1, column=4, padx=1, pady=1)
+
+            self.reloadproductssize()
         elif temp == "COMBOS":
             self.current_productlisttab = "COMBOS"
+    def reloadproductssize(self):
+        self.connectproduct()
+        listofproducts = []
+        temp = self.productcursor.execute("SELECT product, size, price FROM Productsize")
+        for i in temp:
+            listofproducts.append(i)
+        for i in listofproducts:
+            product, size, price = i
+            temp = self.productcursor.execute("", (product,  ))
+
+        self.desconnectproduct()
     def reloadproductsnormal(self):
         self.connectproduct()
         try:
@@ -468,7 +481,7 @@ class application():
         self.frame_infocommand.place(relx=0,rely=0,relwidth=0.29,relheight=1)
 
         self.button_delcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="EXCLUIR COMANDA", hover_color=self.colors[5], )
-        self.button_delcommand.place
+        self.button_delcommand.place(relx=0.01,rely=0.9,relwidth=0.98,relheight=0.09)
 
         self.button_finishcommand = ctk.CTkButton(self.rootcommand, fg_color=self.colors[4], text="PAGAMENTO", hover_color=self.colors[5])
 
@@ -738,6 +751,7 @@ class application():
                                    product VARCHAR(30),
                                    size VARCHAR(10),
                                    price VARCHAR(8),
+                                   category VARCHAR(30),
                                    cost VARCHAR(8)
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Combo(
@@ -758,6 +772,11 @@ class application():
                                    cod INTEGER PRIMARY KEY,
                                    name VARCHAR(30)
                                    
+                                   )""")
+        self.productcursor.execute("""CREATE TABLE IF NOT EXISTS SizeofProducts(
+                                   product VARCHAR(30),
+                                   price VARCHAR(8),
+                                   name VARCHAR(8)
                                    )""")
         self.desconnectproduct()
         self.connecthistory()
