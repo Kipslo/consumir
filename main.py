@@ -7,7 +7,7 @@ from PIL import Image
 import threading
 import pyautogui as pa
 import datetime
-
+import time
 class application():
     def __init__(self):
         self.createtables()
@@ -32,11 +32,13 @@ class application():
         elif mod == False and up == True:
             self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ? WHERE cod = 1""", (self.stylemode, self.maxcommands))
         if self.stylemode == "DARK":
+            ctk.set_appearance_mode("dark")
             self.colors = ["#1f1f1f", "#2f2f2f", "#383838", "#3f3f3f", "#484848", "#4f4f4f", "#585858", "#5f5f5f", "#6f6f6f", "#7f7f7f"]
         elif self.stylemode == "LIGHT":
+            ctk.set_appearance_mode("light")
             self.colors = ["#8f8f8f", "#8f8f8f", "#787878", "#7f7f7f", "#686868", "#6f6f6f", "#585858", "#5f5f5f", "#5f5f5f", "#4f4f4f"]
         self.desconnectconfig()
-        ctk.set_appearance_mode("dark")
+        
         self.root = ctk.CTk()
         self.loginwindow()
 
@@ -225,16 +227,6 @@ class application():
             #self.reloadproductssize()
         elif temp == "COMBOS":
             self.current_productlisttab = "COMBOS"
-    def addproductsizewindow(self):
-        self.rootaddproductsize = ctk.CTkToplevel(self.root)
-        self.rootaddproductsize.geometry()
-        self.rootaddproductsize.transient(self.root)
-        self.rootaddproductsize.
-        self.rootaddproductsize.grab_set()
-
-
-    def addproductsize(self):
-        pass
     def reloadproductssize(self):
         self.connectproduct()
         listofproducts = []
@@ -350,7 +342,38 @@ class application():
             self.button_addproductconfirm = ctk.CTkButton(self.rootnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command=self.addproductfunc)
             self.button_addproductconfirm.place(relx=0.7, rely=0.6, relwidth=0.29, relheight=0.2)
         elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
-            pass
+            self.rootaddproductsize = ctk.CTkToplevel(self.root)
+            self.rootaddproductsize.geometry("800x500")
+            self.rootaddproductsize.transient(self.root)
+            self.rootaddproductsize.title("ADICIONAR PRODUTO POR TAMANHO")
+            self.rootaddproductsize.grab_set()
+
+            self.frame_mainnewproduct = ctk.CTkFrame(self.rootaddproductsize, fg_color=self.colors[2])
+            self.frame_mainnewproduct.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.29)
+
+            self.entry_price = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="PREÇO", fg_color=self.colors[4])
+            self.entry_price.place(relx=0.41, rely=0.11, relwidth=0.39, relheight=0.39)
+
+            self.entry_namenewproduct = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="NOME", fg_color=self.colors[4])
+            self.entry_namenewproduct.place(relx=0.01, rely=0.11, relwidth=0.29, relheight=0.39)
+
+            categories = []
+            self.connectproduct()
+            temp = self.productcursor.execute("SELECT name FROM Category")
+            for i in temp:
+                categories.append(i[0])
+            self.desconnectproduct()
+
+            self.combobox_categoryname = ctk.CTkComboBox(self.frame_mainnewproduct, fg_color=self.colors[4], values=categories, width=200,height=60)
+            self.combobox_categoryname.place(relx=0.5, rely=0.6)
+
+            self.button_addproductconfirm = ctk.CTkButton(self.frame_mainnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command=self.addproductsize)
+            self.button_addproductconfirm.place(relx=0.7, rely=0.6, relwidth=0.29, relheight=0.2)
+
+            self.scroolframe_sizeproductsseize = ctk.CTkScrollableFrame(self.rootaddproductsize, fg_color=self.colors[4])
+            self.scroolframe_sizeproductsseize.place(relx=0.01, rely=0.31, relwidth=0.98, relheight=0.68)
+    def addproductsize(self):
+        pass
     def addproductfunc(self):
         name = self.entry_namenewproduct.get()
         category = self.combobox_categoryname.get()
@@ -817,4 +840,5 @@ class application():
         self.connecthistory()
         #self.historycursor.execute("""CREATE TABLE IF NOT EXISTS """)
         self.desconnecthistory()
-application()
+
+application() 
