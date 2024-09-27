@@ -165,9 +165,9 @@ class application():
         self.frame_productreeviews.place(relx=0, rely=0.24, relwidth=1, relheight=0.76)
         self.changeproductlistbuttons(self.button_products)
     def changeproductlistbuttons(self, button):
-        self.button_products.configure(fg_color=self.colors[5], hover_color=self.colors[4])
-        self.button_producttypes.configure(fg_color=self.colors[5], hover_color=self.colors[4])
-        self.button_productcombos.configure(fg_color=self.colors[5], hover_color=self.colors[4])
+        self.button_products.configure(fg_color=self.colors[5], hover_color=self.colors[4], hover=True)
+        self.button_producttypes.configure(fg_color=self.colors[5], hover_color=self.colors[4], hover=True)
+        self.button_productcombos.configure(fg_color=self.colors[5], hover_color=self.colors[4], hover=True)
         button.configure(fg_color=self.colors[3], hover=False)
         temp = button.cget("text")
         try:
@@ -312,7 +312,9 @@ class application():
             self.treeview_categories.destroy(); self.treeview_categories.place_forget(); self.frame_categoriesmod.destroy()
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
-    def addproductwindow(self):
+    def reloadsizesinwindow(self, product):
+        pass
+    def addproductwindow(self, product = ""):
         
         if self.current_productlisttab == "PRODUTOS":
             self.rootnewproduct = ctk.CTkToplevel()
@@ -352,10 +354,13 @@ class application():
             self.frame_mainnewproduct.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.29)
 
             self.entry_price = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="PREÇO", fg_color=self.colors[4])
-            self.entry_price.place(relx=0.41, rely=0.11, relwidth=0.39, relheight=0.39)
+            self.entry_price.place(relx=0.41, rely=0.60, relwidth=0.27, relheight=0.39)
 
             self.entry_namenewproduct = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="NOME", fg_color=self.colors[4])
-            self.entry_namenewproduct.place(relx=0.01, rely=0.11, relwidth=0.29, relheight=0.39)
+            self.entry_namenewproduct.place(relx=0.01, rely=0.11, relwidth=0.42, relheight=0.39)
+
+            self.entry_namesize = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="NOME DO TAMANHO", fg_color= self.colors[4])
+            self.entry_namesize.place(relx=0.01, rely=0.60, relwidth=0.39, relheight=0.39)
 
             categories = []
             self.connectproduct()
@@ -365,13 +370,25 @@ class application():
             self.desconnectproduct()
 
             self.combobox_categoryname = ctk.CTkComboBox(self.frame_mainnewproduct, fg_color=self.colors[4], values=categories, width=200,height=60)
-            self.combobox_categoryname.place(relx=0.5, rely=0.6)
+            self.combobox_categoryname.place(relx=0.44, rely=0.11)
 
             self.button_addproductconfirm = ctk.CTkButton(self.frame_mainnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command=self.addproductsize)
-            self.button_addproductconfirm.place(relx=0.7, rely=0.6, relwidth=0.29, relheight=0.2)
+            self.button_addproductconfirm.place(relx=0.70, rely=0.11, relwidth=0.29, relheight=0.39)
 
             self.scroolframe_sizeproductsseize = ctk.CTkScrollableFrame(self.rootaddproductsize, fg_color=self.colors[4])
             self.scroolframe_sizeproductsseize.place(relx=0.01, rely=0.31, relwidth=0.98, relheight=0.68)
+
+            self.button_addsize = ctk.CTkButton(self.frame_mainnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="ADICIONAR TAMANHO", )
+            self.button_addsize.place(relx=0.69, rely=0.60, relwidth=0.30, relheight=0.39)
+
+            self.name_heading = ctk.CTkLabel(self.scroolframe_sizeproductsseize, fg_color=self.colors[5], width=300, height=50, text="NOME")
+            self.name_heading.grid(row=1, column=1, padx=1, pady=1)
+
+            self.price_heading = ctk.CTkLabel(self.scroolframe_sizeproductsseize, fg_color=self.colors[5], width=200, height=50, text="PREÇO")
+            self.price_heading.grid(row=1, column=2, padx=1, pady=1)
+
+            self.edit_heading = ctk.CTkLabel(self.scroolframe_sizeproductsseize, fg_color=self.colors[5], width=100, height=50, text="EDITAR")
+            self.edit_heading.grid(row=1, column=3, padx=1, pady=1)
     def addproductsize(self):
         pass
     def addproductfunc(self):
@@ -663,9 +680,9 @@ class application():
             pass    
     def changemainbuttons(self, button):
         
-        self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5])
-        self.button_product.configure(fg_color=self.colors[7], hover_color=self.colors[5])
-        self.button_config.configure(fg_color=self.colors[7], hover_color=self.colors[5])
+        self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
+        self.button_product.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
+        self.button_config.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
         button.configure(fg_color=self.colors[4], hover=False)
         text = button.cget("text")
         
