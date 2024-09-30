@@ -312,8 +312,7 @@ class application():
             self.treeview_categories.destroy(); self.treeview_categories.place_forget(); self.frame_categoriesmod.destroy()
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
-    def reloadsizesinwindow(self, product):
-        pass
+    
     def addproductwindow(self, product = ""):
         
         if self.current_productlisttab == "PRODUTOS":
@@ -344,7 +343,7 @@ class application():
             self.button_addproductconfirm = ctk.CTkButton(self.rootnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command=self.addproductfunc)
             self.button_addproductconfirm.place(relx=0.7, rely=0.6, relwidth=0.29, relheight=0.2)
         elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
-            self.sizesforwindowproducts = []
+            self.current_sizesfornewproduct = []
             self.rootaddproductsize = ctk.CTkToplevel(self.root)
             self.rootaddproductsize.geometry("800x500")
             self.rootaddproductsize.transient(self.root)
@@ -379,10 +378,10 @@ class application():
             self.scroolframe_sizeproductsseize = ctk.CTkScrollableFrame(self.rootaddproductsize, fg_color=self.colors[4])
             self.scroolframe_sizeproductsseize.place(relx=0.01, rely=0.31, relwidth=0.98, relheight=0.68)
 
-            self.button_addsize = ctk.CTkButton(self.frame_mainnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="ADICIONAR TAMANHO", )
+            self.button_addsize = ctk.CTkButton(self.frame_mainnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="ADICIONAR TAMANHO", command=self.addsizeforproduct)
             self.button_addsize.place(relx=0.69, rely=0.60, relwidth=0.30, relheight=0.39)
 
-            self.name_heading = ctk.CTkLabel(self.scroolframe_sizeproductsseize, fg_color=self.colors[5], width=300, height=50, text="NOME")
+            self.name_heading = ctk.CTkLabel(self.scroolframe_sizeproductsseize, fg_color=self.colors[5], width=300, height=50, text="TAMANHO")
             self.name_heading.grid(row=1, column=1, padx=1, pady=1)
 
             self.price_heading = ctk.CTkLabel(self.scroolframe_sizeproductsseize, fg_color=self.colors[5], width=200, height=50, text="PREÇO")
@@ -394,8 +393,27 @@ class application():
         name = self.entry_namesize.get()
         price = self.entry_price.get()
 
-        self.sizesforwindowproducts.append(name, price)
+        self.current_sizesfornewproduct.append([name, price])
         self.reloadsizesinwindow()
+    def reloadsizesinwindow(self, product = ""):
+        try:
+            for i in self.current_tablesizes:
+                for n in i:
+                    n.destroy()
+        except:
+            pass
+        self.current_tablesizes = []
+        if product == "":
+            for i, temp in enumerate(self.current_sizesfornewproduct):
+                self.current_tablesizes.append([ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[0], width=300, height=40, fg_color=self.colors[5]), 
+                                               ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[1], width=200, height=40, fg_color=self.colors[5]),
+                                               ctk.CTkButton(self.scroolframe_sizeproductsseize, text="", width=100, height=40,image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30,30)))])
+                self.current_tablesizes[i][0].grid(row=i + 2, column=1, padx=1, pady=1)
+                self.current_tablesizes[i][1].grid(row=i + 2, column=2, padx=1, pady=1)
+                self.current_tablesizes[i][2].grid(row=i + 2, column=3, padx=1, pady=1)
+
+        else:
+            pass
     def addproductsize(self):
         pass
     def addproductfunc(self):
