@@ -370,7 +370,7 @@ class application():
             self.desconnectproduct()
 
             self.combobox_categoryname = ctk.CTkComboBox(self.frame_mainnewproduct, fg_color=self.colors[4], values=categories, width=200,height=60)
-            self.combobox_categoryname.place(relx=0.44, rely=0.11)
+            self.combobox_categoryname.place(relx=0.44, rely=0.10)
 
             self.button_addproductconfirm = ctk.CTkButton(self.frame_mainnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="SALVAR", command=self.addproductsize)
             self.button_addproductconfirm.place(relx=0.70, rely=0.11, relwidth=0.29, relheight=0.39)
@@ -389,6 +389,10 @@ class application():
 
             self.edit_heading = ctk.CTkLabel(self.scroolframe_sizeproductsseize, fg_color=self.colors[5], width=100, height=50, text="EDITAR")
             self.edit_heading.grid(row=1, column=3, padx=1, pady=1)
+            
+            self.delete_heading = ctk.CTkLabel(self.scroolframe_sizeproductsseize, fg_color=self.colors[5], width=100, height=50, text="EXCLUIR")
+            self.delete_heading.grid(row=1, column=4, padx=1, pady=1)
+
     def addsizeforproduct(self):
         name = self.entry_namesize.get()
         price = self.entry_price.get()
@@ -410,13 +414,17 @@ class application():
         if product == "":
             pass
         for i, temp in enumerate(self.current_sizesfornewproduct):
-            self.current_tablesizes.append([ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[0], width=300, height=40, fg_color=self.colors[5]), 
-                                               ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[1], width=200, height=40, fg_color=self.colors[5]),
-                                               ctk.CTkButton(self.scroolframe_sizeproductsseize, text="", width=100, height=40,image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30,30))),
-                                               ctk.CTkButton(self.scroolframe_sizeproductsseize, text="", width=100, height=40, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)))])
+            self.current_tablesizes.append([ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[0], width=300, height=40, fg_color=self.colors[6]), 
+                                               ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[1], width=200, height=40, fg_color=self.colors[6]),
+                                               ctk.CTkButton(self.scroolframe_sizeproductsseize, text="", width=100, height=40,image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30,30)), fg_color=self.colors[6], hover=False),
+                                               ctk.CTkButton(self.scroolframe_sizeproductsseize, text="", width=100, height=40, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), fg_color=self.colors[6], hover=False, command=lambda x=i:self.deletesizefromproduct(x))])
             self.current_tablesizes[i][0].grid(row=i + 2, column=1, padx=1, pady=1)
             self.current_tablesizes[i][1].grid(row=i + 2, column=2, padx=1, pady=1)
             self.current_tablesizes[i][2].grid(row=i + 2, column=3, padx=1, pady=1)
+            self.current_tablesizes[i][3].grid(row=i + 2, column=4, padx=1, pady=1)
+    def deletesizefromproduct(self, i):
+        del(self.current_sizesfornewproduct[i])
+        self.reloadsizesinwindow()
     def addproductsize(self):
         pass
     def addproductfunc(self):
