@@ -392,8 +392,12 @@ class application():
     def addsizeforproduct(self):
         name = self.entry_namesize.get()
         price = self.entry_price.get()
-
-        self.current_sizesfornewproduct.append([name, price])
+        temp = ""
+        for i in self.current_sizesfornewproduct:
+            if i[0] == name:
+                temp = name
+        if temp == "":
+            self.current_sizesfornewproduct.append([name, price])
         self.reloadsizesinwindow()
     def reloadsizesinwindow(self, product = ""):
         try:
@@ -404,16 +408,15 @@ class application():
             pass
         self.current_tablesizes = []
         if product == "":
-            for i, temp in enumerate(self.current_sizesfornewproduct):
-                self.current_tablesizes.append([ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[0], width=300, height=40, fg_color=self.colors[5]), 
-                                               ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[1], width=200, height=40, fg_color=self.colors[5]),
-                                               ctk.CTkButton(self.scroolframe_sizeproductsseize, text="", width=100, height=40,image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30,30)))])
-                self.current_tablesizes[i][0].grid(row=i + 2, column=1, padx=1, pady=1)
-                self.current_tablesizes[i][1].grid(row=i + 2, column=2, padx=1, pady=1)
-                self.current_tablesizes[i][2].grid(row=i + 2, column=3, padx=1, pady=1)
-
-        else:
             pass
+        for i, temp in enumerate(self.current_sizesfornewproduct):
+            self.current_tablesizes.append([ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[0], width=300, height=40, fg_color=self.colors[5]), 
+                                               ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[1], width=200, height=40, fg_color=self.colors[5]),
+                                               ctk.CTkButton(self.scroolframe_sizeproductsseize, text="", width=100, height=40,image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30,30))),
+                                               ctk.CTkButton(self.scroolframe_sizeproductsseize, text="", width=100, height=40, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)))])
+            self.current_tablesizes[i][0].grid(row=i + 2, column=1, padx=1, pady=1)
+            self.current_tablesizes[i][1].grid(row=i + 2, column=2, padx=1, pady=1)
+            self.current_tablesizes[i][2].grid(row=i + 2, column=3, padx=1, pady=1)
     def addproductsize(self):
         pass
     def addproductfunc(self):
