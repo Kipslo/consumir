@@ -255,7 +255,7 @@ class application():
             self.current_productslist.append(ctk.CTkLabel(self.frame_productreeviews, fg_color=self.colors[5], text=category, width=400, height=50), 
                                              ctk.CTkLabel(self.frame_productreeviews, fg_color=self.colors[5], text=name, width=400, height=50), 
                                              ctk.CTkLabel(self.frame_productreeviews, fg_color=self.colors[5], text=str(prices[0]) + " - " + str(prices[1], width=100, height=50)), 
-                                             ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"))), 
+                                             ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("imgs/pencil.jpg")), command=lambda x = name, y = category:self.addproductwindow(x, y)), 
                                              ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("imgs/lixeira.png"))))
             self.current_productslist[i][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.current_productslist[i][1].grid(row=k + 2, column=2, padx=1, pady=1)
@@ -313,7 +313,7 @@ class application():
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     
-    def addproductwindow(self, product = ""):
+    def addproductwindow(self, product = "", category = ""):
         
         if self.current_productlisttab == "PRODUTOS":
             self.rootnewproduct = ctk.CTkToplevel()
@@ -393,6 +393,10 @@ class application():
             self.delete_heading = ctk.CTkLabel(self.scroolframe_sizeproductsseize, fg_color=self.colors[5], width=100, height=50, text="EXCLUIR")
             self.delete_heading.grid(row=1, column=4, padx=1, pady=1)
 
+            if product != "" and category != "":
+                self.connectproduct()
+                self.productcursor.execute("SELECT *")
+                self.desconnectproduct()
     def addsizeforproduct(self):
         name = self.entry_namesize.get()
         price = self.entry_price.get()
@@ -425,8 +429,22 @@ class application():
     def deletesizefromproduct(self, i):
         del(self.current_sizesfornewproduct[i])
         self.reloadsizesinwindow()
-    def addproductsize(self):
-        pass
+    def addproductsize(self, oldname = "", oldcategory = ""):
+        name = self.entry_namenewproduct.get()
+        category = self.entry_price.get()
+        if oldname == "":
+            pass
+        try:
+            self.connectproduct()
+            self.productcursor.execute("DELETE FROM SizeofProducts WHERE name = ? AND category = ?", (name, category))
+            self.desconnectproduct()
+        except:
+            pass
+        self.connectproduct()
+        for i in self.current_sizesfornewproduct:
+            self.productcursor.execute("INSERT INTO SizeofProducts (product, price, name, category) VALUES (?, ?, ?, ?)", (name, i[1], i[0], category))
+        self.product.execute("INSERT INTO ProductSize (product, category) VALUES (?, ?)", (name, category))
+        self.desconnectproduct()
     def addproductfunc(self):
         name = self.entry_namenewproduct.get()
         category = self.combobox_categoryname.get()
@@ -860,8 +878,6 @@ class application():
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS ProductSize(
                                    product VARCHAR(30),
-                                   size VARCHAR(10),
-                                   price VARCHAR(8),
                                    category VARCHAR(30),
                                    cost VARCHAR(8)
                                    )""")
@@ -887,7 +903,8 @@ class application():
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS SizeofProducts(
                                    product VARCHAR(30),
                                    price VARCHAR(8),
-                                   name VARCHAR(8)
+                                   name VARCHAR(8),
+                                   category VARCHAR(30)
                                    )""")
         self.desconnectproduct()
         self.connecthistory()
