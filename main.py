@@ -179,8 +179,11 @@ class application():
             elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
                 self.productsizecategory_heading.destroy(); self.productsizename_heading.destroy(); self.productsizeprice_heading.destroy(); self.productsizeedit_heading.destroy(); self.productsizedel_heading.destroy()
                 for i in self.current_productslist:
-                    for n in i:
-                        n.destroy
+                    i[0].destroy()
+                    i[1].destroy()
+                    i[2].destroy()
+                    i[3].destroy()
+                    i[4].destroy()
             elif self.current_productlisttab == "COMBOS":
                 pass
         
@@ -396,15 +399,13 @@ class application():
 
             self.price_heading = ctk.CTkLabel(self.scroolframe_sizeproductsseize, fg_color=self.colors[5], width=200, height=50, text="PREÇO")
             self.price_heading.grid(row=1, column=2, padx=1, pady=1)
-
-            self.edit_heading = ctk.CTkLabel(self.scroolframe_sizeproductsseize, fg_color=self.colors[5], width=100, height=50, text="EDITAR")
-            self.edit_heading.grid(row=1, column=3, padx=1, pady=1)
             
             self.delete_heading = ctk.CTkLabel(self.scroolframe_sizeproductsseize, fg_color=self.colors[5], width=100, height=50, text="EXCLUIR")
-            self.delete_heading.grid(row=1, column=4, padx=1, pady=1)
+            self.delete_heading.grid(row=1, column=3, padx=1, pady=1)
 
             if product != "" and category != "":
                 self.connectproduct()
+                self.rootaddproductsize.title("EDITAR PRODUTO POR TAMANHO")
                 temp = self.productcursor.execute("SELECT name, price FROM SizeofProducts WHERE product = ? AND category = ?", (product, category))
                 for i in temp:
                     self.current_sizesfornewproduct.append(i)
@@ -434,12 +435,10 @@ class application():
         for i, temp in enumerate(self.current_sizesfornewproduct):
             self.current_tablesizes.append([ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[0], width=300, height=40, fg_color=self.colors[6]), 
                                                ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[1], width=200, height=40, fg_color=self.colors[6]),
-                                               ctk.CTkButton(self.scroolframe_sizeproductsseize, text="", width=100, height=40,image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30,30)), fg_color=self.colors[6], hover=False),
                                                ctk.CTkButton(self.scroolframe_sizeproductsseize, text="", width=100, height=40, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), fg_color=self.colors[6], hover=False, command=lambda x=i:self.deletesizefromproduct(x))])
             self.current_tablesizes[i][0].grid(row=i + 2, column=1, padx=1, pady=1)
             self.current_tablesizes[i][1].grid(row=i + 2, column=2, padx=1, pady=1)
             self.current_tablesizes[i][2].grid(row=i + 2, column=3, padx=1, pady=1)
-            self.current_tablesizes[i][3].grid(row=i + 2, column=4, padx=1, pady=1)
     def deletesizefromproduct(self, i):
         del(self.current_sizesfornewproduct[i])
         self.reloadsizesinwindow()
@@ -663,7 +662,6 @@ class application():
             
             self.currentcommands[i].grid(row=int(i/6), column=i%6, padx=10, pady=5)
             self.number.append(number)
-        print("terminou")
         
         self.desconnectcommands()
     def newcommands (self):
@@ -671,7 +669,7 @@ class application():
         self.rootnewcom.title("ADICIONAR COMANDA")
         #self.rootnewcom.iconbitmap('imagens\Icon.ico')
         self.rootnewcom.geometry("800x600")
-        self.rootnewcom.resizable(True, True)
+        self.rootnewcom.resizable(False, False)
         self.rootnewcom.transient(self.root)
         self.rootnewcom.grab_set()
         self.frame_newcommands = ctk.CTkScrollableFrame(master=self.rootnewcom, fg_color=self.colors[1])
@@ -712,11 +710,6 @@ class application():
             if k == True:
                 self.button_newcommand[i].configure(fg_color="#6f0000", hover_color="#4f0000")
             self.button_newcommand[i].grid(row=int(i/4), column=i%4, padx=10 ,pady=10)
-    def newproductwindow(self):
-        self.rootproduct = ctk.CTkToplevel(self.root)
-        self.rootproduct.title("PRODUTOS")
-        self.rootproduct.geometry("")
-
     def clickmain(self, event):
         if not "self.rootnewcom" in globals():
             if "self.rootnewcom" in globals() or "self.rootnewcom" in locals():
@@ -921,9 +914,9 @@ class application():
                                    name VARCHAR(30),
                                    category VARCHAR(30)
                                    )""")
-        self.desconnectproduct()
+        self.desconnectproduct() 
         self.connecthistory()
         #self.historycursor.execute("""CREATE TABLE IF NOT EXISTS """)
         self.desconnecthistory()
-
+                                                                                                                     
 application() 
