@@ -634,13 +634,23 @@ class application():
         self.button_finishcommand = ctk.CTkButton(self.rootcommand, fg_color=self.colors[4], text="PAGAMENTO", hover_color=self.colors[5])
         self.button_finishcommand.place(relx=0.7, rely=0.872, relwidth=0.29, relheight=0.1)
 
-        self.productname_heading = ctk.CTkLabel(self.frame_consume, text="PRODUTO", fg_color=self.colors[5], width=100, height=50)
+        self.productname_heading = ctk.CTkLabel(self.frame_consume, text="PRODUTO", fg_color=self.colors[4], width=100, height=50)
+        self.productname_heading.grid(row=1, column=1, padx=1, pady=1)
 
-        self.waiter_heading = ctk.CTkLabel(self.frame_consume, text="GARÇOM", fg_color=self.colors[5], width=100, height=50)
+        self.waiter_heading = ctk.CTkLabel(self.frame_consume, text="GARÇOM", fg_color=self.colors[4], width=100, height=50)
+        self.waiter_heading.grid(row=1, column=2, padx=1, pady=1)
 
-        self.productpriceunit_heading = ctk.CTkLabel(self.frame_consume, text="PREÇO UNITÁRIO", fg_color=self.colors[5], width=100, height=50)
+        self.productpriceunit_heading = ctk.CTkLabel(self.frame_consume, text="PREÇO UNITÁRIO", fg_color=self.colors[4], width=100, height=50)
+        self.productpriceunit_heading.grid(row=1, column=3, padx=1, pady=1)
 
-        self.productprice_heading = ctk.CTkLabel(self.frame_consume, text="PREÇO ATUAL", fg_color=self.colors[5], width=100, height=50)
+        self.productprice_heading = ctk.CTkLabel(self.frame_consume, text="PREÇO ATUAL", fg_color=self.colors[4], width=100, height=50)
+        self.productprice_heading.grid(row=1, column=4, padx=1, pady=1)
+
+        self.quantity_heading = ctk.CTkLabel(self.frame_consume, text="QTD.", fg_color=self.colors[4], width=50, height=50)
+        self.quantity_heading.grid(row=1, column=5, padx=1, pady=1)
+
+        self.time_heading = ctk.CTkLabel(self.frame_consume, text="TEMPO", fg_color=self.colors[4], width=100, height=50)
+        self.time_heading.grid(row=1, column=6, padx=1, pady=1)
 
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
