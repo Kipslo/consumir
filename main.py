@@ -622,8 +622,8 @@ class application():
         self.rootcommand.transient(self.root)
         self.rootcommand.grab_set()
 
-        self.frame_consume = ctk.CTkFrame(self.rootcommand)
-        self.frame_consume.place(relx=0.3, rely=0.05, relwidth=0.69, relheight=0.75)
+        self.frame_consume = ctk.CTkScrollableFrame(self.rootcommand)
+        self.frame_consume.place(relx=0.3, rely=0.075, relwidth=0.69, relheight=0.75)
 
         self.frame_infocommand = ctk.CTkFrame(self.rootcommand, fg_color=self.colors[2])
         self.frame_infocommand.place(relx=0,rely=0,relwidth=0.29,relheight=1)
@@ -632,6 +632,15 @@ class application():
         self.button_delcommand.place(relx=0.01,rely=0.9,relwidth=0.98,relheight=0.09)
 
         self.button_finishcommand = ctk.CTkButton(self.rootcommand, fg_color=self.colors[4], text="PAGAMENTO", hover_color=self.colors[5])
+        self.button_finishcommand.place(relx=0.7, rely=0.872, relwidth=0.29, relheight=0.1)
+
+        self.productname_heading = ctk.CTkLabel(self.frame_consume, text="PRODUTO", fg_color=self.colors[5], width=100, height=50)
+
+        self.waiter_heading = ctk.CTkLabel(self.frame_consume, text="GARÇOM", fg_color=self.colors[5], width=100, height=50)
+
+        self.productpriceunit_heading = ctk.CTkLabel(self.frame_consume, text="PREÇO UNITÁRIO", fg_color=self.colors[5], width=100, height=50)
+
+        self.productprice_heading = ctk.CTkLabel(self.frame_consume, text="PREÇO ATUAL", fg_color=self.colors[5], width=100, height=50)
 
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
