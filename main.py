@@ -892,6 +892,16 @@ class application():
                                     nameclient VARCHAR(30),
                                     idclient INTEGER(5)
                                     )""")
+        self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS Consumption(
+                                    number VARCHAR(4),
+                                    date CHAR(10),
+                                    hour CHAR(5),
+                                    waiter VARCHAR(30),
+                                    price VARCHAR(8),
+                                    unitprice VARCHAR(8),
+                                    quantity INTERGER(3),
+                                    
+                                    )""")
         self.desconnectcommands()
         self.connectproduct()
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Products(
@@ -935,7 +945,7 @@ class application():
                                    )""")
         self.desconnectproduct() 
         self.connecthistory()
-        #self.historycursor.execute("""CREATE TABLE IF NOT EXISTS """)
+        #self.historycursor.execute("""CREATE TABLE IF NOT EXISTS ClosedCommand()""")
         self.desconnecthistory()
                                                                                                                      
 application() 
