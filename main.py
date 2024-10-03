@@ -667,19 +667,27 @@ class application():
                     n.destroy()
         except:
             pass
-        self.current_productsincommands = []
+        listem = []
         for i in temp:
-            number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
-            self.current_productsincommands.append(ctk.CTkLabel(self.rootcommand, text=product, fg_color=self.colors[4], width=200, height=30),
+            listem.append(i)
+        self.current_productsincommands = []
+        for k, i in enumerate(listem):
+            cod, number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
+            self.current_productsincommands.append([ctk.CTkLabel(self.rootcommand, text=product, fg_color=self.colors[4], width=200, height=30),
                                                    ctk.CTkLabel(self.rootcommand, text=waiter, fg_color=self.colors[4], width=200, height=30),
                                                    ctk.CTkLabel(self.rootcommand, text=unitprice, fg_color=self.colors[4], width=100, height=30),
                                                    ctk.CTkLabel(self.rootcommand, text=price, fg_color=self.colors[4], width=100, height=30),
                                                    ctk.CTkLabel(self.rootcommand, text=quantity, fg_color=self.colors[4], width=50, height=30),
                                                    ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30),
                                                    ctk.CTkButton(self.rootcommand, text="", fg_color=self.colors[4], width=100, height=30)
-                                                   )
-
-            
+                                                   ])
+            self.current_productsincommands[k][0].grid(row= k + 1, column=1, padx=1, pady=1)
+            self.current_productsincommands[k][1].grid(row= k + 1, column=2, padx=1, pady=1)
+            self.current_productsincommands[k][2].grid(row= k + 1, column=3, padx=1, pady=1)
+            self.current_productsincommands[k][3].grid(row= k + 1, column=4, padx=1, pady=1)
+            self.current_productsincommands[k][4].grid(row= k + 1, column=5, padx=1, pady=1)
+            self.current_productsincommands[k][5].grid(row= k + 1, column=6, padx=1, pady=1)
+            self.current_productsincommands[k][6].grid(row= k + 1, column=7, padx=1, pady=1)
             
     def presskeycommandwindow(self, event):
         if event.keysym == "Escape":
@@ -920,6 +928,7 @@ class application():
                                     idclient INTEGER(5)
                                     )""")
         self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS Consumption(
+                                    cod INTEGER PRIMARY KEY,
                                     number VARCHAR(4),
                                     date CHAR(10),
                                     hour CHAR(5),
