@@ -618,42 +618,47 @@ class application():
         
         self.rootcommand.title("COMANDA " + num)
         self.rootcommand.geometry("900x800")
-        self.rootcommand.resizable(True, True)
+        self.rootcommand.resizable(False, False)
         self.rootcommand.transient(self.root)
         self.rootcommand.grab_set()
 
         self.frame_consume = ctk.CTkScrollableFrame(self.rootcommand)
-        self.frame_consume.place(relx=0.3, rely=0.075, relwidth=0.69, relheight=0.75)
+        self.frame_consume.place(relx=0, rely=0.1, relwidth=1, relheight=0.7)
 
         self.frame_infocommand = ctk.CTkFrame(self.rootcommand, fg_color=self.colors[2])
-        self.frame_infocommand.place(relx=0,rely=0,relwidth=0.29,relheight=1)
+        self.frame_infocommand.place(relx=0,rely=0.8,relwidth=1,relheight=0.2)
 
         self.button_delcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="EXCLUIR COMANDA", hover_color=self.colors[5], )
-        self.button_delcommand.place(relx=0.01,rely=0.9,relwidth=0.98,relheight=0.09)
+        self.button_delcommand.place(relx=0.01, rely=0.15, relwidth=0.29, relheight=0.7)
 
-        self.button_finishcommand = ctk.CTkButton(self.rootcommand, fg_color=self.colors[4], text="PAGAMENTO", hover_color=self.colors[5])
-        self.button_finishcommand.place(relx=0.7, rely=0.872, relwidth=0.29, relheight=0.1)
+        self.button_finishcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="PAGAMENTO", hover_color=self.colors[5])
+        self.button_finishcommand.place(relx=0.7, rely=0.15, relwidth=0.29, relheight=0.7)
 
-        self.productname_heading = ctk.CTkLabel(self.frame_consume, text="PRODUTO", fg_color=self.colors[4], width=100, height=50)
-        self.productname_heading.grid(row=1, column=1, padx=1, pady=1)
+        self.productname_heading = ctk.CTkLabel(self.rootcommand, text="PRODUTO", fg_color=self.colors[4], width=200, height=30)
+        self.productname_heading.grid(row=1, column=1, padx=1, pady=50)
 
-        self.waiter_heading = ctk.CTkLabel(self.frame_consume, text="GARÇOM", fg_color=self.colors[4], width=100, height=50)
-        self.waiter_heading.grid(row=1, column=2, padx=1, pady=1)
+        self.waiter_heading = ctk.CTkLabel(self.rootcommand, text="GARÇOM", fg_color=self.colors[4], width=200, height=30)
+        self.waiter_heading.grid(row=1, column=2, padx=1, pady=50)
 
-        self.productpriceunit_heading = ctk.CTkLabel(self.frame_consume, text="PREÇO UNITÁRIO", fg_color=self.colors[4], width=100, height=50)
-        self.productpriceunit_heading.grid(row=1, column=3, padx=1, pady=1)
+        self.productpriceunit_heading = ctk.CTkLabel(self.rootcommand, text="PREÇO UNITÁRIO", fg_color=self.colors[4], width=100, height=30)
+        self.productpriceunit_heading.grid(row=1, column=3, padx=1, pady=50)
 
-        self.productprice_heading = ctk.CTkLabel(self.frame_consume, text="PREÇO ATUAL", fg_color=self.colors[4], width=100, height=50)
-        self.productprice_heading.grid(row=1, column=4, padx=1, pady=1)
+        self.productprice_heading = ctk.CTkLabel(self.rootcommand, text="PREÇO ATUAL", fg_color=self.colors[4], width=100, height=30)
+        self.productprice_heading.grid(row=1, column=4, padx=1, pady=50)
 
-        self.quantity_heading = ctk.CTkLabel(self.frame_consume, text="QTD.", fg_color=self.colors[4], width=50, height=50)
-        self.quantity_heading.grid(row=1, column=5, padx=1, pady=1)
+        self.quantity_heading = ctk.CTkLabel(self.rootcommand, text="QTD.", fg_color=self.colors[4], width=50, height=30)
+        self.quantity_heading.grid(row=1, column=5, padx=1, pady=50)
 
-        self.time_heading = ctk.CTkLabel(self.frame_consume, text="TEMPO", fg_color=self.colors[4], width=100, height=50)
-        self.time_heading.grid(row=1, column=6, padx=1, pady=1)
+        self.time_heading = ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30)
+        self.time_heading.grid(row=1, column=6, padx=1, pady=50)
+
+        self.edit_heading = ctk.CTkLabel(self.rootcommand, text="EDITAR", fg_color=self.colors[4], width=100, height=30)
+        self.edit_heading.grid(row=1, column=7, padx=1, pady=50)
 
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
+    def reloadproductforcommands(self):
+
     def presskeycommandwindow(self, event):
         if event.keysym == "Escape":
             self.on_closingcommandwindow()
@@ -900,7 +905,9 @@ class application():
                                     price VARCHAR(8),
                                     unitprice VARCHAR(8),
                                     quantity INTERGER(3),
-                                    
+                                    product VARCHAR(30),
+                                    type VARCHAR(30),
+                                    size VARCHAR(30)
                                     )""")
         self.desconnectcommands()
         self.connectproduct()
