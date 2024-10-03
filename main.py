@@ -622,7 +622,7 @@ class application():
         self.rootcommand.transient(self.root)
         self.rootcommand.grab_set()
 
-        self.frame_consume = ctk.CTkScrollableFrame(self.rootcommand)
+        self.frame_consume = ctk.CTkScrollableFrame(self.rootcommand, fg_color=self.colors[3])
         self.frame_consume.place(relx=0, rely=0.1, relwidth=1, relheight=0.7)
 
         self.frame_infocommand = ctk.CTkFrame(self.rootcommand, fg_color=self.colors[2])
@@ -667,8 +667,20 @@ class application():
                     n.destroy()
         except:
             pass
+        self.current_productsincommands = []
         for i in temp:
             number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
+            self.current_productsincommands.append(ctk.CTkLabel(self.rootcommand, text=product, fg_color=self.colors[4], width=200, height=30),
+                                                   ctk.CTkLabel(self.rootcommand, text=waiter, fg_color=self.colors[4], width=200, height=30),
+                                                   ctk.CTkLabel(self.rootcommand, text=unitprice, fg_color=self.colors[4], width=100, height=30),
+                                                   ctk.CTkLabel(self.rootcommand, text=price, fg_color=self.colors[4], width=100, height=30),
+                                                   ctk.CTkLabel(self.rootcommand, text=quantity, fg_color=self.colors[4], width=50, height=30),
+                                                   ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30),
+                                                   ctk.CTkButton(self.rootcommand, text="", fg_color=self.colors[4], width=100, height=30)
+                                                   )
+
+            
+            
     def presskeycommandwindow(self, event):
         if event.keysym == "Escape":
             self.on_closingcommandwindow()
