@@ -658,7 +658,17 @@ class application():
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
     def reloadproductforcommands(self):
-
+        self.connectcommands()
+        temp = self.commandscursor.execute("SELECT * FROM Consumption")
+        self.desconnectcommands()
+        try:
+            for i in self.current_productsincommands:
+                for n in i:
+                    n.destroy()
+        except:
+            pass
+        for i in temp:
+            number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
     def presskeycommandwindow(self, event):
         if event.keysym == "Escape":
             self.on_closingcommandwindow()
