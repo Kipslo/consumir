@@ -655,6 +655,9 @@ class application():
         self.edit_heading = ctk.CTkLabel(self.rootcommand, text="EDITAR", fg_color=self.colors[4], width=100, height=30)
         self.edit_heading.grid(row=1, column=7, padx=1, pady=50)
 
+        self.button_addproductoncommand = ctk.CTkButton(self.rootcommand, text="ADICIONAR PRODUTO", fg_color=self.colors[4], hover_color=self.colors[5])
+        self.button_addproductoncommand.place(relx=0.7, rely=0.002, relwidth=0.29, relheight=0.057)
+
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
     def reloadproductforcommands(self):
@@ -689,9 +692,14 @@ class application():
             self.current_productsincommands[k][5].grid(row= k + 1, column=6, padx=1, pady=1)
             self.current_productsincommands[k][6].grid(row= k + 1, column=7, padx=1, pady=1)
             
+    def addpdctcommandwindow(self):
+        self.rootaddpdctcommand = ctk.CTkToplevel(self)
     def presskeycommandwindow(self, event):
         if event.keysym == "Escape":
             self.on_closingcommandwindow()
+    def presskeyaddproductoncommand(self, event):
+        if event.keysym == "Escape":
+            self.rootaddpdctcommand.destroy()
     def nonclick(self, event):
         pass
     def reloadcommands(self):
