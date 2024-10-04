@@ -660,9 +660,11 @@ class application():
 
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
-    def reloadproductforcommands(self):
+
+        self.reloadproductforcommands(command)
+    def reloadproductforcommands(self, number):
         self.connectcommands()
-        temp = self.commandscursor.execute("SELECT * FROM Consumption")
+        temp = self.commandscursor.execute("SELECT * FROM Consumption WHERE number = ?", (number, ))
         self.desconnectcommands()
         try:
             for i in self.current_productsincommands:
@@ -670,11 +672,11 @@ class application():
                     n.destroy()
         except:
             pass
-        listem = []
+        listen = []
         for i in temp:
-            listem.append(i)
+            listen.append(i)
         self.current_productsincommands = []
-        for k, i in enumerate(listem):
+        for k, i in enumerate(listen):
             cod, number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
             self.current_productsincommands.append([ctk.CTkLabel(self.rootcommand, text=product, fg_color=self.colors[4], width=200, height=30),
                                                    ctk.CTkLabel(self.rootcommand, text=waiter, fg_color=self.colors[4], width=200, height=30),
@@ -691,11 +693,11 @@ class application():
             self.current_productsincommands[k][4].grid(row= k + 1, column=5, padx=1, pady=1)
             self.current_productsincommands[k][5].grid(row= k + 1, column=6, padx=1, pady=1)
             self.current_productsincommands[k][6].grid(row= k + 1, column=7, padx=1, pady=1)
-            
+    def closewindowaddproduct(self):
+        self.rootcommand.grab_set()
+        self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
     def addpdctcommandwindow(self):
-        def close():
-            self.rootcommand.grab_set()
-            self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
+        
         self.rootaddpdctcommand = ctk.CTkToplevel(self.rootcommand)
         self.rootaddpdctcommand.title("ADICIONAR CONSUMO")
         self.rootaddpdctcommand.transient(self.rootcommand)
@@ -712,12 +714,31 @@ class application():
         self.productadd_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="PRODUTO", width=200, height=50)
         self.productadd_heading.grid(row=1, column=2, padx=1, pady=1)
 
-        self.priceadd_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="PREÇO", width=100, height=50)
+        self.priceadd_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="PREÇO", width=90, height=50)
         self.priceadd_heading.grid(row=1, column=3, padx=1, pady=1)
 
-        self.addproduct_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="ADICIONAR", width=50, height=50)
-        self.rootaddpdctcommand.protocol("WM_DELETE_WINDOW", close)
-        self.root.bind_all("<KeyPress>",self.nonclick)
+        self.addproduct_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="ADICIONAR", width=60, height=50)
+        self.addproduct_heading.grid(row=1, column=4, padx=1, pady=1)
+
+    #    self.rootaddpdctcommand.protocol("WM_DELETE_WINDOW", self.closewindowaddproduct)
+    #    self.root.bind_all("<KeyPress>",self.nonclick)
+        self.reloadproductstable()
+    def reloadproductstable(self, search = ""):
+        try:
+            for i in self.currentproductsaddlist:
+                for n in i:
+                    n.destroy()
+        except:
+            pass
+        self.connectproduct()
+        temp = self.productcursor.execute("SELECT * FROM Products")
+        listentemp = []
+        listen = []
+        for i in temp:
+            listentemp.append(i)
+        
+
+        self.desconnectproduct()
     def presskeycommandwindow(self, event):
         if event.keysym == "Escape":
             self.on_closingcommandwindow()
@@ -960,7 +981,6 @@ class application():
                                     idclient INTEGER(5)
                                     )""")
         self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS Consumption(
-                                    cod INTEGER PRIMARY KEY,
                                     number VARCHAR(4),
                                     date CHAR(10),
                                     hour CHAR(5),
