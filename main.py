@@ -8,6 +8,7 @@ import threading
 import pyautogui as pa
 import datetime
 import time
+from unidecode import unidecode
 class application():
     def __init__(self):
         self.createtables()
@@ -605,7 +606,7 @@ class application():
         self.reloadcategories()
     def windowcommand(self, command = 0):
         try:
-            if int(command) > 0:
+            if int(command.cget("text")) > 0:
                 num = command
         except:
             num = ""
@@ -660,12 +661,10 @@ class application():
 
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
-
-        self.reloadproductforcommands(command)
+        self.reloadproductforcommands(num)
     def reloadproductforcommands(self, number):
         self.connectcommands()
         temp = self.commandscursor.execute("SELECT * FROM Consumption WHERE number = ?", (number, ))
-        self.desconnectcommands()
         try:
             for i in self.current_productsincommands:
                 for n in i:
@@ -692,10 +691,12 @@ class application():
             self.current_productsincommands[k][3].grid(row= k + 1, column=4, padx=1, pady=1)
             self.current_productsincommands[k][4].grid(row= k + 1, column=5, padx=1, pady=1)
             self.current_productsincommands[k][5].grid(row= k + 1, column=6, padx=1, pady=1)
-            self.current_productsincommands[k][6].grid(row= k + 1, column=7, padx=1, pady=1)
+            self.current_productsincommands[k][6].grid(row= k + 1, column=7, padx=1, pady=1)  
+        self.desconnectcommands()
     def closewindowaddproduct(self):
         self.rootcommand.grab_set()
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
+        self.rootaddpdctcommand.destroy()
     def addpdctcommandwindow(self):
         
         self.rootaddpdctcommand = ctk.CTkToplevel(self.rootcommand)
@@ -720,8 +721,8 @@ class application():
         self.addproduct_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="ADICIONAR", width=60, height=50)
         self.addproduct_heading.grid(row=1, column=4, padx=1, pady=1)
 
-    #    self.rootaddpdctcommand.protocol("WM_DELETE_WINDOW", self.closewindowaddproduct)
-    #    self.root.bind_all("<KeyPress>",self.nonclick)
+        self.rootaddpdctcommand.protocol("WM_DELETE_WINDOW", self.closewindowaddproduct)
+        self.root.bind_all("<KeyPress>",self.nonclick)
         self.reloadproductstable()
     def reloadproductstable(self, search = ""):
         try:
@@ -736,15 +737,26 @@ class application():
         listen = []
         for i in temp:
             listentemp.append(i)
-        
-
+        if search == "":
+            listen = listentemp   
+        else:
+            for i in listentemp :
+                if unidecode(search.upper()) in unidecode(i[0].upper()):
+                    listen = i
+        self.currentproductsaddlist = []
+        for i in listen:
+            name, tipe, category = i
+            self.currentproductsaddlist.append([ctk.CTkLabel(),
+                                                ctk.CTkLabel(),
+                                                ctk.CTkLabel(),
+                                                ctk.CTkButton()])
         self.desconnectproduct()
     def presskeycommandwindow(self, event):
         if event.keysym == "Escape":
             self.on_closingcommandwindow()
     def presskeyaddproductoncommand(self, event):
         if event.keysym == "Escape":
-            self.rootaddpdctcommand.destroy()
+            self.closewindowaddproduct()
     def nonclick(self, event):
         pass
     def reloadcommands(self):
