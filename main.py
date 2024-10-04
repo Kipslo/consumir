@@ -655,7 +655,7 @@ class application():
         self.edit_heading = ctk.CTkLabel(self.rootcommand, text="EDITAR", fg_color=self.colors[4], width=100, height=30)
         self.edit_heading.grid(row=1, column=7, padx=1, pady=50)
 
-        self.button_addproductoncommand = ctk.CTkButton(self.rootcommand, text="ADICIONAR PRODUTO", fg_color=self.colors[4], hover_color=self.colors[5])
+        self.button_addproductoncommand = ctk.CTkButton(self.rootcommand, text="ADICIONAR PRODUTO", command=self.addpdctcommandwindow, fg_color=self.colors[4], hover_color=self.colors[5])
         self.button_addproductoncommand.place(relx=0.7, rely=0.002, relwidth=0.29, relheight=0.057)
 
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
@@ -693,7 +693,21 @@ class application():
             self.current_productsincommands[k][6].grid(row= k + 1, column=7, padx=1, pady=1)
             
     def addpdctcommandwindow(self):
-        self.rootaddpdctcommand = ctk.CTkToplevel(self)
+        self.rootaddpdctcommand = ctk.CTkToplevel(self.rootcommand)
+        self.rootaddpdctcommand.title("ADICIONAR CONSUMO")
+        self.rootaddpdctcommand.transient(self.rootcommand)
+        self.rootaddpdctcommand.resizable(False, False)
+        self.rootaddpdctcommand.geometry("500x500")
+        self.rootaddpdctcommand.grab_set()
+
+        self.scroolframe_addproduct = ctk.CTkScrollableFrame(self.rootaddpdctcommand, self.colors[3])
+        self.scroolframe_addproduct.place(relx=0, rely=0.1, relwidth=1, relheight=0.9)
+
+        self.categoryadd_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="CATEGORIA")
+
+        self.productadd_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="PRODUTO")
+
+        self.priceadd_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="PREÇO")
     def presskeycommandwindow(self, event):
         if event.keysym == "Escape":
             self.on_closingcommandwindow()
