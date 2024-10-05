@@ -650,7 +650,7 @@ class application():
 
         self.button_addproductoncommand = ctk.CTkButton(self.rootcommand, text="ADICIONAR PRODUTO", command=self.addpdctcommandwindow, fg_color=self.colors[4], hover_color=self.colors[5])
         self.button_addproductoncommand.place(relx=0.7, rely=0.002, relwidth=0.29, relheight=0.057)
-
+        self.currentcommandwindow = num
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
         self.reloadproductforcommands(num)
@@ -668,7 +668,7 @@ class application():
             listen.append(i)
         self.current_productsincommands = []
         for k, i in enumerate(listen):
-            cod, number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
+            number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
             self.current_productsincommands.append([ctk.CTkLabel(self.rootcommand, text=product, fg_color=self.colors[4], width=200, height=30),
                                                    ctk.CTkLabel(self.rootcommand, text=waiter, fg_color=self.colors[4], width=200, height=30),
                                                    ctk.CTkLabel(self.rootcommand, text=unitprice, fg_color=self.colors[4], width=100, height=30),
@@ -744,25 +744,26 @@ class application():
             self.currentproductsaddlist.append([ctk.CTkLabel(self.scroolframe_addproduct, text=category, width=200, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=name, width=200, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=price, width=90, height=40, fg_color=self.colors[5]),
-                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=30, height=40, image=ctk.CTkImage(Image.open("imgs/add1.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y = category, z = tipe:self.addproductincommand(x, y, z)),
-                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=30, height=40, image=ctk.CTkImage(Image.open("imgs/add.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y= category, z= tipe:self.addproductincommandwindow(x, y, z))])
+                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add1.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y = category, z = tipe, a= price:self.addproductincommand(x, y, z, a)),
+                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y= category, z= tipe, a= price:self.addproductincommandwindow(x, y, z, a))])
             self.currentproductsaddlist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.currentproductsaddlist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.currentproductsaddlist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
             self.currentproductsaddlist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
             self.currentproductsaddlist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
         self.desconnectproduct()
-    def addproductincommand(self, product, category, tipe):
+    def addproductincommand(self, product, category, tipe, price):
         if tipe == "SIZE":
-            self.addproductincommandwindow(product, category, tipe)
+            self.addproductincommandwindow(product, category, tipe, price)
         else:
             self.connectcommands()
-            self.connectproduct()
-            self.
-
+            date = datetime.datetime.now()
+            date = str(date)[0:19]
+            date, hour = date[0:10], date[11:20]
+            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, price, price, "1", product, tipe, ""))
 
             self.desconnectcommands()
-            self.desconnectproduct()
+        self.reloadproductforcommands
     def addproductincommandwindow(self):
         pass
     def presskeycommandwindow(self, event):
