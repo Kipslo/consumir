@@ -273,7 +273,7 @@ class application():
         self.desconnectproduct()
     def deleteproductsize(self, product, category):
         self.connectproduct()
-        self.productcursor.execute("DELETE FROM SizeofProducts WHERE product = ? AND category = ?", (product, category))
+        self.productcursor.execute("DELETE FROM SizeofProducts WHERE product = ? AND category = ? AND type = ?", (product, category, "NORMAL"))
         self.productcursor.execute("DELETE FROM ProductSize WHERE product = ? AND category = ?", (product, category))
         self.desconnectproduct()
         self.reloadproductssize()
@@ -285,34 +285,27 @@ class application():
                     n.destroy()
         except:
             pass
-        tmp = self.productcursor.execute("SELECT * FROM Products")
+        tmp = self.productcursor.execute("SELECT * FROM Products WHERE Type = ?", ("NORMAL", ))
         listen = []
-        number = 0
         for i in tmp:
-            number = number + 1
-            name, ttype, category = i
-            listen.append([name, ttype, category])
+            listen.append(i)
         self.current_productslist = []
         for k, i in enumerate(listen):
-            name, ttype, category = i
-            tmp2 = self.productcursor.execute("SELECT * FROM ProductNormal WHERE product = ?", (name, ))
-            for n in tmp2:
-                name, price, cust = n
+            name, ttype, category, price = i
             self.current_productslist.append([ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=400, height=40), 
                                               ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=400, height=40), 
                                               ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), 
                                               ctk.CTkLabel(image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40), 
-                                              ctk.CTkButton(self.frame_productreeviews, command=lambda x=name:self.deleteproductnormal(x), image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), text="", fg_color=self.colors[5], width=100, hover=False)])
+                                              ctk.CTkButton(self.frame_productreeviews, command=lambda x=name, y=category, z=ttype:self.deleteproductnormal(x, y, z), image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), text="", fg_color=self.colors[5], width=100, hover=False)])
             self.current_productslist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.current_productslist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.current_productslist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
             self.current_productslist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
             self.current_productslist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
         self.desconnectproduct()
-    def deleteproductnormal(self, name):
+    def deleteproductnormal(self, name, category, tipe):
         self.connectproduct()
-        self.productcursor.execute("DELETE FROM Products WHERE name = ?", (name, ))
-        self.productcursor.execute("DELETE FROM ProductNormal WHERE product = ?", ( name, ))
+        self.productcursor.execute("DELETE FROM Products WHERE name = ? AND category = ? AND type = ?", (name, category, tipe))
         self.desconnectproduct()
         self.reloadproductsnormal()
     def deletewindow(self):
@@ -470,8 +463,7 @@ class application():
         category = self.combobox_categoryname.get()
         price = self.entry_price.get()
         self.connectproduct()
-        self.productcursor.execute("INSERT INTO Products (name, type, category) VALUES (?,?,?)", (name, "NORMAL", category))
-        self.productcursor.execute("INSERT INTO ProductNormal (product, price) VALUES (?,?)", (name, price))
+        self.productcursor.execute("INSERT INTO Products (name, type, category, price) VALUES (?,?,?,?)", (name, "NORMAL", category, price))
         self.desconnectproduct()
         self.rootnewproduct.destroy()
         self.reloadproductsnormal()
@@ -744,12 +736,16 @@ class application():
                 if unidecode(search.upper()) in unidecode(i[0].upper()):
                     listen = i
         self.currentproductsaddlist = []
-        for i in listen:
-            name, tipe, category = i
-            self.currentproductsaddlist.append([ctk.CTkLabel(),
-                                                ctk.CTkLabel(),
-                                                ctk.CTkLabel(),
-                                                ctk.CTkButton()])
+        for k, i in enumerate(listen):
+            name, tipe, category, price = i
+            self.currentproductsaddlist.append([ctk.CTkLabel(self.scroolframe_addproduct, text=category, width=200, height=30),
+                                                ctk.CTkLabel(self.scroolframe_addproduct, text=name, width=200, height=30),
+                                                ctk.CTkLabel(self.scroolframe_addproduct, text=price, width=90, height=30),
+                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=30, height=30, image=ctk.CTkImage(Image.open("imgs/add.png"), size=(30, 30)))])
+            self.currentproductsaddlist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
+            self.currentproductsaddlist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
+            self.currentproductsaddlist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
+            self.currentproductsaddlist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
         self.desconnectproduct()
     def presskeycommandwindow(self, event):
         if event.keysym == "Escape":
@@ -830,20 +826,23 @@ class application():
                 self.button_newcommand[i].configure(fg_color="#6f0000", hover_color="#4f0000")
             self.button_newcommand[i].grid(row=int(i/4), column=i%4, padx=10 ,pady=10)
     def clickmain(self, event):
-        if not "self.rootnewcom" in globals():
-            if "self.rootnewcom" in globals() or "self.rootnewcom" in locals():
-                pass
-            else:
-                position = pa.position()
-                if position.x > self.position_namecommand[0] and position.x < self.position_namecommand[0] + self.position_namecommand[3]:
-                    if position.y > self.position_namecommand[1] and position.y < self.position_namecommand[1] + position.y[3]:
-                        pass
+        try:
+            if not "self.rootnewcom" in globals():
+                if "self.rootnewcom" in globals() or "self.rootnewcom" in locals():
+                    pass
+                else:
+                    position = pa.position()
+                    if position.x > self.position_namecommand[0] and position.x < self.position_namecommand[0] + self.position_namecommand[3]:
+                        if position.y > self.position_namecommand[1] and position.y < self.position_namecommand[1] + position.y[3]:
+                            pass
+                        else:
+                            self.entry_namecommand.delete(0, "end")
+                            event.widget.focus_set()
                     else:
                         self.entry_namecommand.delete(0, "end")
                         event.widget.focus_set()
-                else:
-                    self.entry_namecommand.delete(0, "end")
-                    event.widget.focus_set()
+        except:
+            pass
     def presskey(self, event):
         key = event.keysym
         n = self.entry_namecommand.get()
@@ -1009,12 +1008,8 @@ class application():
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Products(
                                    name VARCHAR(30),
                                    type VARCHAR(10),
-                                   category VARCHAR(10)
-                                   )""")
-        self.productcursor.execute("""CREATE TABLE IF NOT EXISTS ProductNormal(
-                                   product VARCHAR(30),
-                                   price VARCHAR(8),
-                                   cost VARCHAR(8)
+                                   category VARCHAR(10),
+                                   price VARCHAR(8)
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS ProductSize(
                                    product VARCHAR(30),
