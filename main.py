@@ -659,7 +659,7 @@ class application():
         self.reloadproductforcommands(num)
     def reloadproductforcommands(self, number):
         self.connectcommands()
-        temp = self.commandscursor.execute("SELECT * FROM Consumption WHERE number = ?", (number, ))
+        temp = self.commandscursor.execute("SELECT cod, number, date, hour, waiter, price, unitprice, quantity, product, type, size FROM Consumption WHERE number = ?", (number, ))
         try:
             for i in self.current_productsincommands:
                 for n in i:
@@ -671,13 +671,30 @@ class application():
             listen.append(i)
         self.current_productsincommands = []
         for k, i in enumerate(listen):
-            number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
+            cod, number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
+            tyme =  datetime.datetime(int(date[0:4]), int(date[5:7]), int(date[8:10]), int(hour[0:2]), int(hour[3:5]), int(hour[6:8]))
+            now = datetime.datetime.now()
+            delta = now - tyme
+            total_sec = delta.total_seconds()
+            total_min, sec = divmod(int(total_sec), 60)
+            total_hour, minute = divmod(total_min, 60)
+            total_days, hour = divmod(total_hour, 24)
+            text = ""
+            print(total_days)
+            print(total_hour)
+            if total_days != 0:
+                text = text + str(total_days) + "D " + str(hour) + "H "
+            elif total_hour != 0:
+                text = text + str(hour) + "H "
+            
+            text = text + str(minute) + "M " + str(sec) + "S"
+            
             self.current_productsincommands.append([ctk.CTkLabel(self.frame_consume, text=product, fg_color=self.colors[4], width=200, height=30),
                                                    ctk.CTkLabel(self.frame_consume, text=waiter, fg_color=self.colors[4], width=200, height=30),
                                                    ctk.CTkLabel(self.frame_consume, text=unitprice, fg_color=self.colors[4], width=100, height=30),
                                                    ctk.CTkLabel(self.frame_consume, text=price, fg_color=self.colors[4], width=100, height=30),
                                                    ctk.CTkLabel(self.frame_consume, text=quantity, fg_color=self.colors[4], width=50, height=30),
-                                                   ctk.CTkLabel(self.frame_consume, text="TEMPO", fg_color=self.colors[4], width=100, height=30),
+                                                   ctk.CTkLabel(self.frame_consume, text=text, fg_color=self.colors[4], width=100, height=30),
                                                    ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=100, height=30, hover=False)
                                                    ])
             self.current_productsincommands[k][0].grid(row= k + 1, column=1, padx=0, pady=1)
@@ -760,8 +777,7 @@ class application():
             self.addproductincommandwindow(product, category, tipe, price)
         else:
             self.connectcommands()
-            date = datetime.datetime.now()
-            date = str(date)[0:19]
+            date = str(datetime.datetime.now())[0:19]
             date, hour = date[0:10], date[11:20]
             self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, price, price, "1", product, tipe, ""))
 
@@ -1014,6 +1030,7 @@ class application():
                                     idclient INTEGER(5)
                                     )""")
         self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS Consumption(
+                                    cod INTEGER PRIMARY KEY,
                                     number VARCHAR(4),
                                     date CHAR(10),
                                     hour CHAR(5),
