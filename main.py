@@ -709,9 +709,6 @@ class application():
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
         self.rootaddpdctcommand.destroy()
     def addpdctcommandwindow(self):
-        def pressesc(event):
-            if event.keysym == "Escape":
-                self.closewindowaddproduct()
         self.rootaddpdctcommand = ctk.CTkToplevel(self.rootcommand)
         self.rootaddpdctcommand.title("ADICIONAR CONSUMO")
         self.rootaddpdctcommand.transient(self.rootcommand)
@@ -738,14 +735,24 @@ class application():
         self.peraddproduct_heading.grid(row=1, column=5, padx=1, pady=1)
 
         self.rootaddpdctcommand.protocol("WM_DELETE_WINDOW", self.closewindowaddproduct)
-        self.root.bind_all("<KeyPress>",pressesc)
+        self.root.bind_all("<KeyPress>",self.pressesccommand)
         self.reloadproductstable()
+    def pressesccommand(self, event):
+        if event.keysym == "Escape":
+            self.closewindowaddproduct()
+    def addproductincommandwindow(self, product, category, tipe):
+        self.rooteditaddproduct = ctk.CTkToplevel(self.rootaddpdctcommand)
+        self.rooteditaddproduct.geometry("500x500")
+        self.rooteditaddproduct.transient(self.rootaddpdctcommand)
+        self.rooteditaddproduct.resizable(False, False)
+        self.rooteditaddproduct.title("CONFIGURAÇÕES DO PRODUTO")
+        self.rooteditaddproduct.grab_set()
+
+        self.root.bind_all("<KeyPress>",self.pressesccommand)
     def reloadproductstable(self, search = ""):
-        def addproductincommandwindow():
-            pass
         def addproductincommand(product, category, tipe, price):
             if tipe == "SIZE":
-                self.addproductincommandwindow(product, category, tipe, price)
+                self.addproductincommandwindow(product, category, tipe)
             else:
                 self.connectcommands()
                 date = str(datetime.datetime.now())[0:19]
@@ -779,7 +786,7 @@ class application():
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=name, width=200, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=price, width=90, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add1.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y = category, z = tipe, a= price:addproductincommand(x, y, z, a)),
-                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y= category, z= tipe, a= price:addproductincommandwindow(x, y, z, a))])
+                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y= category, z= tipe:self.addproductincommandwindow(x, y, z))])
             self.currentproductsaddlist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.currentproductsaddlist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.currentproductsaddlist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
