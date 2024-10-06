@@ -636,10 +636,10 @@ class application():
         self.waiter_heading = ctk.CTkLabel(self.rootcommand, text="GARÇOM", fg_color=self.colors[4], width=200, height=30)
         self.waiter_heading.grid(row=1, column=2, padx=0, pady=50)
 
-        self.productpriceunit_heading = ctk.CTkLabel(self.rootcommand, text="PREÇO UNITÁRIO", fg_color=self.colors[4], width=100, height=30)
+        self.productpriceunit_heading = ctk.CTkLabel(self.rootcommand, text="PREÇO UNIDADE", fg_color=self.colors[4], width=100, height=30)
         self.productpriceunit_heading.grid(row=1, column=3, padx=1, pady=50)
 
-        self.productprice_heading = ctk.CTkLabel(self.rootcommand, text="PREÇO ATUAL", fg_color=self.colors[4], width=100, height=30)
+        self.productprice_heading = ctk.CTkLabel(self.rootcommand, text="PREÇO TOTAL", fg_color=self.colors[4], width=100, height=30)
         self.productprice_heading.grid(row=1, column=4, padx=0, pady=50)
 
         self.quantity_heading = ctk.CTkLabel(self.rootcommand, text="QTD.", fg_color=self.colors[4], width=50, height=30)
@@ -648,7 +648,7 @@ class application():
         self.time_heading = ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30)
         self.time_heading.grid(row=1, column=6, padx=0, pady=50)
 
-        self.edit_heading = ctk.CTkLabel(self.rootcommand, text="EDITAR", fg_color=self.colors[4], width=100, height=30)
+        self.edit_heading = ctk.CTkLabel(self.rootcommand, text="EDITAR", fg_color=self.colors[4], width=40, height=30)
         self.edit_heading.grid(row=1, column=7, padx=1, pady=50)
 
         self.button_addproductoncommand = ctk.CTkButton(self.rootcommand, text="ADICIONAR PRODUTO", command=self.addpdctcommandwindow, fg_color=self.colors[4], hover_color=self.colors[5])
@@ -687,13 +687,13 @@ class application():
             
             text = text + str(minute) + "M " + str(sec) + "S"
             
-            self.current_productsincommands.append([ctk.CTkLabel(self.frame_consume, text=product, fg_color=self.colors[4], width=200, height=30),
-                                                   ctk.CTkLabel(self.frame_consume, text=waiter, fg_color=self.colors[4], width=200, height=30),
-                                                   ctk.CTkLabel(self.frame_consume, text=unitprice, fg_color=self.colors[4], width=100, height=30),
-                                                   ctk.CTkLabel(self.frame_consume, text=price, fg_color=self.colors[4], width=100, height=30),
-                                                   ctk.CTkLabel(self.frame_consume, text=quantity, fg_color=self.colors[4], width=50, height=30),
-                                                   ctk.CTkLabel(self.frame_consume, text=text, fg_color=self.colors[4], width=100, height=30),
-                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=100, height=30, hover=False)
+            self.current_productsincommands.append([ctk.CTkLabel(self.frame_consume, text=product, fg_color=self.colors[4], width=200, height=40),
+                                                   ctk.CTkLabel(self.frame_consume, text=waiter, fg_color=self.colors[4], width=200, height=40),
+                                                   ctk.CTkLabel(self.frame_consume, text=unitprice, fg_color=self.colors[4], width=100, height=40),
+                                                   ctk.CTkLabel(self.frame_consume, text=price, fg_color=self.colors[4], width=100, height=40),
+                                                   ctk.CTkLabel(self.frame_consume, text=quantity, fg_color=self.colors[4], width=50, height=40),
+                                                   ctk.CTkLabel(self.frame_consume, text=text, fg_color=self.colors[4], width=100, height=40),
+                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=40, height=40, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)),hover=False, )
                                                    ])
             self.current_productsincommands[k][0].grid(row= k + 1, column=1, padx=0, pady=1)
             self.current_productsincommands[k][1].grid(row= k + 1, column=2, padx=1, pady=1)
@@ -706,9 +706,12 @@ class application():
     def closewindowaddproduct(self):
         self.rootcommand.grab_set()
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
+        self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
         self.rootaddpdctcommand.destroy()
     def addpdctcommandwindow(self):
-        
+        def pressesc(event):
+            if event.keysym == "Escape":
+                self.closewindowaddproduct()
         self.rootaddpdctcommand = ctk.CTkToplevel(self.rootcommand)
         self.rootaddpdctcommand.title("ADICIONAR CONSUMO")
         self.rootaddpdctcommand.transient(self.rootcommand)
@@ -735,9 +738,22 @@ class application():
         self.peraddproduct_heading.grid(row=1, column=5, padx=1, pady=1)
 
         self.rootaddpdctcommand.protocol("WM_DELETE_WINDOW", self.closewindowaddproduct)
-        self.root.bind_all("<KeyPress>",self.nonclick)
+        self.root.bind_all("<KeyPress>",pressesc)
         self.reloadproductstable()
     def reloadproductstable(self, search = ""):
+        def addproductincommandwindow():
+            pass
+        def addproductincommand(product, category, tipe, price):
+            if tipe == "SIZE":
+                self.addproductincommandwindow(product, category, tipe, price)
+            else:
+                self.connectcommands()
+                date = str(datetime.datetime.now())[0:19]
+                date, hour = date[0:10], date[11:20]
+                self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, price, price, "1", product, tipe, ""))
+
+                self.desconnectcommands()
+            self.reloadproductforcommands(self.currentcommandwindow)
         try:
             for i in self.currentproductsaddlist:
                 for n in i:
@@ -762,27 +778,16 @@ class application():
             self.currentproductsaddlist.append([ctk.CTkLabel(self.scroolframe_addproduct, text=category, width=200, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=name, width=200, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=price, width=90, height=40, fg_color=self.colors[5]),
-                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add1.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y = category, z = tipe, a= price:self.addproductincommand(x, y, z, a)),
-                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y= category, z= tipe, a= price:self.addproductincommandwindow(x, y, z, a))])
+                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add1.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y = category, z = tipe, a= price:addproductincommand(x, y, z, a)),
+                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y= category, z= tipe, a= price:addproductincommandwindow(x, y, z, a))])
             self.currentproductsaddlist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.currentproductsaddlist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.currentproductsaddlist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
             self.currentproductsaddlist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
             self.currentproductsaddlist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
         self.desconnectproduct()
-    def addproductincommand(self, product, category, tipe, price):
-        if tipe == "SIZE":
-            self.addproductincommandwindow(product, category, tipe, price)
-        else:
-            self.connectcommands()
-            date = str(datetime.datetime.now())[0:19]
-            date, hour = date[0:10], date[11:20]
-            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, price, price, "1", product, tipe, ""))
-
-            self.desconnectcommands()
-        self.reloadproductforcommands(self.currentcommandwindow)
-    def addproductincommandwindow(self):
-        pass
+    
+    
     def presskeycommandwindow(self, event):
         if event.keysym == "Escape":
             self.on_closingcommandwindow()
@@ -842,32 +847,32 @@ class application():
             pass
         self.button_newcommand = []
         threading.Thread(self.addnewcommandwindow()).start()
-    def addnewcommandactive(self, command):
-        num = command.cget("text")
-        self.connectcommands()
-        number = ""
-        com = self.commandscursor.execute("""SELECT number FROM CommandsActive WHERE number = ?""", (num, ))
-        for i in com:
-            number = i
-        if number == "":
-            date = datetime.datetime.now()
-            date = str(date)[0:19]
-            date, hour = date[0:10], date[11:20]
-            nameclient = ""
-            idclient = ""
-            self.commandscursor.execute("""INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)""", (num, date, hour, nameclient, idclient))
-            self.rootnewcom.destroy()
-        self.desconnectcommands()
-        threading.Thread(self.reloadcommands()).start()
+    
     def addnewcommandwindow(self):
+        def addnewcommandactive(command):
+            num = command.cget("text")
+            self.connectcommands()
+            number = ""
+            com = self.commandscursor.execute("""SELECT number FROM CommandsActive WHERE number = ?""", (num, ))
+            for i in com:
+                number = i
+            if number == "":
+                date = datetime.datetime.now()
+                date = str(date)[0:19]
+                date, hour = date[0:10], date[11:20]
+                nameclient = ""
+                idclient = ""
+                self.commandscursor.execute("""INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)""", (num, date, hour, nameclient, idclient))
+                self.rootnewcom.destroy()
+            self.desconnectcommands()
+            threading.Thread(self.reloadcommands()).start()
         for i in range(int(self.maxcommands)):
             k = False
             for m in self.number:
                 if m == i + 1:
-                    print(m)
                     k = True
-            self.button_newcommand.append(ctk.CTkButton(self.frame_newcommands, command=lambda m=i:self.addnewcommandactive(self.button_newcommand[m]), fg_color="#006f00", text=str(i+ 1), font=("Arial", 15), width=150, height=75))
-            if k == True:
+            self.button_newcommand.append(ctk.CTkButton(self.frame_newcommands, command=lambda m=i:addnewcommandactive(self.button_newcommand[m]), fg_color="#006f00", text=str(i+ 1), font=("Arial", 15), width=150, height=75, hover_color="#004f00"))
+            if k:
                 self.button_newcommand[i].configure(fg_color="#6f0000", hover_color="#4f0000")
             self.button_newcommand[i].grid(row=int(i/4), column=i%4, padx=10 ,pady=10)
     def clickmain(self, event):
