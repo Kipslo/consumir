@@ -627,23 +627,26 @@ class application():
         self.button_finishcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="PAGAMENTO", hover_color=self.colors[5])
         self.button_finishcommand.place(relx=0.7, rely=0.15, relwidth=0.29, relheight=0.7)
 
+        self.placeholder_heading = ctk.CTkLabel(self.rootcommand, text="", fg_color=self.colors[0], width=5, height=30)
+        self.placeholder_heading.grid(row=1, column=0, padx=0, pady=50)
+
         self.productname_heading = ctk.CTkLabel(self.rootcommand, text="PRODUTO", fg_color=self.colors[4], width=200, height=30)
         self.productname_heading.grid(row=1, column=1, padx=1, pady=50)
 
         self.waiter_heading = ctk.CTkLabel(self.rootcommand, text="GARÇOM", fg_color=self.colors[4], width=200, height=30)
-        self.waiter_heading.grid(row=1, column=2, padx=1, pady=50)
+        self.waiter_heading.grid(row=1, column=2, padx=0, pady=50)
 
         self.productpriceunit_heading = ctk.CTkLabel(self.rootcommand, text="PREÇO UNITÁRIO", fg_color=self.colors[4], width=100, height=30)
         self.productpriceunit_heading.grid(row=1, column=3, padx=1, pady=50)
 
         self.productprice_heading = ctk.CTkLabel(self.rootcommand, text="PREÇO ATUAL", fg_color=self.colors[4], width=100, height=30)
-        self.productprice_heading.grid(row=1, column=4, padx=1, pady=50)
+        self.productprice_heading.grid(row=1, column=4, padx=0, pady=50)
 
         self.quantity_heading = ctk.CTkLabel(self.rootcommand, text="QTD.", fg_color=self.colors[4], width=50, height=30)
         self.quantity_heading.grid(row=1, column=5, padx=1, pady=50)
 
         self.time_heading = ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30)
-        self.time_heading.grid(row=1, column=6, padx=1, pady=50)
+        self.time_heading.grid(row=1, column=6, padx=0, pady=50)
 
         self.edit_heading = ctk.CTkLabel(self.rootcommand, text="EDITAR", fg_color=self.colors[4], width=100, height=30)
         self.edit_heading.grid(row=1, column=7, padx=1, pady=50)
@@ -669,15 +672,15 @@ class application():
         self.current_productsincommands = []
         for k, i in enumerate(listen):
             number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
-            self.current_productsincommands.append([ctk.CTkLabel(self.rootcommand, text=product, fg_color=self.colors[4], width=200, height=30),
-                                                   ctk.CTkLabel(self.rootcommand, text=waiter, fg_color=self.colors[4], width=200, height=30),
-                                                   ctk.CTkLabel(self.rootcommand, text=unitprice, fg_color=self.colors[4], width=100, height=30),
-                                                   ctk.CTkLabel(self.rootcommand, text=price, fg_color=self.colors[4], width=100, height=30),
-                                                   ctk.CTkLabel(self.rootcommand, text=quantity, fg_color=self.colors[4], width=50, height=30),
-                                                   ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30),
-                                                   ctk.CTkButton(self.rootcommand, text="", fg_color=self.colors[4], width=100, height=30)
+            self.current_productsincommands.append([ctk.CTkLabel(self.frame_consume, text=product, fg_color=self.colors[4], width=200, height=30),
+                                                   ctk.CTkLabel(self.frame_consume, text=waiter, fg_color=self.colors[4], width=200, height=30),
+                                                   ctk.CTkLabel(self.frame_consume, text=unitprice, fg_color=self.colors[4], width=100, height=30),
+                                                   ctk.CTkLabel(self.frame_consume, text=price, fg_color=self.colors[4], width=100, height=30),
+                                                   ctk.CTkLabel(self.frame_consume, text=quantity, fg_color=self.colors[4], width=50, height=30),
+                                                   ctk.CTkLabel(self.frame_consume, text="TEMPO", fg_color=self.colors[4], width=100, height=30),
+                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=100, height=30, hover=False)
                                                    ])
-            self.current_productsincommands[k][0].grid(row= k + 1, column=1, padx=1, pady=1)
+            self.current_productsincommands[k][0].grid(row= k + 1, column=1, padx=0, pady=1)
             self.current_productsincommands[k][1].grid(row= k + 1, column=2, padx=1, pady=1)
             self.current_productsincommands[k][2].grid(row= k + 1, column=3, padx=1, pady=1)
             self.current_productsincommands[k][3].grid(row= k + 1, column=4, padx=1, pady=1)
@@ -763,7 +766,7 @@ class application():
             self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, price, price, "1", product, tipe, ""))
 
             self.desconnectcommands()
-        self.reloadproductforcommands
+        self.reloadproductforcommands(self.currentcommandwindow)
     def addproductincommandwindow(self):
         pass
     def presskeycommandwindow(self, event):
