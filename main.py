@@ -680,8 +680,6 @@ class application():
             total_hour, minute = divmod(total_min, 60)
             total_days, hour = divmod(total_hour, 24)
             text = ""
-            print(total_days)
-            print(total_hour)
             if total_days != 0:
                 text = text + str(total_days) + "D " + str(hour) + "H "
             elif total_hour != 0:
@@ -805,13 +803,22 @@ class application():
         self.currentcommands = []
         for i, command in enumerate(currentcommands):
             number, initdate, inithour, nameclient  = command
-            datenow = str(datetime.datetime.now())[0:19]
-            secondnow, minnow, hournow, daynow, mounthnow, yearnow = int(datenow[17:19]), int(datenow[14:16]), int(datenow[11:13]), int(datenow[8:10]), int(datenow[5:7]), int(datenow
-            [0:4])
+            now = datetime.datetime.now()
+            date = datetime.datetime(int(initdate[0:4]), int(initdate[5:7]), int(initdate[8:10]), int(inithour[0:2]), int(inithour[3:5]), int(inithour[6:8]))
+            delta = now - date
+            total_sec = delta.total_seconds()
+            total_min, sec = divmod(int(total_sec), 60)
+            total_hour, minute = divmod(total_min, 60)
+            total_days, hour = divmod(total_hour, 24)
+            text = ""
+            if total_days != 0:
+                text = text + str(total_days) + "D " + str(hour) + "H "
+            elif total_hour != 0:
+                text = text + str(hour) + "H "
+            
+            text = text + str(minute) + "M " + str(sec) + "S"
 
-            second, min, hour, day, mounth, year = int(inithour[6:8]), int(inithour[3:5]), int(inithour[0:2]), int(initdate[8:10]), int(initdate[5:7]), int(initdate[0:4]) 
-            time = str(hournow - hour) +"h" + str(minnow - min) + "m"
-            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color=self.colors[3], command=lambda m = i:self.windowcommand(self.currentcommands[m]), hover=False, width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + time, font=("Arial", 20)))
+            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color=self.colors[3], command=lambda m = i:self.windowcommand(self.currentcommands[m]), hover=False, width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + text, font=("Arial", 20)))
             
             self.currentcommands[i].grid(row=int(i/6), column=i%6, padx=10, pady=5)
             self.number.append(number)
