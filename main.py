@@ -238,7 +238,6 @@ class application():
             self.productcursor.execute("DELETE FROM Products WHERE name = ? AND category = ? AND type = ?", (product, category, "SIZE"))
             self.desconnectproduct()
             self.reloadproductssize()
-            self.connectproduct()
         listofproducts = []
         try:
             for i in self.current_productslist:
@@ -249,6 +248,7 @@ class application():
                 i[4].destroy()
         except:
             pass
+        self.connectproduct()
         self.current_productslist = []
         temp = self.productcursor.execute("SELECT name, category FROM Products WHERE type = ?", ("SIZE", ))
         for i in temp:
@@ -443,8 +443,8 @@ class application():
         print(category)
         self.connectproduct()
         if oldname != "":
-            self.productcursor.execute("DELETE FROM SizeofProducts WHERE product = ? AND category = ? AND type = ?", (oldname, oldcategory, "SIZE"))
-            self.productcursor.execute("DELETE FROM Products WHERE name = ? AND category = ? AND typr = ?",(oldname, oldcategory, "SIZE"))
+            self.productcursor.execute("DELETE FROM SizeofProducts WHERE product = ? AND category = ?", (oldname, oldcategory))
+            self.productcursor.execute("DELETE FROM Products WHERE name = ? AND category = ? AND type = ?",(oldname, oldcategory, "SIZE"))
             temp = ""
         else:
             temp = ""
@@ -741,7 +741,7 @@ class application():
     def pressesccommand(self, event):
         if event.keysym == "Escape":
             self.closewindowaddproduct()
-    def addproductincommandwindow(self, product, category, tipe):
+    def addproductincommandwindow(self, product, category, tipe, price = ""):
         def close():
             self.rootaddpdctcommand.grab_set()
             self.root.bind_all("<KeyPress>",self.pressesccommand)
@@ -750,7 +750,20 @@ class application():
             if event.keysym == "Escape":
                 close()
         def select(product):
-            
+            self.entry_unitprice.delete(0, "end")
+            self.entry_unitprice.insert(0, self.dicproduct[product])
+        def confirm():
+            self.connectcommands()
+            date = str(datetime.datetime.now())[0:19]
+            date, hour = date[0:10], date[11:20]
+            quantity = self.entry_quantity.get()
+            unitprice = self.entry_unitprice.get()
+            if tipe == "SIZE":
+                name = self.combobox_products
+            elif tipe == "NORMAL":
+                name = product
+            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, str(int(unitprice)*int(quantity)), unitprice, quantity, name, tipe, ""))
+            self.desconnectcommands()
         self.rooteditaddproduct = ctk.CTkToplevel(self.rootaddpdctcommand)
         self.rooteditaddproduct.geometry("500x500")
         self.rooteditaddproduct.transient(self.rootaddpdctcommand)
@@ -758,19 +771,32 @@ class application():
         self.rooteditaddproduct.title("CONFIGURAÇÕES DO PRODUTO")
         self.rooteditaddproduct.grab_set()
 
-        self.label_product = ctk.CTkLabel(text= product + " (" + category + ")", fg_color=self.colors[4])
+        self.label_product = ctk.CTkLabel(self.rooteditaddproduct, text= product + " (" + category + ")", fg_color=self.colors[4])
+        self.label_product.place(relx=0.01, rely=0.01, relwidth=0.2, relheight=0.1)
 
-        self.entry_quantity = ctk.CTkEntry()
+        self.entry_quantity = ctk.CTkEntry(self.rooteditaddproduct, fg_color=self.colors[4])
+        self.entry_quantity.place(relx=0.22, rely=0.01, relwidth=0.1, relheight=0.1)
+        self.entry_quantity.insert(0, "1")
 
+        self.entry_unitprice = ctk.CTkEntry(self.rooteditaddproduct, fg_color=self.colors[4])
+        self.entry_unitprice.place(relx=0.33, rely=0.01, relwidth=0.1, relheight=0.1)
+        
+        self.button_confirm = ctk.CTkButton(self.rooteditaddproduct, fg_color=self.colors[4], hover_color=self.colors[5], command=confirm)
+
+        if tipe == "NORMAL":
+            self.entry_unitprice.insert(0, price)
         if tipe == "SIZE":
-            listen = {}
+            self.dicproduct = {}
             self.connectproduct()
             temp = self.productcursor.execute("SELECT price, name FROM SizeofProducts WHERE product = ? AND category = ?", (product, category))
             listencb = []
+            listencb.append("")
             for i in temp:
-                listen[i[1]] = i[0]
+                self.dicproduct[i[1]] = i[0]
                 listencb.append(i[1])
-            self.combobox_products = ctk.CTkComboBox(self.rooteditaddproduct, values=listencb, command=select)
+            self.combobox_products = ctk.CTkComboBox(self.rooteditaddproduct, width=200, height=50, values=listencb, command=select)
+            self.combobox_products.place(relx=0.01, rely=0.12)
+            self.desconnectproduct()
 
         self.root.bind_all("<KeyPress>", pressesc)
         self.rooteditaddproduct.protocol("WM_DELETE_WINDOW", close)
@@ -812,7 +838,7 @@ class application():
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=name, width=200, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=price, width=90, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add1.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y = category, z = tipe, a= price:addproductincommand(x, y, z, a)),
-                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y= category, z= tipe:self.addproductincommandwindow(x, y, z))])
+                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y= category, z= tipe, a= price:self.addproductincommandwindow(x, y, z, a))])
             self.currentproductsaddlist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.currentproductsaddlist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.currentproductsaddlist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
