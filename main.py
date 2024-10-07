@@ -232,7 +232,13 @@ class application():
         elif temp == "COMBOS":
             self.current_productlisttab = "COMBOS"
     def reloadproductssize(self):
-        self.connectproduct()
+        def deleteproductsize(product, category):
+            self.connectproduct()
+            self.productcursor.execute("DELETE FROM SizeofProducts WHERE product = ? AND category = ?", (product, category))
+            self.productcursor.execute("DELETE FROM Products WHERE name = ? AND category = ? AND type = ?", (product, category, "SIZE"))
+            self.desconnectproduct()
+            self.reloadproductssize()
+            self.connectproduct()
         listofproducts = []
         try:
             for i in self.current_productslist:
@@ -244,7 +250,7 @@ class application():
         except:
             pass
         self.current_productslist = []
-        temp = self.productcursor.execute("SELECT product, category FROM Productsize")
+        temp = self.productcursor.execute("SELECT name, category FROM Products WHERE type = ?", ("SIZE", ))
         for i in temp:
             listofproducts.append(i)
         for k, i in enumerate(listofproducts):
@@ -264,19 +270,14 @@ class application():
                                              ctk.CTkLabel(self.frame_productreeviews, fg_color=self.colors[5], text=product, width=400, height=50), 
                                              ctk.CTkLabel(self.frame_productreeviews, fg_color=self.colors[5], text=str(prices[0]) + " - " + str(prices[1]), width=200, height=50), 
                                              ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(40,40)), hover=False, command=lambda x = product, y = category:self.addproductwindow(x, y)), 
-                                             ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(40,40)), hover=False, command=lambda x=product, y=category:self.deleteproductsize(x, y))])
+                                             ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(40,40)), hover=False, command=lambda x=product, y=category:deleteproductsize(x, y))])
             self.current_productslist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.current_productslist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.current_productslist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
             self.current_productslist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
             self.current_productslist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
         self.desconnectproduct()
-    def deleteproductsize(self, product, category):
-        self.connectproduct()
-        self.productcursor.execute("DELETE FROM SizeofProducts WHERE product = ? AND category = ? AND type = ?", (product, category, "NORMAL"))
-        self.productcursor.execute("DELETE FROM ProductSize WHERE product = ? AND category = ?", (product, category))
-        self.desconnectproduct()
-        self.reloadproductssize()
+ 
     def reloadproductsnormal(self):
         self.connectproduct()
         try:
@@ -443,18 +444,18 @@ class application():
         self.connectproduct()
         if oldname != "":
             self.productcursor.execute("DELETE FROM SizeofProducts WHERE product = ? AND category = ? AND type = ?", (oldname, oldcategory, "SIZE"))
-            self.productcursor.execute("DELETE FROM ProductSize WHERE product = ? AND category = ?", (oldname, oldcategory))
+            self.productcursor.execute("DELETE FROM Products WHERE name = ? AND category = ? AND typr = ?",(oldname, oldcategory, "SIZE"))
             temp = ""
         else:
             temp = ""
-            tmp = self.productcursor.execute("SELECT product, category FROM ProductSize WHERE product = ? AND category = ? AND type = ?", (name, category, "SIZE"))
+            tmp = self.productcursor.execute("SELECT name, category FROM Products WHERE name = ? AND category = ? AND type = ?", (name, category, "SIZE"))
             for i in tmp:
                 if i[0] == name and i[1] == category:
                     temp = "a"
         if temp == "":
             for i in self.current_sizesfornewproduct:
                 self.productcursor.execute("INSERT INTO SizeofProducts (product, price, name, category) VALUES (?, ?, ?, ?)", (name, i[1], i[0], category))
-            self.product.execute("INSERT INTO ProductSize (product, category, type) VALUES (?, ?, ?)", (name, category, "SIZE"))
+            self.product.execute("INSERT INTO Products (name, category, type) VALUES (?, ?, ?)", (name, category, "SIZE"))
             self.rootaddproductsize.destroy()
         self.desconnectproduct()
         self.reloadproductssize()
@@ -748,12 +749,28 @@ class application():
         def pressesc(event):
             if event.keysym == "Escape":
                 close()
+        def select(product):
+            
         self.rooteditaddproduct = ctk.CTkToplevel(self.rootaddpdctcommand)
         self.rooteditaddproduct.geometry("500x500")
         self.rooteditaddproduct.transient(self.rootaddpdctcommand)
         self.rooteditaddproduct.resizable(False, False)
         self.rooteditaddproduct.title("CONFIGURAÇÕES DO PRODUTO")
         self.rooteditaddproduct.grab_set()
+
+        self.label_product = ctk.CTkLabel(text= product + " (" + category + ")", fg_color=self.colors[4])
+
+        self.entry_quantity = ctk.CTkEntry()
+
+        if tipe == "SIZE":
+            listen = {}
+            self.connectproduct()
+            temp = self.productcursor.execute("SELECT price, name FROM SizeofProducts WHERE product = ? AND category = ?", (product, category))
+            listencb = []
+            for i in temp:
+                listen[i[1]] = i[0]
+                listencb.append(i[1])
+            self.combobox_products = ctk.CTkComboBox(self.rooteditaddproduct, values=listencb, command=select)
 
         self.root.bind_all("<KeyPress>", pressesc)
         self.rooteditaddproduct.protocol("WM_DELETE_WINDOW", close)
@@ -1077,10 +1094,6 @@ class application():
                                    type VARCHAR(10),
                                    category VARCHAR(10),
                                    price VARCHAR(8)
-                                   )""")
-        self.productcursor.execute("""CREATE TABLE IF NOT EXISTS ProductSize(
-                                   product VARCHAR(30),
-                                   category VARCHAR(30)
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Combo(
                                    name VARCHAR(30),
