@@ -599,7 +599,7 @@ class application():
         self.reloadcategories()
     def windowcommand(self, command = 0):
         try:
-            if int(command.cget("text")) > 0:
+            if int(command) > 0:
                 num = command
         except:
             num = ""
@@ -640,17 +640,20 @@ class application():
         self.productpriceunit_heading = ctk.CTkLabel(self.rootcommand, text="PREÇO UNIDADE", fg_color=self.colors[4], width=100, height=30)
         self.productpriceunit_heading.grid(row=1, column=3, padx=1, pady=50)
 
-        self.productprice_heading = ctk.CTkLabel(self.rootcommand, text="PREÇO TOTAL", fg_color=self.colors[4], width=100, height=30)
-        self.productprice_heading.grid(row=1, column=4, padx=0, pady=50)
-
         self.quantity_heading = ctk.CTkLabel(self.rootcommand, text="QTD.", fg_color=self.colors[4], width=50, height=30)
-        self.quantity_heading.grid(row=1, column=5, padx=1, pady=50)
+        self.quantity_heading.grid(row=1, column=4, padx=1, pady=50)
+
+        self.productprice_heading = ctk.CTkLabel(self.rootcommand, text="PREÇO TOTAL", fg_color=self.colors[4], width=100, height=30)
+        self.productprice_heading.grid(row=1, column=5, padx=1, pady=50)
 
         self.time_heading = ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30)
-        self.time_heading.grid(row=1, column=6, padx=0, pady=50)
+        self.time_heading.grid(row=1, column=6, padx=1, pady=50)
 
-        self.edit_heading = ctk.CTkLabel(self.rootcommand, text="EDITAR", fg_color=self.colors[4], width=40, height=30)
+        self.edit_heading = ctk.CTkLabel(self.rootcommand, text="EDITAR", fg_color=self.colors[4], width=50, height=30)
         self.edit_heading.grid(row=1, column=7, padx=1, pady=50)
+
+        self.del_heading = ctk.CTkLabel(self.rootcommand, text="EXCLUIR", fg_color=self.colors[4], width=50, height=30)
+        self.del_heading.grid(row=1, column=8, padx=1, pady=50)
 
         self.button_addproductoncommand = ctk.CTkButton(self.rootcommand, text="ADICIONAR PRODUTO", command=self.addpdctcommandwindow, fg_color=self.colors[4], hover_color=self.colors[5])
         self.button_addproductoncommand.place(relx=0.7, rely=0.002, relwidth=0.29, relheight=0.057)
@@ -691,10 +694,11 @@ class application():
             self.current_productsincommands.append([ctk.CTkLabel(self.frame_consume, text=product, fg_color=self.colors[4], width=200, height=40),
                                                    ctk.CTkLabel(self.frame_consume, text=waiter, fg_color=self.colors[4], width=200, height=40),
                                                    ctk.CTkLabel(self.frame_consume, text=unitprice, fg_color=self.colors[4], width=100, height=40),
-                                                   ctk.CTkLabel(self.frame_consume, text=price, fg_color=self.colors[4], width=100, height=40),
                                                    ctk.CTkLabel(self.frame_consume, text=quantity, fg_color=self.colors[4], width=50, height=40),
+                                                   ctk.CTkLabel(self.frame_consume, text=price, fg_color=self.colors[4], width=100, height=40),
                                                    ctk.CTkLabel(self.frame_consume, text=text, fg_color=self.colors[4], width=100, height=40),
-                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=40, height=40, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)),hover=False, )
+                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)),hover=False, ),
+                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30, 30)),hover=False)
                                                    ])
             self.current_productsincommands[k][0].grid(row= k + 1, column=1, padx=0, pady=1)
             self.current_productsincommands[k][1].grid(row= k + 1, column=2, padx=1, pady=1)
@@ -702,7 +706,8 @@ class application():
             self.current_productsincommands[k][3].grid(row= k + 1, column=4, padx=1, pady=1)
             self.current_productsincommands[k][4].grid(row= k + 1, column=5, padx=1, pady=1)
             self.current_productsincommands[k][5].grid(row= k + 1, column=6, padx=1, pady=1)
-            self.current_productsincommands[k][6].grid(row= k + 1, column=7, padx=1, pady=1)  
+            self.current_productsincommands[k][6].grid(row= k + 1, column=7, padx=1, pady=1)
+            self.current_productsincommands[k][7].grid(row= k + 1, column=8, padx=1, pady=1)  
         self.desconnectcommands()
     def closewindowaddproduct(self):
         self.rootcommand.grab_set()
@@ -759,29 +764,32 @@ class application():
             quantity = self.entry_quantity.get()
             unitprice = self.entry_unitprice.get()
             if tipe == "SIZE":
-                name = self.combobox_products
+                name = product + " (" + self.combobox_products.get() + ")"
             elif tipe == "NORMAL":
                 name = product
             self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, str(int(unitprice)*int(quantity)), unitprice, quantity, name, tipe, ""))
             self.desconnectcommands()
+            close()
+            self.reloadproductforcommands()
         self.rooteditaddproduct = ctk.CTkToplevel(self.rootaddpdctcommand)
-        self.rooteditaddproduct.geometry("500x500")
+        self.rooteditaddproduct.geometry("500x200")
         self.rooteditaddproduct.transient(self.rootaddpdctcommand)
         self.rooteditaddproduct.resizable(False, False)
         self.rooteditaddproduct.title("CONFIGURAÇÕES DO PRODUTO")
         self.rooteditaddproduct.grab_set()
 
-        self.label_product = ctk.CTkLabel(self.rooteditaddproduct, text= product + " (" + category + ")", fg_color=self.colors[4])
-        self.label_product.place(relx=0.01, rely=0.01, relwidth=0.2, relheight=0.1)
+        self.label_product = ctk.CTkLabel(self.rooteditaddproduct, text= product + " (" + category + ")", fg_color=self.colors[4], font=("Arial", 25))
+        self.label_product.place(relx=0.01, rely=0.01, relwidth=0.59, relheight=0.48)
 
-        self.entry_quantity = ctk.CTkEntry(self.rooteditaddproduct, fg_color=self.colors[4])
-        self.entry_quantity.place(relx=0.22, rely=0.01, relwidth=0.1, relheight=0.1)
+        self.entry_quantity = ctk.CTkEntry(self.rooteditaddproduct, fg_color=self.colors[4], font=("Arial", 25))
+        self.entry_quantity.place(relx=0.61, rely=0.01, relwidth=0.14, relheight=0.48)
         self.entry_quantity.insert(0, "1")
 
-        self.entry_unitprice = ctk.CTkEntry(self.rooteditaddproduct, fg_color=self.colors[4])
-        self.entry_unitprice.place(relx=0.33, rely=0.01, relwidth=0.1, relheight=0.1)
+        self.entry_unitprice = ctk.CTkEntry(self.rooteditaddproduct, fg_color=self.colors[4], font=("Arial", 25), placeholder_text="PREÇO")
+        self.entry_unitprice.place(relx=0.76, rely=0.01, relwidth=0.23, relheight=0.48)
         
-        self.button_confirm = ctk.CTkButton(self.rooteditaddproduct, fg_color=self.colors[4], hover_color=self.colors[5], command=confirm)
+        self.button_confirm = ctk.CTkButton(self.rooteditaddproduct, fg_color=self.colors[4], hover_color=self.colors[5], command=confirm, text="CONFIRMAR", font=("Arial", 25))
+        self.button_confirm.place(relx=0.51, rely=0.50, relwidth=0.48, relheight=0.49)
 
         if tipe == "NORMAL":
             self.entry_unitprice.insert(0, price)
@@ -794,8 +802,8 @@ class application():
             for i in temp:
                 self.dicproduct[i[1]] = i[0]
                 listencb.append(i[1])
-            self.combobox_products = ctk.CTkComboBox(self.rooteditaddproduct, width=200, height=50, values=listencb, command=select)
-            self.combobox_products.place(relx=0.01, rely=0.12)
+            self.combobox_products = ctk.CTkComboBox(self.rooteditaddproduct, width=240, height=95, values=listencb, command=select, font=("Arial", 25))
+            self.combobox_products.place(relx=0.01, rely=0.50)
             self.desconnectproduct()
 
         self.root.bind_all("<KeyPress>", pressesc)
@@ -990,7 +998,7 @@ class application():
 
             mainimgs = [ctk.CTkImage(Image.open("imgs/caixa.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tables.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/clientes.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/trofeu.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/garçom.png"), size=(60,60))]
             
-            mainbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "ABRIR OU FECHAR CAIXA"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
+            mainbuttons = [[ctk.CTkButton(master= self.frame_tab), "ABRIR OU FECHAR CAIXA"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
             
             self.currentmain = mainbuttons
             self.currentimgs = mainimgs
