@@ -442,19 +442,19 @@ class application():
         print(category)
         self.connectproduct()
         if oldname != "":
-            self.productcursor.execute("DELETE FROM SizeofProducts WHERE product = ? AND category = ?", (oldname, oldcategory))
+            self.productcursor.execute("DELETE FROM SizeofProducts WHERE product = ? AND category = ? AND type = ?", (oldname, oldcategory, "SIZE"))
             self.productcursor.execute("DELETE FROM ProductSize WHERE product = ? AND category = ?", (oldname, oldcategory))
             temp = ""
         else:
             temp = ""
-            tmp = self.productcursor.execute("SELECT product, category FROM ProductSize WHERE product = ? AND category = ?", (name, category))
+            tmp = self.productcursor.execute("SELECT product, category FROM ProductSize WHERE product = ? AND category = ? AND type = ?", (name, category, "SIZE"))
             for i in tmp:
                 if i[0] == name and i[1] == category:
                     temp = "a"
         if temp == "":
             for i in self.current_sizesfornewproduct:
                 self.productcursor.execute("INSERT INTO SizeofProducts (product, price, name, category) VALUES (?, ?, ?, ?)", (name, i[1], i[0], category))
-            self.product.execute("INSERT INTO ProductSize (product, category) VALUES (?, ?)", (name, category))
+            self.product.execute("INSERT INTO ProductSize (product, category, type) VALUES (?, ?, ?)", (name, category, "SIZE"))
             self.rootaddproductsize.destroy()
         self.desconnectproduct()
         self.reloadproductssize()
@@ -741,6 +741,13 @@ class application():
         if event.keysym == "Escape":
             self.closewindowaddproduct()
     def addproductincommandwindow(self, product, category, tipe):
+        def close():
+            self.rootaddpdctcommand.grab_set()
+            self.root.bind_all("<KeyPress>",self.pressesccommand)
+            self.rooteditaddproduct.destroy()
+        def pressesc(event):
+            if event.keysym == "Escape":
+                close()
         self.rooteditaddproduct = ctk.CTkToplevel(self.rootaddpdctcommand)
         self.rooteditaddproduct.geometry("500x500")
         self.rooteditaddproduct.transient(self.rootaddpdctcommand)
@@ -748,7 +755,8 @@ class application():
         self.rooteditaddproduct.title("CONFIGURAÇÕES DO PRODUTO")
         self.rooteditaddproduct.grab_set()
 
-        self.root.bind_all("<KeyPress>",self.pressesccommand)
+        self.root.bind_all("<KeyPress>", pressesc)
+        self.rooteditaddproduct.protocol("WM_DELETE_WINDOW", close)
     def reloadproductstable(self, search = ""):
         def addproductincommand(product, category, tipe, price):
             if tipe == "SIZE":
@@ -781,6 +789,7 @@ class application():
                     listen = i
         self.currentproductsaddlist = []
         for k, i in enumerate(listen):
+            print(i)
             name, tipe, category, price = i
             self.currentproductsaddlist.append([ctk.CTkLabel(self.scroolframe_addproduct, text=category, width=200, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=name, width=200, height=40, fg_color=self.colors[5]),
