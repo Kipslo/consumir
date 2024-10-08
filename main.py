@@ -662,6 +662,11 @@ class application():
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
         self.reloadproductforcommands(num)
     def reloadproductforcommands(self, number):
+        def delete(cod):
+            self.connectcommands()
+            self.commandscursor.execute("DELETE FROM Consumption WHERE cod = ?", (cod,))
+            self.desconnectcommands()
+            self.reloadproductforcommands(self.currentcommandwindow)
         self.connectcommands()
         temp = self.commandscursor.execute("SELECT cod, number, date, hour, waiter, price, unitprice, quantity, product, type, size FROM Consumption WHERE number = ?", (number, ))
         try:
@@ -698,7 +703,7 @@ class application():
                                                    ctk.CTkLabel(self.frame_consume, text=price, fg_color=self.colors[4], width=100, height=40),
                                                    ctk.CTkLabel(self.frame_consume, text=text, fg_color=self.colors[4], width=100, height=40),
                                                    ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)),hover=False, ),
-                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30, 30)),hover=False)
+                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30, 30)),hover=False, command=lambda x = cod: delete(x))
                                                    ])
             self.current_productsincommands[k][0].grid(row= k + 1, column=1, padx=0, pady=1)
             self.current_productsincommands[k][1].grid(row= k + 1, column=2, padx=1, pady=1)
@@ -746,7 +751,7 @@ class application():
     def pressesccommand(self, event):
         if event.keysym == "Escape":
             self.closewindowaddproduct()
-    def addproductincommandwindow(self, product, category, tipe, price = ""):
+    def addproductincommandwindow(self, product = "", category = "", tipe = "", price = "", cod = ""):
         def close():
             self.rootaddpdctcommand.grab_set()
             self.root.bind_all("<KeyPress>",self.pressesccommand)
@@ -757,6 +762,9 @@ class application():
         def select(product):
             self.entry_unitprice.delete(0, "end")
             self.entry_unitprice.insert(0, self.dicproduct[product])
+        def close2():
+            self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
+            self.rooteditaddproduct.destroy()
         def confirm():
             self.connectcommands()
             date = str(datetime.datetime.now())[0:19]
@@ -771,6 +779,13 @@ class application():
             self.desconnectcommands()
             close()
             self.reloadproductforcommands()
+        def confirm2(cod):
+            self.connectcommands()
+            unitprice = self.entry_unitprice.get()
+            quantity = self.entry_quantity.get()
+            self.commandscursor.execute("UPDATE Consumption SET unitprice = ?, quantity = ? WHERE cod = ?", (unitprice, quantity, cod))
+            self.desconnectcommands()
+            self.reloadproductforcommands(self.currentcommandwindow)
         self.rooteditaddproduct = ctk.CTkToplevel(self.rootaddpdctcommand)
         self.rooteditaddproduct.geometry("500x200")
         self.rooteditaddproduct.transient(self.rootaddpdctcommand)
@@ -790,10 +805,12 @@ class application():
         
         self.button_confirm = ctk.CTkButton(self.rooteditaddproduct, fg_color=self.colors[4], hover_color=self.colors[5], command=confirm, text="CONFIRMAR", font=("Arial", 25))
         self.button_confirm.place(relx=0.51, rely=0.50, relwidth=0.48, relheight=0.49)
-
+        
+        self.root.bind_all("<KeyPress>", pressesc)
+        self.rooteditaddproduct.protocol("WM_DELETE_WINDOW", close)
         if tipe == "NORMAL":
             self.entry_unitprice.insert(0, price)
-        if tipe == "SIZE":
+        elif tipe == "SIZE":
             self.dicproduct = {}
             self.connectproduct()
             temp = self.productcursor.execute("SELECT price, name FROM SizeofProducts WHERE product = ? AND category = ?", (product, category))
@@ -805,9 +822,22 @@ class application():
             self.combobox_products = ctk.CTkComboBox(self.rooteditaddproduct, width=240, height=95, values=listencb, command=select, font=("Arial", 25))
             self.combobox_products.place(relx=0.01, rely=0.50)
             self.desconnectproduct()
+        elif cod != "":
+            self.rooteditaddproduct.protocol("WM_DELETE_WINDOW", close2)
+            self.connectcommands()
+            temp = self.commandscursor.execute("SELECT unitprice, quantity, product FROM Consumption WHERE cod = ?",(cod, ))
+            for i in temp:
+                unitprice, quantity, product = i
+            self.entry_quantity.delete(0, "end")
+            self.entry_quantity.insert(0, quantity)
 
-        self.root.bind_all("<KeyPress>", pressesc)
-        self.rooteditaddproduct.protocol("WM_DELETE_WINDOW", close)
+            self.label_product.configure(text=product)
+
+            self.entry_unitprice.insert("", unitprice)
+
+            self.button_confirm.configure(command=lambda x=cod:confirm2(x))
+            self.desconnectcommands()
+
     def reloadproductstable(self, search = ""):
         def addproductincommand(product, category, tipe, price):
             if tipe == "SIZE":
