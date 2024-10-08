@@ -618,6 +618,7 @@ class application():
             self.rootconfirmdelete.geometry("300x200")
             self.rootconfirmdelete.transient(self.rootcommand)
             self.rootconfirmdelete.grab_set()
+            self.rootconfirmdelete.title("DELETAR COMANDA")
 
             self.button_confirmdelete = ctk.CTkButton(self.rootconfirmdelete, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command= delfunc)
             self.button_confirmdelete.place(relx=0.01, rely=0.01, relwidth=1, relheight=0.48)
@@ -808,6 +809,7 @@ class application():
             self.desconnectcommands()
             close()
             self.reloadproductforcommands(self.currentcommandwindow)
+            self.insertcommandactive(self.currentcommandwindow)
         def confirm2(cod):
             self.connectcommands()
             unitprice = self.entry_unitprice.get()
@@ -871,7 +873,6 @@ class application():
 
             self.button_confirm.configure(command=lambda x=cod:confirm2(x))
             self.desconnectcommands()
-
     def reloadproductstable(self, search = ""):
         def addproductincommand(product, category, tipe, price):
             if tipe == "SIZE":
@@ -881,8 +882,9 @@ class application():
                 date = str(datetime.datetime.now())[0:19]
                 date, hour = date[0:10], date[11:20]
                 self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, price, price, "1", product, tipe, ""))
-
                 self.desconnectcommands()
+                self.insertcommandactive(self.currentcommandwindow)
+                self.reloadcommands()
             self.reloadproductforcommands(self.currentcommandwindow)
         try:
             for i in self.currentproductsaddlist:
@@ -918,7 +920,18 @@ class application():
             self.currentproductsaddlist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
         self.desconnectproduct()
     
-    
+    def insertcommandactive(self, number):
+        self.connectcommands()
+        temp = self.commandscursor.execute("SELECT number FROM CommandsActive WHERE number = ?", (number, ))
+        tmp = ""
+        for i in temp:
+            tmp = i[0]
+        if tmp == "":
+            date = str(datetime.datetime.now())[0:19]
+            date, hour = date[0:10], date[11:20]
+            self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (number, date, hour, "", ""))
+            self.desconnectcommands()
+            self.reloadcommands()
     def presskeycommandwindow(self, event):
         if event.keysym == "Escape":
             self.on_closingcommandwindow()
@@ -961,6 +974,12 @@ class application():
         
         self.desconnectcommands()
     def newcommands (self):
+        def close():
+            self.root.bind_all("<KeyPress>", self.presskey)
+            self.rootnewcom.destroy()
+        def presskey(event):
+            if event.keysym == "Escape":
+                close()
         self.rootnewcom = ctk.CTkToplevel()
         self.rootnewcom.title("ADICIONAR COMANDA")
         #self.rootnewcom.iconbitmap('imagens\Icon.ico')
@@ -978,24 +997,15 @@ class application():
             pass
         self.button_newcommand = []
         threading.Thread(self.addnewcommandwindow()).start()
-    
+        self.rootnewcom.protocol("WM_DELETE_WINDOW", close)
+        self.root.bind_all("<KeyPress>", presskey)
     def addnewcommandwindow(self):
         def addnewcommandactive(command):
             num = command.cget("text")
             self.connectcommands()
-            number = ""
-            com = self.commandscursor.execute("""SELECT number FROM CommandsActive WHERE number = ?""", (num, ))
-            for i in com:
-                number = i
-            if number == "":
-                date = datetime.datetime.now()
-                date = str(date)[0:19]
-                date, hour = date[0:10], date[11:20]
-                nameclient = ""
-                idclient = ""
-                self.commandscursor.execute("""INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)""", (num, date, hour, nameclient, idclient))
-                self.rootnewcom.destroy()
+            self.rootnewcom.destroy()
             self.desconnectcommands()
+            self.insertcommandactive(num)
             threading.Thread(self.reloadcommands()).start()
         for i in range(int(self.maxcommands)):
             k = False
