@@ -702,7 +702,7 @@ class application():
                                                    ctk.CTkLabel(self.frame_consume, text=quantity, fg_color=self.colors[4], width=50, height=40),
                                                    ctk.CTkLabel(self.frame_consume, text=price, fg_color=self.colors[4], width=100, height=40),
                                                    ctk.CTkLabel(self.frame_consume, text=text, fg_color=self.colors[4], width=100, height=40),
-                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)),hover=False, ),
+                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)),hover=False, command=lambda x= cod:self.addproductincommandwindow(cod=x)),
                                                    ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30, 30)),hover=False, command=lambda x = cod: delete(x))
                                                    ])
             self.current_productsincommands[k][0].grid(row= k + 1, column=1, padx=0, pady=1)
@@ -775,7 +775,7 @@ class application():
                 name = product + " (" + self.combobox_products.get() + ")"
             elif tipe == "NORMAL":
                 name = product
-            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, str(int(unitprice)*int(quantity)), unitprice, quantity, name, tipe, ""))
+            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, str(float(unitprice)*int(quantity)), unitprice, quantity, name, tipe, ""))
             self.desconnectcommands()
             close()
             self.reloadproductforcommands()
@@ -783,12 +783,17 @@ class application():
             self.connectcommands()
             unitprice = self.entry_unitprice.get()
             quantity = self.entry_quantity.get()
-            self.commandscursor.execute("UPDATE Consumption SET unitprice = ?, quantity = ? WHERE cod = ?", (unitprice, quantity, cod))
+            self.commandscursor.execute("UPDATE Consumption SET unitprice = ?, quantity = ?, price = ? WHERE cod = ?", (unitprice, quantity, str(float(unitprice)*int(quantity)), cod))
             self.desconnectcommands()
             self.reloadproductforcommands(self.currentcommandwindow)
-        self.rooteditaddproduct = ctk.CTkToplevel(self.rootaddpdctcommand)
+            close2()
+        if cod != "":
+            self.rooteditaddproduct = ctk.CTkToplevel(self.rootcommand)
+            self.rooteditaddproduct.transient(self.rootcommand)
+        else:
+            self.rooteditaddproduct = ctk.CTkToplevel(self.rootaddpdctcommand)
+            self.rooteditaddproduct.transient(self.rootaddpdctcommand)
         self.rooteditaddproduct.geometry("500x200")
-        self.rooteditaddproduct.transient(self.rootaddpdctcommand)
         self.rooteditaddproduct.resizable(False, False)
         self.rooteditaddproduct.title("CONFIGURAÇÕES DO PRODUTO")
         self.rooteditaddproduct.grab_set()
@@ -833,7 +838,7 @@ class application():
 
             self.label_product.configure(text=product)
 
-            self.entry_unitprice.insert("", unitprice)
+            self.entry_unitprice.insert(0, unitprice)
 
             self.button_confirm.configure(command=lambda x=cod:confirm2(x))
             self.desconnectcommands()
