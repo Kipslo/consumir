@@ -598,6 +598,35 @@ class application():
         self.desconnectproduct()
         self.reloadcategories()
     def windowcommand(self, command = 0):
+        def close():
+            self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
+            self.rootconfirmdelete.destroy()
+            self.rootcommand.grab_set()
+        def presskey(event):
+            if event.keysym == "Escape":
+                close()
+        def delfunc():
+            self.connectcommands()
+            self.commandscursor.execute("DELETE FROM Consumption WHERE number = ?", (self.currentcommandwindow, ))
+            self.commandscursor.execute("DELETE FROM CommandsActive WHERE number = ?", (self.currentcommandwindow, ))
+            self.desconnectcommands()
+            close()
+            self.on_closingcommandwindow()
+            self.reloadcommands()
+        def deletecommand():
+            self.rootconfirmdelete = ctk.CTkToplevel(self.rootcommand)
+            self.rootconfirmdelete.geometry("300x200")
+            self.rootconfirmdelete.transient(self.rootcommand)
+            self.rootconfirmdelete.grab_set()
+
+            self.button_confirmdelete = ctk.CTkButton(self.rootconfirmdelete, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command= delfunc)
+            self.button_confirmdelete.place(relx=0.01, rely=0.01, relwidth=1, relheight=0.48)
+
+            self.button_canceldelete = ctk.CTkButton(self.rootconfirmdelete, fg_color=self.colors[4], hover_color=self.colors[5], text="CANCELAR", command= close,)
+            self.button_canceldelete.place(relx=0.01, rely=0.51, relwidth=1, relheight=0.48)
+            
+            self.rootconfirmdelete.bind_all("<KeyPress>", presskey)
+            self.rootconfirmdelete.protocol("WM_DELETE_WINDOW", close)
         try:
             if int(command) > 0:
                 num = command
@@ -622,7 +651,7 @@ class application():
         self.frame_infocommand = ctk.CTkFrame(self.rootcommand, fg_color=self.colors[2])
         self.frame_infocommand.place(relx=0,rely=0.8,relwidth=1,relheight=0.2)
 
-        self.button_delcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="EXCLUIR COMANDA", hover_color=self.colors[5], )
+        self.button_delcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="EXCLUIR COMANDA", hover_color=self.colors[5], command=deletecommand)
         self.button_delcommand.place(relx=0.01, rely=0.15, relwidth=0.29, relheight=0.7)
 
         self.button_finishcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="PAGAMENTO", hover_color=self.colors[5])
@@ -778,7 +807,7 @@ class application():
             self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, str(float(unitprice)*int(quantity)), unitprice, quantity, name, tipe, ""))
             self.desconnectcommands()
             close()
-            self.reloadproductforcommands()
+            self.reloadproductforcommands(self.currentcommandwindow)
         def confirm2(cod):
             self.connectcommands()
             unitprice = self.entry_unitprice.get()
