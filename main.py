@@ -1084,7 +1084,8 @@ class application():
             self.currentmain = productbuttons
             self.currentimgs = productimgs
         elif text == "CONFIGURAÇÕES":  
-            pass
+            configimgs = [ctk.CTkImage(Image.open("imgs"), size=(60,60))]
+            configbuttons = [[ctk.CTkButton(master=self.frame_tab), "CONFIGURAÇÕES"]]
         for i, m in enumerate(self.currentmain):
             buttontemp, texttemp = m
             buttontemp.configure(text=texttemp, fg_color=self.colors[4], hover_color=self.colors[2], image=self.currentimgs[i], compound="top", anchor="bottom")
@@ -1230,7 +1231,21 @@ class application():
                                    )""")
         self.desconnectproduct() 
         self.connecthistory()
-        #self.historycursor.execute("""CREATE TABLE IF NOT EXISTS ClosedCommand()""")
+        self.historycursor.execute("""CREATE TABLE IF NOT EXISTS ClosedCommand(
+                                    cod INTEGER PRIMARY KEY,
+                                    number VARCHAR(4),
+                                    date CHAR(10),
+                                    hour CHAR(5),
+                                    waiter VARCHAR(30),
+                                    price VARCHAR(8),
+                                    unitprice VARCHAR(8),
+                                    quantity INTERGER(3),
+                                    product VARCHAR(30),
+                                    type VARCHAR(30),
+                                    size VARCHAR(30),
+                                    datefinish VARCHAR(16)
+
+                                    )""")
         self.desconnecthistory()
                                                                                                                      
 application() 
