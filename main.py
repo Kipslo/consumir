@@ -318,6 +318,8 @@ class application():
             self.frame_producttypes.destroy(); self.frame_modproducts.destroy(); self.frame_productreeviews.destroy(); self.frame_productreeviews.place_forget()
         elif self.currentwindow == "CATEGORIES":
             self.treeview_categories.destroy(); self.treeview_categories.place_forget(); self.frame_categoriesmod.destroy()
+        elif self.currentwindow == "CONFIGURAÇÕES":
+            pass
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     
@@ -1084,8 +1086,11 @@ class application():
             self.currentmain = productbuttons
             self.currentimgs = productimgs
         elif text == "CONFIGURAÇÕES":  
-            configimgs = [ctk.CTkImage(Image.open("imgs"), size=(60,60))]
-            configbuttons = [[ctk.CTkButton(master=self.frame_tab), "CONFIGURAÇÕES"]]
+            configimgs = [ctk.CTkImage(Image.open("imgs/config.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/garçom.png"), size=(60,60))]
+            configbuttons = [[ctk.CTkButton(master=self.frame_tab), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab), "FUNCIONÁRIOS"]]
+
+            self.currentmain = configbuttons
+            self.currentimgs = configimgs
         for i, m in enumerate(self.currentmain):
             buttontemp, texttemp = m
             buttontemp.configure(text=texttemp, fg_color=self.colors[4], hover_color=self.colors[2], image=self.currentimgs[i], compound="top", anchor="bottom")
