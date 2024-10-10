@@ -1059,34 +1059,49 @@ class application():
         elif key == "Return":
             pass    
     def functionarywindow(self):
+        def reload():
+            self.connectconts()
+            temp = self.contscursor.execute("SELECT * FROM Conts")
+            tempm = []
+            for i in temp:
+                tempm.append(i)
+            self.desconnectconts()
+            self.currentfunctionarylabel = []
+            self.currentfunctionaryvar = []
+            for i in tempm:
+                name, password, permissionmaster, permissionrelease, permissionentry = i
+            
+
+
+
         self.deletewindow()
         self.currentwindow = "FUNCIONÁRIOS"
 
         self.scroolframe_functionary = ctk.CTkScrollableFrame(self.root, fg_color=self.colors[3])
         self.scroolframe_functionary.place(relx=0.01, rely=0.20, relwidth=0.98, relheight=0.79)
 
-        self.button_addfunctionary = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[5])
+        self.button_addfunctionary = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[5], text="ADICIONAR")
         self.button_addfunctionary.place(relx=0.8, rely=0.14, relwidth=0.19, relheight=0.05)
 
-        self.name_headingfunctionary = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=50, height=40, tex)
+        self.name_headingfunctionary = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=200, height=40, text="FUNCIONÁRIO")
         self.name_headingfunctionary.grid(row=1, column=1, padx=1, pady=1)
 
-        self.permissionmaster_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=50, height=40)
+        self.permissionmaster_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=70, height=40, text="ADMIN")
         self.permissionmaster_heading.grid(row=1, column=2, padx=1, pady=1)
 
-        self.permissionrelease_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=50, height=40)
+        self.permissionrelease_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=70, height=40, text="GARÇOM")
         self.permissionrelease_heading.grid(row=1, column=3, padx=1, pady=1)
 
-        self.permissionentry_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=50, height=40)
+        self.permissionentry_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=70, height=40, text="PORTEIRO")
         self.permissionentry_heading.grid(row=1, column=4, padx=1, pady=1)
 
-        self.editfunctionary_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=50, height=40)
+        self.editfunctionary_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=40, text="EDITAR")
         self.editfunctionary_heading.grid(row=1, column=5, padx=1, pady=1)
 
-        self.deletefunctionary_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=50, height=40)
+        self.deletefunctionary_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=40, text="DELETAR")
         self.deletefunctionary_heading.grid(row=1, column=6, padx=1, pady=1)
 
-
+        reload()
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
@@ -1187,7 +1202,7 @@ class application():
     def addcont(self):
         self.connectconts()
         name = "Gabriel"
-        password = "sim123"
+        password = ""
         permissionmaster = "Y"
         self.contscursor.execute("""INSERT INTO Conts (name, password, permissionmaster) VALUES (?, ?, ?)""", (name, password, permissionmaster))
         self.desconnectconts()
