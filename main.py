@@ -1056,6 +1056,22 @@ class application():
             self.entry_namecommand.delete(0, "end")
         elif key == "Return":
             pass    
+    def functionarywindow(self):
+        self.deletewindow()
+        self.currentwindow = "FUNCIONÁRIOS"
+
+        self.scroolframe_functionary = ctk.CTkScrollableFrame(self.root)
+
+        self.button_addfunctionary = ctk.CTkButton(self.root)
+
+        self.name_headingfunctionary = ctk.CTkLabel(self.root)
+
+        self.permissionmaster_heading = ctk.CTkLabel(self.root)
+
+        self.permissionrelease_heading = ctk.CTkLabel(self.root)
+
+        self.permissionentry_heading = ctk.CTkLabel(self.root)
+
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
@@ -1087,7 +1103,7 @@ class application():
             self.currentimgs = productimgs
         elif text == "CONFIGURAÇÕES":  
             configimgs = [ctk.CTkImage(Image.open("imgs/config.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/garçom.png"), size=(60,60))]
-            configbuttons = [[ctk.CTkButton(master=self.frame_tab), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab), "FUNCIONÁRIOS"]]
+            configbuttons = [[ctk.CTkButton(master=self.frame_tab), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab, command=self.functionarywindow), "FUNCIONÁRIOS"]]
 
             self.currentmain = configbuttons
             self.currentimgs = configimgs
@@ -1178,7 +1194,10 @@ class application():
         self.contscursor.execute("""CREATE TABLE IF NOT EXISTS Conts(
                                  name VARCHAR(30) NOT NULL,
                                  password VARCHAR(30) NOT NULL,
-                                 permissionmaster CHAR(1) NOT NULL)""")
+                                 permissionmaster CHAR(1) NOT NULL, 
+                                 permissionrelease CHAR(1),
+                                 permissionentry CHAR(1)
+                                 )""")
         self.desconnectconts()
         self.connectcommands()
         self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS CommandsActive(
