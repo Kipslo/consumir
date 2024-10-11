@@ -1099,12 +1099,12 @@ class application():
                     self.currentfunctionaryvar[k][1].set("Y")
                 if permissionentry == "Y":
                     self.currentfunctionaryvar[k][2].set("Y")
-                self.currentfunctionarylabel.append([ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=200, height=30, text=name),
-                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][0], onvalue="Y", offvalue="F", width=70, height=30, text="", command=lambda x = "permissionmaster", y = k,z = name:update(x, y, z)),
-                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][1], onvalue="Y", offvalue="F", width=70, height=30, text="", command=lambda x = "permissionrelease", y = k,z = name:update(x, y, z)),
-                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][2], onvalue="Y", offvalue="F", width=70, height=30, text="", command=lambda x = "permissionentry", y = k,z = name:update(x, y, z)),
-                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=30, text="", hover=False, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30,30)), command=lambda x=name: edit(x)),
-                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=30, text="", hover=False, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), command=lambda x=name: delete(x))])
+                self.currentfunctionarylabel.append([ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=200, height=40, text=name),
+                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][0], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionmaster", y = k,z = name:update(x, y, z)),
+                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][1], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionrelease", y = k,z = name:update(x, y, z)),
+                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][2], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionentry", y = k,z = name:update(x, y, z)),
+                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=40, text="", hover=False, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30,30)), command=lambda x=name: edit(x)),
+                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=40, text="", hover=False, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), command=lambda x=name: delete(x))])
                 self.currentfunctionarylabel[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
                 self.currentfunctionarylabel[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
                 self.currentfunctionarylabel[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
@@ -1116,7 +1116,7 @@ class application():
                 self.button_editfunctionary.destroy()
             except:
                 pass
-            self.button_editfunctionary = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[5],command=lambda x= name:insert(x))
+            self.button_editfunctionary = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[5],command=lambda x= name:insert(x), text="CONFIRMAR EDIÇÃO")
             self.button_editfunctionary.place(relx=0.6, rely=0.145, relwidth=0.19, relheight=0.05)
             self.connectconts()
             temp = self.contscursor.execute("SELECT name, password FROM Conts WHERE name = ?", (name, ))
@@ -1168,22 +1168,22 @@ class application():
         self.entry_passwordcont = ctk.CTkEntry(self.root, fg_color=self.colors[4], placeholder_text="SENHA", show="*")
         self.entry_passwordcont.place(relx=0.21, rely=0.145, relwidth=0.19, relheight=0.05)
 
-        self.name_headingfunctionary = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=200, height=40, text="FUNCIONÁRIO")
+        self.name_headingfunctionary = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=200, height=50, text="FUNCIONÁRIO")
         self.name_headingfunctionary.grid(row=1, column=1, padx=1, pady=1)
 
-        self.permissionmaster_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=70, height=40, text="ADMIN")
+        self.permissionmaster_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=70, height=50, text="ADMIN")
         self.permissionmaster_heading.grid(row=1, column=2, padx=1, pady=1)
 
-        self.permissionrelease_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=70, height=40, text="GARÇOM")
+        self.permissionrelease_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=70, height=50, text="GARÇOM")
         self.permissionrelease_heading.grid(row=1, column=3, padx=1, pady=1)
 
-        self.permissionentry_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=70, height=40, text="PORTEIRO")
+        self.permissionentry_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=70, height=50, text="PORTEIRO")
         self.permissionentry_heading.grid(row=1, column=4, padx=1, pady=1)
 
-        self.editfunctionary_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=40, text="EDITAR")
+        self.editfunctionary_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=50, text="EDITAR")
         self.editfunctionary_heading.grid(row=1, column=5, padx=1, pady=1)
 
-        self.deletefunctionary_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=40, text="DELETAR")
+        self.deletefunctionary_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=50, text="DELETAR")
         self.deletefunctionary_heading.grid(row=1, column=6, padx=1, pady=1)
 
         reload()
