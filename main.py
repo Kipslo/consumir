@@ -7,8 +7,8 @@ from PIL import Image
 import threading
 import pyautogui as pa
 import datetime
-import time
 from unidecode import unidecode
+from escpos.printer import network
 class application():
     def __init__(self):
         self.createtables()
@@ -86,7 +86,7 @@ class application():
         self.root.bind_all("<KeyPress>", self.presskey)
         self.rootcommand.destroy()
     def window(self):
-        self.entry_name.destroy(); self.entry_password.destroy(); self.button_login.destroy(); self.button_temp.destroy(); self.label_person.destroy()
+        self.entry_name.destroy(); self.entry_password.destroy(); self.button_login.destroy(); self.label_person.destroy()
         del self.personimg
         try:
             self.label_failedlogin.destroy()
@@ -1103,8 +1103,8 @@ class application():
                                                     ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][0], onvalue="Y", offvalue="F", width=70, height=30, text="", command=lambda x = "permissionmaster", y = k,z = name:update(x, y, z)),
                                                     ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][1], onvalue="Y", offvalue="F", width=70, height=30, text="", command=lambda x = "permissionrelease", y = k,z = name:update(x, y, z)),
                                                     ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][2], onvalue="Y", offvalue="F", width=70, height=30, text="", command=lambda x = "permissionentry", y = k,z = name:update(x, y, z)),
-                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=30, text="", hover=False, image=ctk.CTkImage(Image.open("imgs/pencil.jpg")), command=lambda x=name: edit(x)),
-                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=30, text="", hover=False, image=ctk.CTkImage(Image.open("imgs/lixeira.png")), command=lambda x=name: delete(x))])
+                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=30, text="", hover=False, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30,30)), command=lambda x=name: edit(x)),
+                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=30, text="", hover=False, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), command=lambda x=name: delete(x))])
                 self.currentfunctionarylabel[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
                 self.currentfunctionarylabel[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
                 self.currentfunctionarylabel[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
@@ -1112,8 +1112,27 @@ class application():
                 self.currentfunctionarylabel[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
                 self.currentfunctionarylabel[k][5].grid(row=k + 2, column=6, padx=1, pady=1)
         def edit(name):
-            pass
+            try:
+                self.button_editfunctionary.destroy()
+            except:
+                pass
+            self.button_editfunctionary = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[5],command=lambda x= name:insert(x))
+            self.button_editfunctionary.place(relx=0.6, rely=0.145, relwidth=0.19, relheight=0.05)
+            self.connectconts()
+            temp = self.contscursor.execute("SELECT name, password FROM Conts WHERE name = ?", (name, ))
+            for i in temp:
+                name, password = i
+            self.desconnectconts()
+            self.entry_name.delete(0, "end")
+            self.entry_name.insert(0, name)
+
+            self.entry_passwordcont.delete(0, "end")
+            self.entry_passwordcont.insert(0, password)
         def insert(oldname = ""):
+            try:
+                self.button_editfunctionary.destroy()
+            except:
+                pass
             self.connectconts()            
             tmp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ?",(self.entry_name.get(), ))
             temp = ""
@@ -1123,7 +1142,10 @@ class application():
                 name, password, permissionmaster, permissionrelease, permissionentry = self.entry_name.get(), self.entry_passwordcont.get(), "F", "F", "F"
                 self.contscursor.execute("INSERT INTO Conts (name, password, permissionmaster, permissionrelease, permissionentry) VALUES (?, ?, ?, ?, ?)",(name, password, permissionmaster, permissionrelease, permissionentry))
             elif temp == "":
-                pass
+                name, password = self.entry_name.get(), self.entry_passwordcont.get()
+                self.contscursor.execute("UPDATE Conts SET name = ?, password = ? WHERE name = ?", (name, password, oldname))
+                self.entry_name.delete(0, "end")
+                self.entry_passwordcont.delete(0, "end")
             self.desconnectconts()
             reload()
         def delete(name):
