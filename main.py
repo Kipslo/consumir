@@ -1070,8 +1070,12 @@ class application():
             self.currentfunctionaryvar = []
             for i in tempm:
                 name, password, permissionmaster, permissionrelease, permissionentry = i
-            
+                self.current
 
+        def insert(name, oldname = ""):
+            self.connectconts()            
+            self.contscursor.execute("SELECT name FROM Conts WHERE name = ?",(name, ))
+            self.desconnectconts()
 
 
         self.deletewindow()
@@ -1081,7 +1085,13 @@ class application():
         self.scroolframe_functionary.place(relx=0.01, rely=0.20, relwidth=0.98, relheight=0.79)
 
         self.button_addfunctionary = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[5], text="ADICIONAR")
-        self.button_addfunctionary.place(relx=0.8, rely=0.14, relwidth=0.19, relheight=0.05)
+        self.button_addfunctionary.place(relx=0.8, rely=0.145, relwidth=0.19, relheight=0.05)
+
+        self.entry_name = ctk.CTkEntry(self.root, fg_color=self.colors[4], placeholder_text="FUNCIONÁRIO")
+        self.entry_name.place(relx=0.01, rely=0.145, relwidth=0.19, relheight=0.05)
+        
+        self.entry_passwordcont = ctk.CTkEntry(self.root, fg_color=self.colors[4], placeholder_text="SENHA", show="*")
+        self.entry_passwordcont.place(relx=0.21, rely=0.145, relwidth=0.19, relheight=0.05)
 
         self.name_headingfunctionary = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=200, height=40, text="FUNCIONÁRIO")
         self.name_headingfunctionary.grid(row=1, column=1, padx=1, pady=1)
