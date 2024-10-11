@@ -60,9 +60,15 @@ class application():
         self.personimg = ctk.CTkImage(Image.open("imgs/person.png"), size=(300,300))
         self.label_person = ctk.CTkLabel(self.root, image = self.personimg, bg_color="#242424", text="")
         self.label_person.place(relx=0.423, rely=0.15)
-
-        self.button_temp = ctk.CTkButton(self.root, fg_color=self.colors[9], text="add cont", hover_color=self.colors[8], command=self.addcont)
-        self.button_temp.place(relx=0.8, rely=0.95, relwidth=0.2, relheight=0.05)
+        temp = ""
+        self.connectconts()
+        tmp = self.contscursor.execute("SELECT * FROM Conts")
+        for i in tmp:
+            temp = i[0]
+            break
+        if temp == "":
+            self.contscursor.execute("INSERT INTO Conts (name, password, permissionmaster, permissionrelease, permissionentry) VALUES (?, ?, ?, ?, ?)",("Admin", "ADMIN", "Y", "Y", "Y"))
+        self.desconnectconts()
         self.root.bind_all("<KeyPress>", self.keypresslogin)
     def searchnameentry(self, n = True):
         if self.positionp == True:
@@ -1061,10 +1067,21 @@ class application():
     def functionarywindow(self):
         def update(up, new, name):
             self.connectconts()
-            self.contscursor.execute("UPDATE FROM Conts SET ? = ? WHERE name = ?", (up, new, name))
-            self.connectconts()
-            reload()
+            if up == "permissionmaster":
+                self.contscursor.execute("UPDATE Conts SET permissionmaster = ? WHERE name = ?", (self.currentfunctionaryvar[new][0].get(), name))
+            elif up == "permissionrelease":
+                self.contscursor.execute("UPDATE Conts SET permissionrelease = ? WHERE name = ?", (self.currentfunctionaryvar[new][1].get(), name))
+            elif up == "permissionentry":
+                self.contscursor.execute("UPDATE Conts SET permissionentry = ? WHERE name = ?", (self.currentfunctionaryvar[new][2].get(), name))
+            self.desconnectconts()
         def reload():
+            try:
+                for i in self.currentfunctionarylabel:
+                    for n in i:
+                        n.destroy()
+                del self.currentfunctionaryvar
+            except:
+                pass
             self.connectconts()
             temp = self.contscursor.execute("SELECT * FROM Conts")
             tempm = []
@@ -1083,21 +1100,22 @@ class application():
                 if permissionentry == "Y":
                     self.currentfunctionaryvar[k][2].set("Y")
                 self.currentfunctionarylabel.append([ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=200, height=30, text=name),
-                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][0], onvalue="Y", offvalue="F", width=70, height=30, text="", command=),
-                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][1], onvalue="Y", offvalue="F", width=70, height=30, text=""),
-                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][2], onvalue="Y", offvalue="F", width=70, height=30, text=""),
-                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=30, text="", hover=False),
-                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=30, text="", hover=False)])
+                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][0], onvalue="Y", offvalue="F", width=70, height=30, text="", command=lambda x = "permissionmaster", y = k,z = name:update(x, y, z)),
+                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][1], onvalue="Y", offvalue="F", width=70, height=30, text="", command=lambda x = "permissionrelease", y = k,z = name:update(x, y, z)),
+                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][2], onvalue="Y", offvalue="F", width=70, height=30, text="", command=lambda x = "permissionentry", y = k,z = name:update(x, y, z)),
+                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=30, text="", hover=False, image=ctk.CTkImage(Image.open("imgs/pencil.jpg")), command=lambda x=name: edit(x)),
+                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=30, text="", hover=False, image=ctk.CTkImage(Image.open("imgs/lixeira.png")), command=lambda x=name: delete(x))])
                 self.currentfunctionarylabel[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
                 self.currentfunctionarylabel[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
                 self.currentfunctionarylabel[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
                 self.currentfunctionarylabel[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
                 self.currentfunctionarylabel[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
                 self.currentfunctionarylabel[k][5].grid(row=k + 2, column=6, padx=1, pady=1)
-
-        def insert(position, oldname = ""):
+        def edit(name):
+            pass
+        def insert(oldname = ""):
             self.connectconts()            
-            tmp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ?",(name, ))
+            tmp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ?",(self.entry_name.get(), ))
             temp = ""
             for i in tmp:
                 temp = "A"
@@ -1105,9 +1123,14 @@ class application():
                 name, password, permissionmaster, permissionrelease, permissionentry = self.entry_name.get(), self.entry_passwordcont.get(), "F", "F", "F"
                 self.contscursor.execute("INSERT INTO Conts (name, password, permissionmaster, permissionrelease, permissionentry) VALUES (?, ?, ?, ?, ?)",(name, password, permissionmaster, permissionrelease, permissionentry))
             elif temp == "":
+                pass
             self.desconnectconts()
             reload()
-
+        def delete(name):
+            self.connectconts()
+            self.contscursor.execute("DELETE FROM Conts WHERE name = ?", (name, ))
+            self.desconnectconts()
+            reload()
         self.deletewindow()
         self.currentwindow = "FUNCIONÁRIOS"
 
@@ -1196,7 +1219,7 @@ class application():
             
             if password != passworddata or name != namedata or name == "" or password == "":
                 raise Exception("NOME OU SENHA INCORRETOS")
-            elif permissionmasterdata == "N" and passworddata == password:
+            elif permissionmasterdata != "Y" and passworddata == password:
                 raise Exception("ESSE USUÁRIO NÃO TEM PERMISSÃO")
                 
         except Exception as error:
@@ -1239,13 +1262,6 @@ class application():
     def desconnecthistory(self):
         self.history.commit()
         self.historycursor.close()
-    def addcont(self):
-        self.connectconts()
-        name = "Gabriel"
-        password = ""
-        permissionmaster = "Y"
-        self.contscursor.execute("""INSERT INTO Conts (name, password, permissionmaster, permissionrelease, permissionentry) VALUES (?, ?, ?, ?, ?)""", (name, password, permissionmaster, "", ""))
-        self.desconnectconts()
     def connectconfig(self):
         self.config = sql.connect("config.db")
         self.configcursor = self.config.cursor()
