@@ -327,7 +327,7 @@ class application():
         elif self.currentwindow == "CONFIGURAÇÕES":
             pass
         elif self.currentwindow == "FUNCIONÁRIOS":
-            self.scroolframe_functionary.destroy; self.scroolframe_functionary.place_forget(); self.button_addfunctionary.destroy()
+            self.scroolframe_functionary.destroy; self.scroolframe_functionary.place_forget(); self.button_addfunctionary.destroy(); self.entry_name.destroy(); self.entry_passwordcont.destroy()
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     
@@ -695,6 +695,9 @@ class application():
         self.del_heading = ctk.CTkLabel(self.rootcommand, text="EXCLUIR", fg_color=self.colors[4], width=50, height=30)
         self.del_heading.grid(row=1, column=8, padx=1, pady=50)
 
+        self.totalpricelabel = ctk.CTkLabel(self.frame_infocommand, text="TOTAL:", fg_color=self.colors[4])
+        self.totalpricelabel.place(relx=0.31, rely=0.15, relwidth=0.06, relheight=0.3)
+
         self.button_addproductoncommand = ctk.CTkButton(self.rootcommand, text="ADICIONAR PRODUTO", command=self.addpdctcommandwindow, fg_color=self.colors[4], hover_color=self.colors[5])
         self.button_addproductoncommand.place(relx=0.7, rely=0.002, relwidth=0.29, relheight=0.057)
         self.currentcommandwindow = num
@@ -710,6 +713,7 @@ class application():
         self.connectcommands()
         temp = self.commandscursor.execute("SELECT cod, number, date, hour, waiter, price, unitprice, quantity, product, type, size FROM Consumption WHERE number = ?", (number, ))
         try:
+            self.label_totalprice.destroy()
             for i in self.current_productsincommands:
                 for n in i:
                     n.destroy()
@@ -719,6 +723,7 @@ class application():
         for i in temp:
             listen.append(i)
         self.current_productsincommands = []
+        totalprice = 0
         for k, i in enumerate(listen):
             cod, number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
             tyme =  datetime.datetime(int(date[0:4]), int(date[5:7]), int(date[8:10]), int(hour[0:2]), int(hour[3:5]), int(hour[6:8]))
@@ -753,6 +758,9 @@ class application():
             self.current_productsincommands[k][5].grid(row= k + 1, column=6, padx=1, pady=1)
             self.current_productsincommands[k][6].grid(row= k + 1, column=7, padx=1, pady=1)
             self.current_productsincommands[k][7].grid(row= k + 1, column=8, padx=1, pady=1)  
+            totalprice = totalprice + float(price)
+        self.label_totalprice = ctk.CTkLabel(self.frame_infocommand, text=totalprice, fg_color=self.colors[4])
+        self.label_totalprice.place(relx=0.37, rely=0.15, relwidth=0.32, relheight=0.3)
         self.desconnectcommands()
     def closewindowaddproduct(self):
         self.rootcommand.grab_set()
@@ -1379,5 +1387,5 @@ class application():
 
                                     )""")
         self.desconnecthistory()
-                                                                                                                     
+
 application() 
