@@ -1403,5 +1403,21 @@ class application():
 
                                     )""")
         self.desconnecthistory()
-
+class server():
+    def __init__(self):
+        threading.Thread(target=self.server)
+    def server(self):
+        self.HOST = "localhost"
+        self.PORT = 85250
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.bind((self.HOST, self.PORT))
+        self.s.listen()
+        conn, ender = self.s.accept()
+        while True:
+            data = self.s.recv(1024)
+            if not data:
+                conn.close()
+                break
+            conn.sendall(data)
+server()
 application() 
