@@ -1150,14 +1150,16 @@ class application():
             tmp = self.contscursor.execute("SELECT username, name FROM Conts WHERE username = ?",(self.entry_username.get(), ))
             temp = ""
             for i in tmp:
-                temp = "A"
+                if self.entry_username.get() != i[0]:
+                    temp = "A"
             tmp = self.contscursor.execute("SELECT username, name FROM Conts WHERE name = ?",(self.entry_name.get(), ))
             for i in tmp:
-                temp = "A"
-            if temp == "" and oldname == "":
+                if i[1] != self.entry_name.get():
+                    temp = "A"
+            if temp == "" and oldname == "" and self.entry_username.get() != "" and self.entry_name.get() != "":
                 username, name, password, permissionmaster, permissionrelease, permissionentry = self.entry_username.get(), self.entry_name.get(), self.entry_passwordcont.get(), "F", "F", "F"
                 self.contscursor.execute("INSERT INTO Conts (username, name, password, permissionmaster, permissionrelease, permissionentry) VALUES (?, ?, ?, ?, ?, ?)",(username, name, password, permissionmaster, permissionrelease, permissionentry))
-            elif temp == "":
+            elif temp == "" and self.entry_username.get() != "" and self.entry_name.get() != "":
                 username, name, password = self.entry_username.get(), self.entry_name.get(), self.entry_passwordcont.get()
                 self.contscursor.execute("UPDATE Conts SET username = ?, name = ?, password = ? WHERE name = ?", (username, name, password, oldname))
                 self.entry_username.delete(0, "end")
@@ -1408,7 +1410,7 @@ class server():
         threading.Thread(target=self.server)
     def server(self):
         self.HOST = "localhost"
-        self.PORT = 85250
+        self.PORT = 55262
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind((self.HOST, self.PORT))
         self.s.listen()
