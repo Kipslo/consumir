@@ -1421,5 +1421,6 @@ class server():
                 conn.close()
                 break
             conn.sendall(data)
+        
 server()
 application() 
