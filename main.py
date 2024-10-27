@@ -9,8 +9,12 @@ import pyautogui as pa
 import datetime
 from unidecode import unidecode
 from escpos.printer import network
+from multiprocessing import Process
 class application():
     def __init__(self):
+        def close():
+            self.root.destroy()
+            aserver.close()
         self.createtables()
         self.positionp = True
         self.cod, self.stylemode, self.maxcommands = "", "", ""
@@ -42,7 +46,7 @@ class application():
         
         self.root = ctk.CTk()
         self.loginwindow()
-
+        self.root.protocol("WM_DELETE_WINDOW", close)
         self.root.mainloop()
     def loginwindow(self):
         self.currentwindow = "LOGIN"
@@ -1406,21 +1410,49 @@ class application():
                                     )""")
         self.desconnecthistory()
 class server():
+    def connectconts(self):
+        self.conts = sql.connect("sql.db")
+        self.contscursor = self.conts.cursor()
+    def desconnectconts(self):
+        self.conts.commit()
+        self.conts.close()
+    def close(self):
+        self.servervar.terminate()
     def __init__(self):
-        threading.Thread(target=self.server)
+        self.servervar =  Process(target=self.server)
+        self.permission = True
+        self.servervar.start()
     def server(self):
-        self.HOST = "localhost"
-        self.PORT = 55262
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.bind((self.HOST, self.PORT))
-        self.s.listen()
-        conn, ender = self.s.accept()
-        while True:
-            data = self.s.recv(1024)
-            if not data:
+        if self.permission:
+            print("oi")
+            self.HOST = socket.gethostbyname(socket.gethostname())
+            self.PORT = 55261
+            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.s.bind((self.HOST, self.PORT))
+            name = socket.gethostname()
+            print(socket.gethostbyname(name))
+            self.s.listen()
+            while self.permission:
+                conn, ender = self.s.accept()
+                data = None
+                while not data:
+                    data = conn.recv(1024)
+                text = data.decode()
+                list = text.split(",")
+                if list[0] == "LOGIN":
+                    self.connectconts()
+                    temp = ""
+                    TEMP = self.contscursor.execute("SELECT * FROM Conts WHERE name = ? AND password = ?", (list[1], list[2]))
+                    for i in TEMP:
+                        temp = TEMP
+                    if temp == "":
+                        conn.sendall(str.encode("NOT"))
+                    else:
+                        conn.sendall(str.encode("YES"))
+                    self.desconnectconts()
+                else:
+                    conn.sendall(data)
                 conn.close()
-                break
-            conn.sendall(data)
-        
-server()
-application() 
+if __name__ == '__main__':
+    aserver = server()
+    application() 
