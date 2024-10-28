@@ -1416,6 +1416,18 @@ class server():
     def desconnectconts(self):
         self.conts.commit()
         self.conts.close()
+    def connectconfig(self):
+        self.config = sql.connect("config.db")
+        self.configcursor = self.config.cursor()
+    def desconnectconfig(self):
+        self.config.commit()
+        self.config.close()
+    def connectcommands(self):
+        self.commands = sql.connect("commands.db")
+        self.commandscursor = self.commands.cursor()
+    def desconnectcommands(self):
+        self.commands.commit()
+        self.commands.close()
     def close(self):
         self.servervar.terminate()
     def __init__(self):
@@ -1438,21 +1450,41 @@ class server():
                 while not data:
                     data = conn.recv(1024)
                 text = data.decode()
-                list = text.split(",")
-                if list[0] == "LOGIN":
+                listen = text.split(",")
+                if listen[0] == "LOGIN":
                     self.connectconts()
                     temp = ""
-                    TEMP = self.contscursor.execute("SELECT * FROM Conts WHERE name = ? AND password = ?", (list[1], list[2]))
-                    for i in TEMP:
-                        temp = TEMP
+                    TEMp = self.contscursor.execute("SELECT * FROM Conts WHERE name = ? AND password = ?", (listen[1], listen[2]))
+                    for i in TEMp:
+                        temp = i
                     if temp == "":
                         conn.sendall(str.encode("NOT"))
                     else:
                         conn.sendall(str.encode("YES"))
                     self.desconnectconts()
+                elif listen[0] == "LIMITCOMMANDS":
+                    self.connectconfig()
+                    TEMp = self.configcursor.execute("SELECT maxcommands FROM Config")
+                    temp = ""
+                    for i in TEMp:
+                        temp = i[0]
+                    conn.sendall(str.encode(str(temp)))
+                    self.desconnectconfig()
+                elif listen[0] == "OPENCOMMANDS":
+                    self.connectcommands()
+                    TEMp = self.commandscursor.execute("SELECT number FROM CommandsActive")
+                    temp = ""
+                    for i in TEMp:
+                        if temp == "":
+                            temp = "a"
+                            commands = str(i[0])
+                        else:
+                            commands = commands + "," + str(i[0]) 
+                    self.desconnectcommands()
+                    conn.sendall(str.encode(commands))
                 else:
                     conn.sendall(data)
                 conn.close()
-if __name__ == '__main__':
+if __name__ ==  "__main__":
     aserver = server()
     application() 
