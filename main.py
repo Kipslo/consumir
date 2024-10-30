@@ -1410,6 +1410,12 @@ class application():
                                     )""")
         self.desconnecthistory()
 class server():
+    def connectproduct(self):
+        self.product = sql.connect("products.db")
+        self.productcursor = self.product.cursor()
+    def desconnectproduct(self):
+        self.product.commit()
+        self.product.close()
     def connectconts(self):
         self.conts = sql.connect("sql.db")
         self.contscursor = self.conts.cursor()
@@ -1482,6 +1488,22 @@ class server():
                             commands = commands + "," + str(i[0]) 
                     self.desconnectcommands()
                     conn.sendall(str.encode(commands))
+                elif listen[0] == "PRODUCTS":
+                    self.connectcommands()
+                    TEMp = self.commandscursor.execute("SELECT product, quantity, price, type, size FROM Consumption WHERE number = ?", (listen[1], ))
+                    temp = ""
+                    for i in TEMp:
+                        product, quantity, price, tipe, size = i
+                        print(product)
+                        print(tipe)
+                        #if tipe == "SIZE":
+                        #    product = product + f"({size})"
+                        if temp == "":
+                            temp = f"{product}|{quantity}|{price}"
+                        else:
+                            temp = temp + f",{product}|{quantity}|{price}"
+                    self.desconnectcommands()
+                    conn.sendall(str.encode(temp))
                 else:
                     conn.sendall(data)
                 conn.close()
