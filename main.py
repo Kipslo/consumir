@@ -1494,8 +1494,6 @@ class server():
                     temp = ""
                     for i in TEMp:
                         product, quantity, price, tipe, size = i
-                        print(product)
-                        print(tipe)
                         if tipe == "SIZE":
                             product = product + f"({size})"
                         if temp == "":
@@ -1516,8 +1514,17 @@ class server():
                             temp = temp + f"{i[0]}"
                     self.desconnectproduct()
                     conn.sendall(str.encode(temp))
-                elif listen[0] == "PRODUCTS":
-                    pass
+                elif listen[0] == "PRODUCTSCATEGORY":
+                    self.connectproduct()
+                    TEMp = self.productcursor.execute("SELECT name, type, price FROM Products WHERE category = ?", (listen[1], ))
+                    temp = ""
+                    for i in TEMp:
+                        if temp != "":
+                            temp = temp + f",{i[0]}|{i[1]}|{i[2]}"
+                        else:
+                            temp = f"{i[0]}|{i[1]}|{i[2]}"                    
+                    self.desconnectproduct()
+                    conn.sendall(str.encode(temp))
                 else:
                     conn.sendall(data)
                 conn.close()
