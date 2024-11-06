@@ -1533,6 +1533,7 @@ class server():
                         else:
                             temp = f"{i[0]}|{i[1]}"
                     self.desconnectproduct()
+                    conn.sendall(str.encode(temp))
                 else:
                     conn.sendall(data)
                 conn.close()
