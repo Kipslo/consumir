@@ -15,6 +15,7 @@ class application():
         def close():
             self.root.destroy()
             aserver.close()
+        self.insertproductlist = []
         self.createtables()
         self.positionp = True
         self.cod, self.stylemode, self.maxcommands = "", "", ""
@@ -803,6 +804,7 @@ class application():
     def pressesccommand(self, event):
         if event.keysym == "Escape":
             self.closewindowaddproduct()
+    def insert
     def addproductincommandwindow(self, product = "", category = "", tipe = "", price = "", cod = ""):
         def close():
             self.rootaddpdctcommand.grab_set()
@@ -1538,9 +1540,25 @@ class server():
                             temp = f"{i[0]}|{i[1]}"
                     self.desconnectproduct()
                     conn.sendall(str.encode(temp))
+                elif listen[0] == "INSERT":
+                    number, username, password = listen[1], listen[2], listen[3]
+                    del listen[0]; del listen[0]; del listen[0]; del listen[0]
+                    listen = listen[0].split(".-")
+                    listen[3] = listen[3].split(".=")
+                    self.connectconts()
+                    TEMp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ? AND password = ?", (username, password))
+                    temp = ""
+                    for i in TEMp:
+                        temp = i
+                    self.desconnectconts()
+                    if temp != "":
+                        mainprogram.insertproductlist.append(listen)
+                        conn.sendall(str.encode("Y"))
+                    else:
+                        conn.sendall(str.encode("N"))
                 else:
                     conn.sendall(data)
                 conn.close()
 if __name__ ==  "__main__":
     aserver = server()
-    application() 
+    mainprogram = application() 
