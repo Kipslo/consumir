@@ -1380,6 +1380,10 @@ class application():
                                    releasefunctionary VARCHAR(30),
                                    currentprice VARCHAR(8)
                                    )""")
+        self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Text(
+                                    idproduct INTEGER,
+                                    text VARCHAR(30)
+                                   )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Category(
                                    cod INTEGER PRIMARY KEY,
                                    name VARCHAR(30)
