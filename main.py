@@ -334,9 +334,24 @@ class application():
             pass
         elif self.currentwindow == "FUNCIONÁRIOS":
             self.scroolframe_functionary.destroy; self.scroolframe_functionary.place_forget(); self.button_addfunctionary.destroy(); self.entry_name.destroy(); self.entry_passwordcont.destroy()
+        elif self.currentwindow == "CLIENTES":
+            pass
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
-    
+    def clientswindow(self):
+        self.deletewindow()
+        self.currentwindow = "clientes"
+
+        self.buttonaddclient = ctk.CTkButton(self.root)
+        self.buttonaddclient.place(relx=, rely=, relwidth= , relheight=)
+        
+        self.frameclients = ctk.CTkScrollableFrame(self.root)
+        self.frameclients.place(relx=, rely=, relwidth= , relheight=)
+        
+        self.searchclients = ctk.CTkEntry(self.root)
+        self.searchclients.place(relx=, rely=, relwidth= , relheight=)
+
+
     def addproductwindow(self, product = "", category = ""):
         
         if self.current_productlisttab == "PRODUTOS":
@@ -703,6 +718,11 @@ class application():
 
         self.totalpricelabel = ctk.CTkLabel(self.frame_infocommand, text="TOTAL:", fg_color=self.colors[4])
         self.totalpricelabel.place(relx=0.31, rely=0.15, relwidth=0.06, relheight=0.3)
+
+        #self.clientid = ctk.CTkComboBox()
+
+        #self.clientname = ctk.CTkComboBox()
+
 
         self.button_addproductoncommand = ctk.CTkButton(self.rootcommand, text="ADICIONAR PRODUTO", command=self.addpdctcommandwindow, fg_color=self.colors[4], hover_color=self.colors[5])
         self.button_addproductoncommand.place(relx=0.7, rely=0.002, relwidth=0.29, relheight=0.057)
