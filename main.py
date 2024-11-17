@@ -48,6 +48,7 @@ class application():
         self.root = ctk.CTk()
         self.loginwindow()
         self.root.protocol("WM_DELETE_WINDOW", close)
+        self.root.after(3000, self.insertcurrentproduct)
         self.root.mainloop()
     def loginwindow(self):
         self.currentwindow = "LOGIN"
@@ -801,10 +802,42 @@ class application():
         self.rootaddpdctcommand.protocol("WM_DELETE_WINDOW", self.closewindowaddproduct)
         self.root.bind_all("<KeyPress>",self.pressesccommand)
         self.reloadproductstable()
+    def insertproductlisten(self, i):
+        self.insertproductlist.append(i)
     def pressesccommand(self, event):
         if event.keysym == "Escape":
             self.closewindowaddproduct()
-    def insert
+    def insertcurrentproduct(self):
+        self.connecttemp()
+        TEMp = self.tempdbcursor.execute("SELECT * FROM TempProducts")
+        temp = []
+        for i in TEMp:
+            temp.append(i)
+        self.desconnecttemp()
+        print(temp)
+        while temp != []:
+            listen = [temp[0]]
+            self.connectcommands()
+            cod, command, product, category, unitprice, qtd, text, waiter, tipe = temp[0]
+            
+            date = str(datetime.datetime.now())[0:19]
+            date, hour = date[0:10], date[11:20]
+            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size, text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, date, hour, waiter, float(unitprice)*qtd, unitprice, qtd, product, tipe, "", text))
+            del temp[0]
+            self.connecttemp()
+            self.tempdbcursor.execute("DELETE FROM TempProducts Where cod = ?", (cod, ))
+            self.desconnecttemp()
+            oi = ""
+            tmp = self.commandscursor.execute("SELECT * FROM CommandsActive WHERE number = ?", (command, ))
+            for i in tmp:
+                oi = i
+            if oi == "":
+                date = str(datetime.datetime.now())[0:19]
+                date, hour = date[0:10], date[11:20]
+                self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, "", ""))           
+            self.desconnectcommands()
+            
+        self.root.after(3000, self.insertcurrentproduct)
     def addproductincommandwindow(self, product = "", category = "", tipe = "", price = "", cod = ""):
         def close():
             self.rootaddpdctcommand.grab_set()
@@ -1321,6 +1354,12 @@ class application():
     def desconnectconfig(self):
         self.config.commit()
         self.config.close()
+    def connecttemp(self):
+        self.tempdb = sql.connect("temp.db")
+        self.tempdbcursor = self.tempdb.cursor()
+    def desconnecttemp(self):
+        self.tempdb.commit()
+        self.tempdb.close()
     def createtables(self):
         self.connectconfig()
         self.configcursor.execute("""CREATE TABLE IF NOT EXISTS Config(
@@ -1358,7 +1397,8 @@ class application():
                                     quantity INTERGER(3),
                                     product VARCHAR(30),
                                     type VARCHAR(30),
-                                    size VARCHAR(30)
+                                    size VARCHAR(30),
+                                    text VARCHAR(100)
                                     )""")
         self.desconnectcommands()
         self.connectproduct()
@@ -1415,6 +1455,19 @@ class application():
 
                                     )""")
         self.desconnecthistory()
+        self.connecttemp()
+        self.tempdbcursor.execute("""CREATE TABLE IF NOT EXISTS TempProducts(
+                                cod INTEGER PRIMARY KEY,
+                                number INTEGER(4),
+                                product VARCHAR(30),
+                                category VARCHAR(30),
+                                unitprice VARCHAR(8),
+                                quatity INTEGER(3),
+                                text VARCHAR(100),
+                                waiter VARCHAR(30),
+                                type VARCHAR(10)
+                                    )""")
+        self.desconnecttemp()
 class server():
     def connectproduct(self):
         self.product = sql.connect("products.db")
@@ -1440,6 +1493,12 @@ class server():
     def desconnectcommands(self):
         self.commands.commit()
         self.commands.close()
+    def connecttemp(self):
+        self.tempdb = sql.connect("temp.db")
+        self.tempdbcursor = self.tempdb.cursor()
+    def desconnecttemp(self):
+        self.tempdb.commit()
+        self.tempdb.close()
     def close(self):
         self.servervar.terminate()
     def __init__(self):
@@ -1486,6 +1545,7 @@ class server():
                     self.connectcommands()
                     TEMp = self.commandscursor.execute("SELECT number FROM CommandsActive")
                     temp = ""
+                    commands = ""
                     for i in TEMp:
                         if temp == "":
                             temp = "a"
@@ -1544,7 +1604,7 @@ class server():
                     number, username, password = listen[1], listen[2], listen[3]
                     del listen[0]; del listen[0]; del listen[0]; del listen[0]
                     listen = listen[0].split(".-")
-                    listen[3] = listen[3].split(".=")
+                    print(listen)
                     self.connectconts()
                     TEMp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ? AND password = ?", (username, password))
                     temp = ""
@@ -1552,7 +1612,14 @@ class server():
                         temp = i
                     self.desconnectconts()
                     if temp != "":
-                        mainprogram.insertproductlist.append(listen)
+                        self.connecttemp()
+                        if len(listen) == 5:
+                            product, category, unitprice, qtd, tipe = listen
+                            description = ""
+                        else:
+                            product, category, unitprice, qtd, description, tipe = listen
+                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe))
+                        self.desconnecttemp()
                         conn.sendall(str.encode("Y"))
                     else:
                         conn.sendall(str.encode("N"))
@@ -1561,4 +1628,4 @@ class server():
                 conn.close()
 if __name__ ==  "__main__":
     aserver = server()
-    mainprogram = application() 
+    application() 
