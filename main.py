@@ -335,23 +335,65 @@ class application():
         elif self.currentwindow == "FUNCIONÁRIOS":
             self.scroolframe_functionary.destroy; self.scroolframe_functionary.place_forget(); self.button_addfunctionary.destroy(); self.entry_name.destroy(); self.entry_passwordcont.destroy()
         elif self.currentwindow == "CLIENTES":
-            pass
+            self.frameclients.destroy(); self.frameclients.place_forget(); self.buttonaddclient.destroy(); self.searchclients.destroy()
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     def clientswindow(self):
+        def reloadclients():
+            try:
+                for i in self.clientstable:
+                    for j in i:
+                        j.destroy()
+            except:
+                pass
+            self.clientstable = []
+            self.connectclients()
+            temp = self.clientscursor.execute("SELECT * FROM Clients")
+            listen = []
+            for i in temp:
+                listen.append(i)
+            self.desconnectclients()
+            for k, i in listen:
+                id, name, fone, email, idade = i
+                self.clientstable.append([ctk.CTkLabel(text=id, bg_color=self.colors[4], width=50, height=40), 
+                ctk.CTkLabel(text=name, bg_color=self.colors[4], width=300, height=40), 
+                ctk.CTkLabel(text=fone, bg_color=self.colors[4], width=150, height=40), 
+                ctk.CTkLabel(text=email, bg_color=self.colors[4], width=200, height=40), 
+                ctk.CTkLabel(text=idade, bg_color=self.colors[4], width=50, height=40)])
+
+                self.clientstable[k][0].grid(row=1, column=1, padx=1, pady=1)
+                self.clientstable[k][1].grid(row=1, column=2, padx=1, pady=1)
+                self.clientstable[k][2].grid(row=1, column=3, padx=1, pady=1)
+                self.clientstable[k][3].grid(row=1, column=4, padx=1, pady=1)
+                self.clientstable[k][4].grid(row=1, column=5, padx=1, pady=1)
         self.deletewindow()
         self.currentwindow = "clientes"
 
-        self.buttonaddclient = ctk.CTkButton(self.root)
-        self.buttonaddclient.place(relx=, rely=, relwidth= , relheight=)
+        self.buttonaddclient = ctk.CTkButton(self.root, text="ADICIONAR CLIENTE")
+        self.buttonaddclient.place(relx=0.89, rely=0.15, relwidth=0.1 , relheight=0.05)
         
         self.frameclients = ctk.CTkScrollableFrame(self.root)
-        self.frameclients.place(relx=, rely=, relwidth= , relheight=)
+        self.frameclients.place(relx=0.01, rely=0.21, relwidth=0.98, relheight=0.79)
         
-        self.searchclients = ctk.CTkEntry(self.root)
-        self.searchclients.place(relx=, rely=, relwidth= , relheight=)
+        self.searchclients = ctk.CTkEntry(self.root, placeholder_text="PESQUISAR CLIENTE")
+        self.searchclients.place(relx=0.01, rely=0.15, relwidth=0.2 , relheight=0.05)
 
+        self.headidclient = ctk.CTkLabel(self.frameclients, bg_color=self.colors[4], text="ID", width=50, height=40)
+        self.headidclient.grid(row=1, column=1, padx=1, pady=1)
 
+        self.headnameclient = ctk.CTkLabel(self.frameclients, bg_color=self.colors[4], text="NOME", width=300, height=40)
+        self.headnameclient.grid(row=1, column=2, padx=1, pady=1)
+
+        self.headfoneclient = ctk.CTkLabel(self.frameclients, bg_color=self.colors[4], text="TELEFONE", width=150, height=40)
+        self.headfoneclient.grid(row=1, column=3, padx=1, pady=1)
+
+        self.heademailclient = ctk.CTkLabel(self.frameclients, bg_color=self.colors[4], text="EMAIL", width=200, height=40)
+        self.heademailclient.grid(row=1, column=4, padx=1, pady=1)
+
+        self.headyearsclient = ctk.CTkLabel(self.frameclients, bg_color=self.colors[4], text="IDADE", width=50, height=40)
+        self.headyearsclient.grid(row=1, column=5, padx=1, pady=1)
+
+        reloadclients()
     def addproductwindow(self, product = "", category = ""):
         
         if self.current_productlisttab == "PRODUTOS":
@@ -1289,7 +1331,7 @@ class application():
 
             mainimgs = [ctk.CTkImage(Image.open("imgs/caixa.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tables.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/clientes.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/trofeu.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/garçom.png"), size=(60,60))]
             
-            mainbuttons = [[ctk.CTkButton(master= self.frame_tab), "ABRIR OU FECHAR CAIXA"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
+            mainbuttons = [[ctk.CTkButton(master= self.frame_tab), "ABRIR OU FECHAR CAIXA"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, command=self.clientswindow), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
             
             self.currentmain = mainbuttons
             self.currentimgs = mainimgs
@@ -1368,6 +1410,12 @@ class application():
     def desconnecthistory(self):
         self.history.commit()
         self.historycursor.close()
+    def connectclients(self):
+        self.clients = sql.connect("clients.db")
+        self.clientscursor = self.clients.cursor()
+    def desconnectclients(self):
+        self.clients.commit()
+        self.clients.close()
     def connectconfig(self):
         self.config = sql.connect("config.db")
         self.configcursor = self.config.cursor()
@@ -1488,6 +1536,15 @@ class application():
                                 type VARCHAR(10)
                                     )""")
         self.desconnecttemp()
+        self.connectclients()
+        self.clientscursor.execute("""CREATE TABLE IF NOT EXISTS Clients(
+                                id INTEGER PRIMARY KEY,
+                                name VARCHAR(30),
+                                fone INTEGER(13),
+                                email VARCHAR(30),
+                                idade INTEGER(3)
+        )""")
+        self.desconnectclients()
 class server():
     def connectproduct(self):
         self.product = sql.connect("products.db")
