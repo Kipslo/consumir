@@ -353,47 +353,73 @@ class application():
             for i in temp:
                 listen.append(i)
             self.desconnectclients()
-            for k, i in listen:
+            for k, i in enumerate(listen):
                 id, name, fone, email, idade = i
-                self.clientstable.append([ctk.CTkLabel(text=id, bg_color=self.colors[4], width=50, height=40), 
-                ctk.CTkLabel(text=name, bg_color=self.colors[4], width=300, height=40), 
-                ctk.CTkLabel(text=fone, bg_color=self.colors[4], width=150, height=40), 
-                ctk.CTkLabel(text=email, bg_color=self.colors[4], width=200, height=40), 
-                ctk.CTkLabel(text=idade, bg_color=self.colors[4], width=50, height=40)])
-
-                self.clientstable[k][0].grid(row=1, column=1, padx=1, pady=1)
-                self.clientstable[k][1].grid(row=1, column=2, padx=1, pady=1)
-                self.clientstable[k][2].grid(row=1, column=3, padx=1, pady=1)
-                self.clientstable[k][3].grid(row=1, column=4, padx=1, pady=1)
-                self.clientstable[k][4].grid(row=1, column=5, padx=1, pady=1)
+                self.clientstable.append([ctk.CTkLabel(self.frameclients, text=id, bg_color=self.colors[4], width=50, height=40), 
+                ctk.CTkLabel(self.frameclients, text=name, bg_color=self.colors[4], width=300, height=40), 
+                ctk.CTkLabel(self.frameclients, text=fone, bg_color=self.colors[4], width=150, height=40), 
+                ctk.CTkLabel(self.frameclients, text=email, bg_color=self.colors[4], width=200, height=40), 
+                ctk.CTkLabel(self.frameclients, text=idade, bg_color=self.colors[4], width=70, height=40)])
+                n = k + 2
+                self.clientstable[k][0].grid(row=n, column=1, padx=1, pady=1)
+                self.clientstable[k][1].grid(row=n, column=2, padx=1, pady=1)
+                self.clientstable[k][2].grid(row=n, column=3, padx=1, pady=1)
+                self.clientstable[k][3].grid(row=n, column=4, padx=1, pady=1)
+                self.clientstable[k][4].grid(row=n, column=5, padx=1, pady=1)
         def addclientwindow():
             def close():
                 self.root.bind_all("<KeyPress>", self.nonclick)
                 self.rootaddclient.destroy()
-                self.rootcommand.grab_set()
+                self.root.grab_set()
             def press(event):
                 if event.keysym == "Escape":
                     close()
+            def addclient():
+                iid, name, fone, email, year = self.entryid.get(), self.entryname.get(), self.entryfone.get(), self.entryemail.get(), self.entryidade.get()
+                self.connectclients()
+                tp = ""
+                temp = []
+                if iid == "":
+                    self.clientscursor.execute("INSERT INTO Clients (name, fone, email, idade) VALUES (?, ?, ?, ?)", (name, fone, email, year))
+                else:
+                    try:
+                        temp = self.clientscursor.execute("SELECT name, fone, email, idade FROM Clients WHERE id = ?", (iid, ))
+                        for i in temp:
+                            tp = i
+                        print(tp)
+                    except:
+                        pass
+                    
+                    if tp != "":
+                        self.clientscursor.execute("INSERT INTO Clients (name, fone, email, idade) VALUES (?, ?, ?, ?)", (tp[0], tp[1], tp[2], tp[3]))
+                    self.clientscursor.execute("UPDATE Clients SET name = ?, fone = ?, email = ?, idade = ? WHERE id = ?", (name, fone, email, year, iid))
+
+                self.desconnectclients()
+                close()
+                reloadclients()
             self.rootaddclient = ctk.CTkToplevel(self.root)
-            self.rootaddclient.geometry("500x500")
+            self.rootaddclient.geometry("500x150")
             self.rootaddclient.transient(self.root)
             self.rootaddclient.grab_set()
             self.rootaddclient.title("ADICIONAR CLIENTE")
 
-            self.entryid = ctk.CTkEntry(self.rootaddclient)
-            self.entryid.place(relx=, rely=, relwidth=, relheight=)
+            self.entryid = ctk.CTkEntry(self.rootaddclient, placeholder_text="ID")
+            self.entryid.place(relx=0.01, rely=0.01, relwidth=0.1, relheight=0.3)
 
-            self.entryname = ctk.CTkEntry(self.rootaddclient)
-            self.entryname.place(relx=, rely=, relwidth=, relheight=)
+            self.entryname = ctk.CTkEntry(self.rootaddclient, placeholder_text="Nome")
+            self.entryname.place(relx=0.12, rely=0.01, relwidth=0.87, relheight=0.3)
 
-            self.entryfone = ctk.CTkEntry(self.rootaddclient)
-            self.entryfone.place(relx=, rely=, relwidth=, relheight=)
+            self.entryfone = ctk.CTkEntry(self.rootaddclient, placeholder_text="Telefone")
+            self.entryfone.place(relx=0.01, rely=0.31, relwidth=0.3, relheight=0.3)
             
-            self.entryemail = ctk.CTkEntry(self.rootaddclient)
-            self.entryemail.place(relx=, rely=, relwidth=, relheight=)
+            self.entryemail = ctk.CTkEntry(self.rootaddclient, placeholder_text="Email")
+            self.entryemail.place(relx=0.32, rely=0.31, relwidth=0.67, relheight=0.3)
 
-            self.entryidade = ctk.CTkEntry(self.rootaddclient)
-            self.entryidade.place(relx=, rely=, relwidth=, relheight=)
+            self.entryidade = ctk.CTkEntry(self.rootaddclient, placeholder_text="Idade")
+            self.entryidade.place(relx=0.01, rely=0.62, relwidth=0.2, relheight=0.3)
+
+            self.buttonconclient = ctk.CTkButton(self.rootaddclient, text="CONFIRMAR", fg_color=self.colors[4], hover_color=self.colors[3], command=addclient)
+            self.buttonconclient.place(relx=0.22, rely=0.62, relwidth=0.77, relheight=0.3)
 
             self.root.bind_all("<KeyPress>", press)
             self.rootaddclient.protocol("WM_DELETE_WINDOW", close)
@@ -421,7 +447,7 @@ class application():
         self.heademailclient = ctk.CTkLabel(self.frameclients, bg_color=self.colors[4], text="EMAIL", width=200, height=40)
         self.heademailclient.grid(row=1, column=4, padx=1, pady=1)
 
-        self.headyearsclient = ctk.CTkLabel(self.frameclients, bg_color=self.colors[4], text="IDADE", width=50, height=40)
+        self.headyearsclient = ctk.CTkLabel(self.frameclients, bg_color=self.colors[4], text="IDADE", width=70, height=40)
         self.headyearsclient.grid(row=1, column=5, padx=1, pady=1)
 
         reloadclients()
