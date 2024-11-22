@@ -366,10 +366,41 @@ class application():
                 self.clientstable[k][2].grid(row=1, column=3, padx=1, pady=1)
                 self.clientstable[k][3].grid(row=1, column=4, padx=1, pady=1)
                 self.clientstable[k][4].grid(row=1, column=5, padx=1, pady=1)
-        self.deletewindow()
-        self.currentwindow = "clientes"
+        def addclientwindow():
+            def close():
+                self.root.bind_all("<KeyPress>", self.nonclick)
+                self.rootaddclient.destroy()
+                self.rootcommand.grab_set()
+            def press(event):
+                if event.keysym == "Escape":
+                    close()
+            self.rootaddclient = ctk.CTkToplevel(self.root)
+            self.rootaddclient.geometry("500x500")
+            self.rootaddclient.transient(self.root)
+            self.rootaddclient.grab_set()
+            self.rootaddclient.title("ADICIONAR CLIENTE")
 
-        self.buttonaddclient = ctk.CTkButton(self.root, text="ADICIONAR CLIENTE")
+            self.entryid = ctk.CTkEntry(self.rootaddclient)
+            self.entryid.place(relx=, rely=, relwidth=, relheight=)
+
+            self.entryname = ctk.CTkEntry(self.rootaddclient)
+            self.entryname.place(relx=, rely=, relwidth=, relheight=)
+
+            self.entryfone = ctk.CTkEntry(self.rootaddclient)
+            self.entryfone.place(relx=, rely=, relwidth=, relheight=)
+            
+            self.entryemail = ctk.CTkEntry(self.rootaddclient)
+            self.entryemail.place(relx=, rely=, relwidth=, relheight=)
+
+            self.entryidade = ctk.CTkEntry(self.rootaddclient)
+            self.entryidade.place(relx=, rely=, relwidth=, relheight=)
+
+            self.root.bind_all("<KeyPress>", press)
+            self.rootaddclient.protocol("WM_DELETE_WINDOW", close)
+        self.deletewindow()
+        self.currentwindow = "CLIENTES"
+
+        self.buttonaddclient = ctk.CTkButton(self.root, text="ADICIONAR CLIENTE", fg_color=self.colors[4], hover_color=self.colors[3], command=addclientwindow)
         self.buttonaddclient.place(relx=0.89, rely=0.15, relwidth=0.1 , relheight=0.05)
         
         self.frameclients = ctk.CTkScrollableFrame(self.root)
@@ -672,7 +703,7 @@ class application():
         self.reloadcategories()
     def windowcommand(self, command = 0):
         def close():
-            self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
+            self.root.bind_all("<KeyPress>", self.presskeycommandwindow)
             self.rootconfirmdelete.destroy()
             self.rootcommand.grab_set()
         def presskey(event):
@@ -876,7 +907,6 @@ class application():
         for i in TEMp:
             temp.append(i)
         self.desconnecttemp()
-        print(temp)
         while temp != []:
             listen = [temp[0]]
             self.connectcommands()
@@ -1584,7 +1614,6 @@ class server():
         self.servervar.start()
     def server(self):
         if self.permission:
-            print("oi")
             self.HOST = socket.gethostbyname(socket.gethostname())
             self.PORT = 55261
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
