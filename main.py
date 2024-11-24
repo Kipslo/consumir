@@ -339,6 +339,11 @@ class application():
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     def clientswindow(self):
+        def removeclient(id):
+            self.connectclients()
+            self.clientscursor.execute("DELETE FROM Clients WHERE id = ?", (id, ))
+            self.desconnectclients()
+            reloadclients()
         def reloadclients():
             try:
                 for i in self.clientstable:
@@ -359,13 +364,15 @@ class application():
                 ctk.CTkLabel(self.frameclients, text=name, bg_color=self.colors[4], width=300, height=40), 
                 ctk.CTkLabel(self.frameclients, text=fone, bg_color=self.colors[4], width=150, height=40), 
                 ctk.CTkLabel(self.frameclients, text=email, bg_color=self.colors[4], width=200, height=40), 
-                ctk.CTkLabel(self.frameclients, text=idade, bg_color=self.colors[4], width=70, height=40)])
+                ctk.CTkLabel(self.frameclients, text=idade, bg_color=self.colors[4], width=70, height=40),
+                ctk.CTkButton(self.frameclients, text="", fg_color=self.colors[4], hover=False, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30, 30)), command=lambda x = id:removeclient(x), width=50, height=40)])
                 n = k + 2
                 self.clientstable[k][0].grid(row=n, column=1, padx=1, pady=1)
                 self.clientstable[k][1].grid(row=n, column=2, padx=1, pady=1)
                 self.clientstable[k][2].grid(row=n, column=3, padx=1, pady=1)
                 self.clientstable[k][3].grid(row=n, column=4, padx=1, pady=1)
                 self.clientstable[k][4].grid(row=n, column=5, padx=1, pady=1)
+                self.clientstable[k][5].grid(row=n, column=6, padx=1, pady=1)
         def addclientwindow():
             def close():
                 self.root.bind_all("<KeyPress>", self.nonclick)
@@ -374,7 +381,7 @@ class application():
             def press(event):
                 if event.keysym == "Escape":
                     close()
-            def addclient():
+            def addclient(cod = 0):
                 iid, name, fone, email, year = self.entryid.get(), self.entryname.get(), self.entryfone.get(), self.entryemail.get(), self.entryidade.get()
                 self.connectclients()
                 tp = ""
@@ -386,14 +393,15 @@ class application():
                         temp = self.clientscursor.execute("SELECT name, fone, email, idade FROM Clients WHERE id = ?", (iid, ))
                         for i in temp:
                             tp = i
-                        print(tp)
                     except:
                         pass
-                    
                     if tp != "":
                         self.clientscursor.execute("INSERT INTO Clients (name, fone, email, idade) VALUES (?, ?, ?, ?)", (tp[0], tp[1], tp[2], tp[3]))
-                    self.clientscursor.execute("UPDATE Clients SET name = ?, fone = ?, email = ?, idade = ? WHERE id = ?", (name, fone, email, year, iid))
-
+                        self.clientscursor.execute("UPDATE Clients SET name = ?, fone = ?, email = ?, idade = ? WHERE id = ?", (name, fone, email, year, iid))
+                    else:
+                        self.clientscursor.execute("INSERT INTO Clients (id, name, fone, email, idade) VALUES (?, ?, ?, ?, ?)", (iid, name, fone, email, year))
+                tp = ""
+                temp = self.clientscursor.execute("select name, fone, email, idade FROM Clients Where id = ?", (iid, ))
                 self.desconnectclients()
                 close()
                 reloadclients()
@@ -420,6 +428,7 @@ class application():
 
             self.buttonconclient = ctk.CTkButton(self.rootaddclient, text="CONFIRMAR", fg_color=self.colors[4], hover_color=self.colors[3], command=addclient)
             self.buttonconclient.place(relx=0.22, rely=0.62, relwidth=0.77, relheight=0.3)
+
 
             self.root.bind_all("<KeyPress>", press)
             self.rootaddclient.protocol("WM_DELETE_WINDOW", close)
@@ -449,6 +458,9 @@ class application():
 
         self.headyearsclient = ctk.CTkLabel(self.frameclients, bg_color=self.colors[4], text="IDADE", width=70, height=40)
         self.headyearsclient.grid(row=1, column=5, padx=1, pady=1)
+
+        self.deleteclient = ctk.CTkLabel(self.frameclients, bg_color=self.colors[4], text="DELETAR", width=50, height=40)
+        self.deleteclient.grid(row=1, column=6, padx=1, pady=1)
 
         reloadclients()
     def addproductwindow(self, product = "", category = ""):
