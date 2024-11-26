@@ -90,6 +90,13 @@ class application():
             self.login()
     def on_closingcommandwindow(self):
         self.root.bind_all("<KeyPress>", self.presskey)
+        if self.commandclientmodify:
+            self.connectcommands()
+            if 
+            self.commandscursor.execute("UPDATE CommandsActive SET idclient = ?, nameclient = ? WHERE number = ?", (self.idclient.get(), self.nameclient.get(), self.currentcommandwindow))
+            self.desconnectcommands()
+            
+        
         self.rootcommand.destroy()
     def window(self):
         self.entry_name.destroy(); self.entry_password.destroy(); self.button_login.destroy(); self.label_person.destroy()
@@ -780,8 +787,21 @@ class application():
                 if i == " ":
                     break
                 num = num + i
+        def selectid(id):
+            self.commandclientmodify = True
+            self.connectclients()
+            temp = self.clientscursor.execute("SELECT name FROM Clients WHERE id = ?", (id))
+            for i in temp:
+                self.nameclient.set(i)
+            self.desconnectclients()
+        def selectname(name):
+            self.commandclientmodify = True
+            self.nameclient.set(name.split("- ")[1])
+            self.idclient.set(name.split(" -")[0])
         self.rootcommand = ctk.CTkToplevel()
         
+        self.commandclientmodify = False
+
         self.rootcommand.title("COMANDA " + num)
         self.rootcommand.geometry("900x800")
         self.rootcommand.resizable(False, False)
@@ -830,10 +850,25 @@ class application():
         self.totalpricelabel = ctk.CTkLabel(self.frame_infocommand, text="TOTAL:", fg_color=self.colors[4])
         self.totalpricelabel.place(relx=0.31, rely=0.15, relwidth=0.06, relheight=0.3)
 
-        #self.clientid = ctk.CTkComboBox()
+        self.connectclients()
+        temp = self.clientscursor.execute("SELECT * FROM Clients")
+        ids = []
+        names = []
+        for i in temp:
+            ids.append(str(i[0]))
+            names.append(f"{str(i[0])} - {i[1]}")
+        self.desconnectclients()
+        print(ids)
+        print(names)
 
-        #self.clientname = ctk.CTkComboBox()
+        self.idclient = ctk.StringVar(value="")
+        self.nameclient = ctk.StringVar(value="")
 
+        self.clientid = ctk.CTkComboBox(self.frame_infocommand, width=100, height=50, values=ids, command=selectid, font=("Arial", 15), variable=self.idclient)
+        self.clientid.place(relx=0.31, rely=0.51)
+
+        self.clientname = ctk.CTkComboBox(self.frame_infocommand, width=235, height=50, values=names, command=selectname, font=("Arial", 15), variable=self.nameclient)
+        self.clientname.place(relx=0.43, rely=0.51)
 
         self.button_addproductoncommand = ctk.CTkButton(self.rootcommand, text="ADICIONAR PRODUTO", command=self.addpdctcommandwindow, fg_color=self.colors[4], hover_color=self.colors[5])
         self.button_addproductoncommand.place(relx=0.7, rely=0.002, relwidth=0.29, relheight=0.057)
