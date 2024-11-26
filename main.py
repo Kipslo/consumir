@@ -92,8 +92,16 @@ class application():
         self.root.bind_all("<KeyPress>", self.presskey)
         if self.commandclientmodify:
             self.connectcommands()
-            if 
-            self.commandscursor.execute("UPDATE CommandsActive SET idclient = ?, nameclient = ? WHERE number = ?", (self.idclient.get(), self.nameclient.get(), self.currentcommandwindow))
+            self.connectclients()
+            temp = self.clientscursor.execute("SELECT name FROM Clients WHERE id = ?", (self.idclient.get()))
+            for i in temp:
+                temp = i[0]
+            self.desconnectclients()
+            if self.nameclient.get() != self.actuallyname:
+                if temp == self.nameclient.get():
+                    self.commandscursor.execute("UPDATE CommandsActive SET idclient = ?, nameclient = ? WHERE number = ?", (self.idclient.get(), self.nameclient.get(), self.currentcommandwindow))
+                else:
+                    self.commandscursor.execute("UPDATE CommandsActive SET idclient = ?, nameclient = ? WHERE number = ?", ("", self.nameclient.get(), self.currentcommandwindow))
             self.desconnectcommands()
             
         
@@ -777,16 +785,6 @@ class application():
             
             self.rootconfirmdelete.bind_all("<KeyPress>", presskey)
             self.rootconfirmdelete.protocol("WM_DELETE_WINDOW", close)
-        try:
-            if int(command) > 0:
-                num = command
-        except:
-            num = ""
-            text = command.cget("text")
-            for i in text:
-                if i == " ":
-                    break
-                num = num + i
         def selectid(id):
             self.commandclientmodify = True
             self.connectclients()
@@ -798,6 +796,16 @@ class application():
             self.commandclientmodify = True
             self.nameclient.set(name.split("- ")[1])
             self.idclient.set(name.split(" -")[0])
+        try:
+            if int(command) > 0:
+                num = command
+        except:
+            num = ""
+            text = command.cget("text")
+            for i in text:
+                if i == " ":
+                    break
+                num = num + i
         self.rootcommand = ctk.CTkToplevel()
         
         self.commandclientmodify = False
@@ -850,6 +858,11 @@ class application():
         self.totalpricelabel = ctk.CTkLabel(self.frame_infocommand, text="TOTAL:", fg_color=self.colors[4])
         self.totalpricelabel.place(relx=0.31, rely=0.15, relwidth=0.06, relheight=0.3)
 
+        self.connectcommands()
+        tmp = self.commandscursor.execute("SELECT idclient, nameclient FROM CommandsActive WHERE number = ?", (num, ))
+        for i in tmp:
+            idclient, self.actuallyname = i
+        self.desconnectcommands()
         self.connectclients()
         temp = self.clientscursor.execute("SELECT * FROM Clients")
         ids = []
@@ -861,8 +874,8 @@ class application():
         print(ids)
         print(names)
 
-        self.idclient = ctk.StringVar(value="")
-        self.nameclient = ctk.StringVar(value="")
+        self.idclient = ctk.StringVar(value=idclient)
+        self.nameclient = ctk.StringVar(value=self.actuallyname)
 
         self.clientid = ctk.CTkComboBox(self.frame_infocommand, width=100, height=50, values=ids, command=selectid, font=("Arial", 15), variable=self.idclient)
         self.clientid.place(relx=0.31, rely=0.51)
