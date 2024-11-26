@@ -90,19 +90,21 @@ class application():
             self.login()
     def on_closingcommandwindow(self):
         self.root.bind_all("<KeyPress>", self.presskey)
-        if self.commandclientmodify:
-            self.connectcommands()
-            self.connectclients()
+        self.connectcommands()
+        self.connectclients()
+        try:
             temp = self.clientscursor.execute("SELECT name FROM Clients WHERE id = ?", (self.idclient.get()))
             for i in temp:
                 temp = i[0]
-            self.desconnectclients()
-            if self.nameclient.get() != self.actuallyname:
-                if temp == self.nameclient.get():
-                    self.commandscursor.execute("UPDATE CommandsActive SET idclient = ?, nameclient = ? WHERE number = ?", (self.idclient.get(), self.nameclient.get(), self.currentcommandwindow))
-                else:
-                    self.commandscursor.execute("UPDATE CommandsActive SET idclient = ?, nameclient = ? WHERE number = ?", ("", self.nameclient.get(), self.currentcommandwindow))
-            self.desconnectcommands()
+        except:
+            temp = ""
+        self.desconnectclients()
+        if self.nameclient.get() != self.actuallyname:
+            if temp == self.nameclient.get():
+                self.commandscursor.execute("UPDATE CommandsActive SET idclient = ?, nameclient = ? WHERE number = ?", (self.idclient.get(), self.nameclient.get(), self.currentcommandwindow))
+            else:
+                self.commandscursor.execute("UPDATE CommandsActive SET idclient = ?, nameclient = ? WHERE number = ?", ("", self.nameclient.get(), self.currentcommandwindow))
+        self.desconnectcommands()
             
         
         self.rootcommand.destroy()
@@ -786,14 +788,12 @@ class application():
             self.rootconfirmdelete.bind_all("<KeyPress>", presskey)
             self.rootconfirmdelete.protocol("WM_DELETE_WINDOW", close)
         def selectid(id):
-            self.commandclientmodify = True
             self.connectclients()
             temp = self.clientscursor.execute("SELECT name FROM Clients WHERE id = ?", (id))
             for i in temp:
-                self.nameclient.set(i)
+                self.nameclient.set(i[0])
             self.desconnectclients()
         def selectname(name):
-            self.commandclientmodify = True
             self.nameclient.set(name.split("- ")[1])
             self.idclient.set(name.split(" -")[0])
         try:
@@ -807,8 +807,6 @@ class application():
                     break
                 num = num + i
         self.rootcommand = ctk.CTkToplevel()
-        
-        self.commandclientmodify = False
 
         self.rootcommand.title("COMANDA " + num)
         self.rootcommand.geometry("900x800")
@@ -871,8 +869,6 @@ class application():
             ids.append(str(i[0]))
             names.append(f"{str(i[0])} - {i[1]}")
         self.desconnectclients()
-        print(ids)
-        print(names)
 
         self.idclient = ctk.StringVar(value=idclient)
         self.nameclient = ctk.StringVar(value=self.actuallyname)
@@ -1165,8 +1161,8 @@ class application():
             date = str(datetime.datetime.now())[0:19]
             date, hour = date[0:10], date[11:20]
             self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (number, date, hour, "", ""))
-            self.desconnectcommands()
-            self.reloadcommands()
+        self.desconnectcommands()
+        self.reloadcommands()
     def presskeycommandwindow(self, event):
         if event.keysym == "Escape":
             self.on_closingcommandwindow()
@@ -1238,6 +1234,7 @@ class application():
         def addnewcommandactive(command):
             num = command.cget("text")
             self.connectcommands()
+            self.root.bind_all("<KeyPress>", self.presskey)
             self.rootnewcom.destroy()
             self.desconnectcommands()
             self.insertcommandactive(num)
@@ -1272,7 +1269,6 @@ class application():
     def presskey(self, event):
         key = event.keysym
         n = self.entry_namecommand.get()
-        
         i = self.str_searchcommands.get()
         if n == "":
             if key == "0" or key == "1" or key == "2" or key == "3" or key == "4" or key == "5" or key == "6" or key == "7" or key == "8" or key == "9":
@@ -1288,7 +1284,7 @@ class application():
         elif key == "Delete":
             self.entry_namecommand.delete(0, "end")
         elif key == "Return":
-            pass    
+            pass
     def functionarywindow(self):
         def update(up, new, name):
             self.connectconts()
@@ -1713,7 +1709,7 @@ class server():
                 while not data:
                     data = conn.recv(1024)
                 text = data.decode()
-                listen = text.split(",")
+                listen = text.split(",=")
                 if listen[0] == "LOGIN":
                     self.connectconts()
                     temp = ""
@@ -1743,7 +1739,7 @@ class server():
                             temp = "a"
                             commands = str(i[0])
                         else:
-                            commands = commands + "," + str(i[0]) 
+                            commands = commands + ",=" + str(i[0]) 
                     self.desconnectcommands()
                     conn.sendall(str.encode(commands))
                 elif listen[0] == "PRODUCTSON":
@@ -1755,7 +1751,7 @@ class server():
                         if temp == "":
                             temp = f"{product}|{quantity}|{price}"
                         else:
-                            temp = temp + f",{product}|{quantity}|{price}"
+                            temp = temp + f",={product}|{quantity}|{price}"
                     self.desconnectcommands()
                     conn.sendall(str.encode(temp))
                 elif listen[0] == "CATEGORIES":
@@ -1765,7 +1761,7 @@ class server():
 
                     for i in TEMp:
                         if temp != "":
-                            temp = temp + f",{i[0]}"
+                            temp = temp + f",={i[0]}"
                         else:
                             temp = temp + f"{i[0]}"
                     self.desconnectproduct()
@@ -1776,7 +1772,7 @@ class server():
                     temp = ""
                     for i in TEMp:
                         if temp != "":
-                            temp = temp + f",{i[0]}|{i[1]}|{i[2]}"
+                            temp = temp + f",={i[0]}|{i[1]}|{i[2]}"
                         else:
                             temp = f"{i[0]}|{i[1]}|{i[2]}"                    
                     self.desconnectproduct()
@@ -1787,7 +1783,7 @@ class server():
                     temp = ""
                     for i in TEMp:
                         if temp != "":
-                            temp = temp + f",{i[0]}|{i[1]}"
+                            temp = temp + f",={i[0]}|{i[1]}"
                         else:
                             temp = f"{i[0]}|{i[1]}"
                     self.desconnectproduct()
@@ -1796,7 +1792,6 @@ class server():
                     number, username, password = listen[1], listen[2], listen[3]
                     del listen[0]; del listen[0]; del listen[0]; del listen[0]
                     listen = listen[0].split(".-")
-                    print(listen)
                     self.connectconts()
                     TEMp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ? AND password = ?", (username, password))
                     temp = ""
