@@ -93,13 +93,15 @@ class application():
         self.connectcommands()
         self.connectclients()
         try:
-            temp = self.clientscursor.execute("SELECT name FROM Clients WHERE id = ?", (self.idclient.get()))
+            temp = self.clientscursor.execute("SELECT name FROM Clients WHERE id = ?", (self.idclient.get(), ))
             for i in temp:
                 temp = i[0]
         except:
             temp = ""
         self.desconnectclients()
         if self.nameclient.get() != self.actuallyname:
+            print(self.nameclient.get())
+            print(temp)
             if temp == self.nameclient.get():
                 self.commandscursor.execute("UPDATE CommandsActive SET idclient = ?, nameclient = ? WHERE number = ?", (self.idclient.get(), self.nameclient.get(), self.currentcommandwindow))
             else:
@@ -789,13 +791,50 @@ class application():
             self.rootconfirmdelete.protocol("WM_DELETE_WINDOW", close)
         def selectid(id):
             self.connectclients()
-            temp = self.clientscursor.execute("SELECT name FROM Clients WHERE id = ?", (id))
+            temp = self.clientscursor.execute("SELECT name FROM Clients WHERE id = ?", (id, ))
             for i in temp:
                 self.nameclient.set(i[0])
             self.desconnectclients()
         def selectname(name):
             self.nameclient.set(name.split("- ")[1])
             self.idclient.set(name.split(" -")[0])
+        def windowpay():
+            def click(event):
+                if event.keysym == "Escape":
+                    closepay()
+            def closepay():
+                self.root.bind_all("<KeyPress>", self.presskeycommandwindow)
+                self.rootcommand.grab_set()
+                self.rootpay.destroy()
+            def reloadpay():
+                pass
+            self.rootpay = ctk.CTkToplevel(self.rootcommand)
+            self.rootpay.geometry("700x500")
+            self.rootpay.transient(self.rootcommand)
+            self.rootpay.title("Pagamento")
+
+            self.root.bind_all("<KeyPress>", click)
+            self.rootpay.protocol("WM_DELETE_WINDOW", closepay)
+
+            self.scrollframepay = ctk.CTkScrollableFrame(self.rootpay)
+            self.scrollframepay.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.75)
+            
+            self.paytype = ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=200, height=50, text="TIPO DE PAGAMENTO")
+            self.paytype.grid(row=1, column=1, padx=1, pady=1)
+
+            self.payment = ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=300, height=50, text="QUANTIDADE")
+            self.payment.grid(row=1, column=2, padx=1, pady=1)
+
+            self.framepay = ctk.CTkFrame(self.rootpay)
+            self.framepay.place(relx=0.01, rely=0.77, relwidth=0.98, relheight=0.22)
+
+            self.confirmpay = ctk.CTkButton(self.framepay, )
+
+            self.addpay = ctk.CTkButton(self.framepay, )
+
+            self.totalprice = ctk.CTkLabel(self.framepay, )
+
+            reloadpay()
         try:
             if int(command) > 0:
                 num = command
@@ -823,7 +862,7 @@ class application():
         self.button_delcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="EXCLUIR COMANDA", hover_color=self.colors[5], command=deletecommand)
         self.button_delcommand.place(relx=0.01, rely=0.15, relwidth=0.29, relheight=0.7)
 
-        self.button_finishcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="PAGAMENTO", hover_color=self.colors[5])
+        self.button_finishcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="PAGAMENTO", hover_color=self.colors[5], command=windowpay)
         self.button_finishcommand.place(relx=0.7, rely=0.15, relwidth=0.29, relheight=0.7)
 
         self.placeholder_heading = ctk.CTkLabel(self.rootcommand, text="", fg_color=self.colors[0], width=5, height=30)
@@ -858,6 +897,7 @@ class application():
 
         self.connectcommands()
         tmp = self.commandscursor.execute("SELECT idclient, nameclient FROM CommandsActive WHERE number = ?", (num, ))
+        idclient, self.actuallyname = "", ""
         for i in tmp:
             idclient, self.actuallyname = i
         self.desconnectcommands()
@@ -1197,7 +1237,8 @@ class application():
                 text = text + str(hour) + "H "
             
             text = text + str(minute) + "M " + str(sec) + "S"
-
+            if len(nameclient) >= 16:
+                nameclient = nameclient[0:15]
             self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color=self.colors[3], command=lambda m = i:self.windowcommand(self.currentcommands[m]), hover=False, width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + text, font=("Arial", 20)))
             
             self.currentcommands[i].grid(row=int(i/6), column=i%6, padx=10, pady=5)
@@ -1579,6 +1620,11 @@ class application():
                                     type VARCHAR(30),
                                     size VARCHAR(30),
                                     text VARCHAR(100)
+                                    )""")
+        self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS Payments(
+                                    number INTEGER(4),
+                                    type VARCHAR(10),
+                                    quantity VARCHAR(8)
                                     )""")
         self.desconnectcommands()
         self.connectproduct()
