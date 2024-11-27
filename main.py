@@ -806,8 +806,31 @@ class application():
                 self.root.bind_all("<KeyPress>", self.presskeycommandwindow)
                 self.rootcommand.grab_set()
                 self.rootpay.destroy()
+            def delpay(cod):
+                self.connectcommands()
+                self.commandscursor.execute("DELETE FROM Payments WHERE cod = ?", (cod, ))
+                self.desconnectcommands()
+                reloadpay()
+            def confirmpay():
+                pass
             def reloadpay():
-                self.totalprice.configure()
+                try:
+                    for i in self.currentpayments:
+                        for j in i:
+                            j.destroy()
+                except:
+                    pass
+                self.totalpricelbl.configure()
+                self.connectcommands()
+                temp = self.commandscursor.execute("SELECT * FROM Payments WHERE number = ?", (self.currentcommandwindow, ))
+                self.currentpayments = []
+                for k, i in enumerate(temp):
+                    self.currentpayments.append([ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=[2], width=300, height=50), ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=i[3], width=100, height=50), ctk.CTkButton(self.scrollframepay, text="", image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(35, 35)), fg_color=self.colors[4], hover=False, command=lambda y = i[0]:delpay(y), width=50, height=50)])
+                    n = k + 2
+                    self.currentpayments[k][0].grid(row=n, column=1, padx=1, pady=1)
+                    self.currentpayments[k][1].grid(row=n, column=2, padx=1, pady=1)
+                    self.currentpayments[k][2].grid(row=n, column=3, padx=1, pady=1)
+                self.desconnectcommands()
             def addpay():
                 def closeadd():
                     self.rootaddpay.destroy()
@@ -816,7 +839,30 @@ class application():
                 def clickpay(event):
                     if event.keysym == "escape":
                         closeadd()
+                def addpayment():
+                    self.connectcommands()
+                    self.commandscursor.execute("INSERT INTO Payments (number, type, quantity) VALUES (?, ?, ?)", (self.currentcommandwindow, self.tipepay.get(), self.qtdpay.get()))
+                    self.desconnectcommands()
+                    closeadd()
+                    reloadpay()
                 self.rootaddpay = ctk.CTkToplevel(self.rootpay)
+                self.rootaddpay.geometry("400x150")
+                self.rootaddpay.resizable(False, False)
+                self.rootaddpay.title("Adicionar pagamento")
+                self.rootaddpay.transient(self.rootpay)
+                self.rootaddpay.grab_set()
+
+
+
+                self.confirmaddpay = ctk.CTkButton(self.rootaddpay, command=addpayment)
+                self.confirmaddpay.place(relx=0.01, rely=0.51, relwidth=0.98, relheight=0.48)
+
+                self.tipepay = ctk.CTkComboBox(self.rootaddpay, width=196, height=73, values=["Dinheiro", "Débito", "Crédito"])
+                self.tipepay.place(relx=0.01, rely=0.01, relwidth=0.49, relheight=0.49)
+
+                self.qtdpay = ctk.CTkEntry(self.rootaddpay)
+                self.qtdpay.place(relx=0.51, rely=0.01, relwidth=0.48, relheight=0.49)
+
                 self.root.bind_all("<KeyPress>", clickpay)
                 self.rootaddpay.protocol("WM_DELETE_WINDOW", closeadd)
             self.rootpay = ctk.CTkToplevel(self.rootcommand)
@@ -837,17 +883,20 @@ class application():
             self.payment = ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=100, height=50, text="QUANTIDADE")
             self.payment.grid(row=1, column=2, padx=1, pady=1)
 
+            self.deletepay = ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=50, height=50)
+            self.deletepay.grid(row=1, column=3, padx=1, pady=1)
+
             self.framepay = ctk.CTkFrame(self.rootpay)
             self.framepay.place(relx=0.01, rely=0.77, relwidth=0.98, relheight=0.22)
 
-            self.confirmpay = ctk.CTkButton(self.framepay, text="CONFIRMAR", fg_color=self.colors[4], hover_color=self.colors[3])
+            self.confirmpay = ctk.CTkButton(self.framepay, text="CONFIRMAR", fg_color=self.colors[4], hover_color=self.colors[3], command=confirmpay)
             self.confirmpay.place(relx=0.61, rely=0.32, relwidth=0.38, relheight=0.67)
 
             self.addpay = ctk.CTkButton(self.framepay, text="ADICIONAR PAGAMENTO", fg_color=self.colors[4], hover_color=self.colors[3], command=addpay)
             self.addpay.place(relx=0.01, rely=0.32, relwidth=0.59, relheight=0.67)
 
-            self.totalpricelabel = ctk.CTkLabel(self.framepay, text="TOTAL:", bg_color=self.colors[3])
-            self.totalpricelabel.place(relx=0.01, rely=0.01, relwidth=0.2, relheight=0.3)
+            self.totalpricelbl = ctk.CTkLabel(self.framepay, text="TOTAL:", bg_color=self.colors[3])
+            self.totalpricelbl.place(relx=0.01, rely=0.01, relwidth=0.2, relheight=0.3)
 
             self.totalprice = ctk.CTkLabel(self.framepay, text="", bg_color=self.colors[3])
             self.totalprice.place(relx=0.2, rely=0.01, relwidth=0.79, relheight=0.3)
@@ -1640,6 +1689,7 @@ class application():
                                     text VARCHAR(100)
                                     )""")
         self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS Payments(
+                                    cod INTEGER PRIMARY KEY,
                                     number INTEGER(4),
                                     type VARCHAR(10),
                                     quantity VARCHAR(8)
