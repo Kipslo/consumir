@@ -17,6 +17,26 @@ class application():
             aserver.close()
         self.insertproductlist = []
         self.createtables()
+        try:
+            self.connecthistory()
+            temp = self.historycursor.execute("SELECT * FROM ClosedCommand")
+            tmp = []
+            for i in temp:
+                tmp.append(i)
+            print(tmp)
+            temp = self.historycursor.execute("SELECT * FROM Payments")
+            tmp = []
+            for i in temp:
+                tmp.append(i)
+            print(tmp)
+            temp = self.historycursor.execute("SELECT * FROM Products")
+            tmp = []
+            for i in temp:
+                tmp.append(i)
+            print(tmp)
+        except:
+            pass
+        self.desconnecthistory()
         self.positionp = True
         self.cod, self.stylemode, self.maxcommands = "", "", ""
         mod, up = False, False
@@ -812,7 +832,41 @@ class application():
                 self.desconnectcommands()
                 reloadpay()
             def confirmpay():
-                pass
+                self.connectcommands()
+                self.connecthistory()
+
+                temp = self.commandscursor.execute("SELECT * FROM CommandsActive WHERE number = ?", (self.currentcommandwindow, ))
+                for i in temp:
+                    commandactive = i
+                temp = self.commandscursor.execute("SELECT * FROM Consumption WHERE number = ?", (commandactive[0], ))
+                totalprice = 0
+                products = []
+                for i in temp:
+                    products.append(i)
+                    totalprice = totalprice + float(i[5])
+                temp = self.commandscursor.execute("SELECT * FROM Payments WHERE number = ?", (commandactive[0], ))
+                payments = []
+                for  i in temp:
+                    payments.append(i)
+                date = str(datetime.datetime.now())[0:19]
+                self.historycursor.execute("INSERT INTO ClosedCommand (number, date, hour, nameclient, idclient, totalprice, datefinish) VALUES (?, ?, ?, ?, ?, ?, ?)", (commandactive[0], commandactive[1], commandactive[2], commandactive[3], commandactive[4], totalprice, date))
+                temp = self.historycursor.execute("SELECT cod FROM ClosedCommand WHERE number = ? AND nameclient = ? AND idclient = ? AND totalprice = ? AND datefinish = ?", (commandactive[0], commandactive[3], commandactive[4], totalprice, date))
+                for i in temp:
+                    cod = i[0]
+                for i in payments:
+                    self.historycursor.execute("INSERT INTO Payments (commandid, type, quantity) VALUES (?, ?, ?)", (cod, i[2], i[3]))
+                for i in products:
+                    self.historycursor.execute("INSERT INTO Products (commandid, name, type, releasedate, releasehour, waiter, price) VALUES (?, ?, ?, ?, ?, ?, ?)", (cod, i[8], i[9], i[2], i[3], i[4], i[5]))
+                self.commandscursor.execute("DELETE FROM CommandsActive WHERE number = ?", (commandactive[0], ))
+                for i in products:
+                    self.commandscursor.execute("DELETE FROM Consumption WHERE cod = ?", (i[0], ))
+                for i in payments:
+                    self.commandscursor.execute("DELETE FROM Payments WHERE cod = ?", (i[0], ))
+                self.desconnectcommands()
+                self.desconnecthistory()
+                closepay()
+                self.on_closingcommandwindow()
+                self.reloadcommands()
             def reloadpay():
                 try:
                     for i in self.currentpayments:
@@ -825,7 +879,7 @@ class application():
                 temp = self.commandscursor.execute("SELECT * FROM Payments WHERE number = ?", (self.currentcommandwindow, ))
                 self.currentpayments = []
                 for k, i in enumerate(temp):
-                    self.currentpayments.append([ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=[2], width=300, height=50), ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=i[3], width=100, height=50), ctk.CTkButton(self.scrollframepay, text="", image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(35, 35)), fg_color=self.colors[4], hover=False, command=lambda y = i[0]:delpay(y), width=50, height=50)])
+                    self.currentpayments.append([ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=i[2], width=300, height=50), ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=i[3], width=100, height=50), ctk.CTkButton(self.scrollframepay, text="", image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(35, 35)), fg_color=self.colors[4], hover=False, command=lambda y = i[0]:delpay(y), width=50, height=50)])
                     n = k + 2
                     self.currentpayments[k][0].grid(row=n, column=1, padx=1, pady=1)
                     self.currentpayments[k][1].grid(row=n, column=2, padx=1, pady=1)
@@ -841,7 +895,7 @@ class application():
                         closeadd()
                 def addpayment():
                     self.connectcommands()
-                    self.commandscursor.execute("INSERT INTO Payments (number, type, quantity) VALUES (?, ?, ?)", (self.currentcommandwindow, self.tipepay.get(), self.qtdpay.get()))
+                    self.commandscursor.execute("INSERT INTO Payments (number, type, quantity) VALUES (?, ?, ?)", (self.currentcommandwindow, self.tipepayvar.get(), self.qtdpay.get()))
                     self.desconnectcommands()
                     closeadd()
                     reloadpay()
@@ -852,15 +906,15 @@ class application():
                 self.rootaddpay.transient(self.rootpay)
                 self.rootaddpay.grab_set()
 
+                self.tipepayvar = ctk.StringVar(value="Dinheiro")
 
-
-                self.confirmaddpay = ctk.CTkButton(self.rootaddpay, command=addpayment)
+                self.confirmaddpay = ctk.CTkButton(self.rootaddpay, command=addpayment, text="CONFIRMAR", bg_color=self.colors[4], hover_color=self.colors[3])
                 self.confirmaddpay.place(relx=0.01, rely=0.51, relwidth=0.98, relheight=0.48)
 
-                self.tipepay = ctk.CTkComboBox(self.rootaddpay, width=196, height=73, values=["Dinheiro", "Débito", "Crédito"])
+                self.tipepay = ctk.CTkComboBox(self.rootaddpay, width=196, height=73, variable=self.tipepayvar, values=["Dinheiro", "Débito", "Crédito"])
                 self.tipepay.place(relx=0.01, rely=0.01, relwidth=0.49, relheight=0.49)
 
-                self.qtdpay = ctk.CTkEntry(self.rootaddpay)
+                self.qtdpay = ctk.CTkEntry(self.rootaddpay, placeholder_text="Quantidade")
                 self.qtdpay.place(relx=0.51, rely=0.01, relwidth=0.48, relheight=0.49)
 
                 self.root.bind_all("<KeyPress>", clickpay)
@@ -1738,15 +1792,24 @@ class application():
                                     number VARCHAR(4),
                                     date CHAR(10),
                                     hour CHAR(5),
+                                    nameclient VARCHAR(30),
+                                    idclient INTEGER(5),
+                                    totalprice VARCHAR(8),
+                                    datefinish VARCHAR(19)
+                                    )""")
+        self.historycursor.execute("""CREATE TABLE IF NOT EXISTS Payments(
+                                    commandid INTEGER(4),
+                                    type VARCHAR(10),
+                                    quantity VARCHAR(8)
+                                    )""")
+        self.historycursor.execute("""CREATE TABLE IF NOT EXISTS Products(
+                                    commandid INTEGER(4),
+                                    name VARCHAR(30),
+                                    type VARCHAR(10),
+                                    releasedate CHAR(10),
+                                    releasehour CHAR(5),
                                     waiter VARCHAR(30),
-                                    price VARCHAR(8),
-                                    unitprice VARCHAR(8),
-                                    quantity INTERGER(3),
-                                    product VARCHAR(30),
-                                    type VARCHAR(30),
-                                    size VARCHAR(30),
-                                    datefinish VARCHAR(16)
-
+                                    price VARCHAR(8)
                                     )""")
         self.desconnecthistory()
         self.connecttemp()
