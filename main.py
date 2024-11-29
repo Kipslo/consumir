@@ -849,7 +849,7 @@ class application():
                 for  i in temp:
                     payments.append(i)
                 date = str(datetime.datetime.now())[0:19]
-                self.historycursor.execute("INSERT INTO ClosedCommand (number, date, hour, nameclient, idclient, totalprice, datefinish) VALUES (?, ?, ?, ?, ?, ?, ?)", (commandactive[0], commandactive[1], commandactive[2], commandactive[3], commandactive[4], totalprice, date))
+                self.historycursor.execute("INSERT INTO ClosedCommand (number, date, hour, nameclient, idclient, totalprice, datefinish, cashier) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (commandactive[0], commandactive[1], commandactive[2], commandactive[3], commandactive[4], totalprice, date, self.namelogin))
                 temp = self.historycursor.execute("SELECT cod FROM ClosedCommand WHERE number = ? AND nameclient = ? AND idclient = ? AND totalprice = ? AND datefinish = ?", (commandactive[0], commandactive[3], commandactive[4], totalprice, date))
                 for i in temp:
                     cod = i[0]
@@ -1795,7 +1795,8 @@ class application():
                                     nameclient VARCHAR(30),
                                     idclient INTEGER(5),
                                     totalprice VARCHAR(8),
-                                    datefinish VARCHAR(19)
+                                    datefinish VARCHAR(19),
+                                    cashier VARCHAR(30)
                                     )""")
         self.historycursor.execute("""CREATE TABLE IF NOT EXISTS Payments(
                                     commandid INTEGER(4),
