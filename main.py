@@ -10,6 +10,7 @@ import datetime
 from unidecode import unidecode
 from escpos.printer import network
 from multiprocessing import Process
+from tkcalendar import Calendar
 class application():
     def __init__(self):
         def close():
@@ -17,25 +18,6 @@ class application():
             aserver.close()
         self.insertproductlist = []
         self.createtables()
-        try:
-            self.connecthistory()
-            temp = self.historycursor.execute("SELECT * FROM ClosedCommand")
-            tmp = []
-            for i in temp:
-                tmp.append(i)
-            print(tmp)
-            temp = self.historycursor.execute("SELECT * FROM Payments")
-            tmp = []
-            for i in temp:
-                tmp.append(i)
-            print(tmp)
-            temp = self.historycursor.execute("SELECT * FROM Products")
-            tmp = []
-            for i in temp:
-                tmp.append(i)
-            print(tmp)
-        except:
-            pass
         self.desconnecthistory()
         self.positionp = True
         self.cod, self.stylemode, self.maxcommands = "", "", ""
@@ -328,7 +310,19 @@ class application():
             self.current_productslist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
             self.current_productslist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
         self.desconnectproduct()
- 
+    def notewindow(self):
+        self.deletewindow()
+        self.currentwindow = "ANOTAÇÕES"
+        
+        self.frame_note = ctk.CTkScrollableFrame(self.root)
+        self.frame_note.place(relx=, rely=, relwidth=, relheight=)
+
+        self.categoryname = ctk.CTkLabel(self.frame_note)
+        self.categoryname.grid(row=1, column=1, padx=1, pady=1)
+
+        self.editnotes = ctk.CTkButton()
+        self.editnotes.grid(row=1, column=2, padx=1, pady=1)
+
     def reloadproductsnormal(self):
         self.connectproduct()
         try:
@@ -377,6 +371,8 @@ class application():
             self.frameclients.destroy(); self.frameclients.place_forget(); self.buttonaddclient.destroy(); self.searchclients.destroy()
         elif self.currentwindow == "HISTORYCASH":
             self.scrollframehis.destroy(); self.scrollframehis.place_forget(); self.entrysearchhis.destroy()
+        elif self.currentwindow == "ANOTAÇÕES":
+            pass
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     def clientswindow(self):
@@ -1603,7 +1599,7 @@ class application():
             temp = self.historycursor.execute("SELECT * FROM ClosedCommand")
             self.currenthistory = []
             for k, i in enumerate(temp):
-                self.currenthistory.append([ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[1]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[2]} às {i[3]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[7][0:10]} às {i[7][11:20]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[6]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[9])])
+                self.currenthistory.append([ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[1]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[2]} às {i[3]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[7][0:10]} às {i[7][11:20]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[6]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[9]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=i[4])])
                 n = k + 2
 
                 self.currenthistory[k][0].grid(row=n, column=1, padx=1, pady=1)
@@ -1611,6 +1607,7 @@ class application():
                 self.currenthistory[k][2].grid(row=n, column=3, padx=1, pady=1)
                 self.currenthistory[k][3].grid(row=n, column=4, padx=1, pady=1)
                 self.currenthistory[k][4].grid(row=n, column=5, padx=1, pady=1)
+                self.currenthistory[k][5].grid(row=n, column=6, padx=1, pady=1)
             self.desconnecthistory()
         self.deletewindow()
         self.currentwindow = "HISTORYCASH"
@@ -1636,7 +1633,17 @@ class application():
         self.payhis = ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], text="PAGO", width=100, height=50)
         self.payhis.grid(row=1, column=5, padx=1, pady=1)
 
+        self.clienthis = ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], text="CLIENTE", width=200, height=50)
+        self.clienthis.grid(row=1, column=6, padx=1, pady=1)
+
         reload()
+    def rankingproducts(self):
+
+        self.deletewindow()
+        self.currentwindow = "RANKINGPRODUCTS"
+    
+        self.calendar = Calendar(self.root)
+        self.calendar.place(relx=0.01, rely=0.2)
 
     def changemainbuttons(self, button):
         
@@ -1656,7 +1663,7 @@ class application():
 
             mainimgs = [ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tables.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/clientes.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/trofeu.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/garçom.png"), size=(60,60))]
             
-            mainbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.historycash), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, command=self.clientswindow), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
+            mainbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.historycash), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, command=self.clientswindow), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab, command=self.rankingproducts), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
             
             self.currentmain = mainbuttons
             self.currentimgs = mainimgs
