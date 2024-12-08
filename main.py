@@ -315,13 +315,27 @@ class application():
         self.currentwindow = "ANOTAÇÕES"
         
         self.frame_note = ctk.CTkScrollableFrame(self.root)
-        self.frame_note.place(relx=, rely=, relwidth=, relheight=)
+        self.frame_note.place(relx=0.01, rely=0.145, relwidth=0.98, relheight=0.85)
 
         self.categoryname = ctk.CTkLabel(self.frame_note)
         self.categoryname.grid(row=1, column=1, padx=1, pady=1)
 
         self.editnotes = ctk.CTkButton()
         self.editnotes.grid(row=1, column=2, padx=1, pady=1)
+
+        self.tablecategory = []
+
+        self.connectproduct()
+        temp = self.productcursor.execute("SELECT name From Category")
+        self.desconnectproduct()
+
+        for k, i in enumerate(temp):
+            self.tablecategory.append([ctk.CTkLabel(), ctk.CTkButton()])
+
+            n = k + 2
+
+            self.tablecategory[k][0].grid(row=n, column=2, padx=1, pady=1)
+            self.tablecategory[k][1].grid(row=n, column=2, padx=1, pady=1)
 
     def reloadproductsnormal(self):
         self.connectproduct()
