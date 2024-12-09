@@ -311,31 +311,75 @@ class application():
             self.current_productslist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
         self.desconnectproduct()
     def notewindow(self):
+        def click(event):
+            if event.keysym == "Escape":
+                close()
+        def close():
+            self.root.bind_all("<KeyPress>", self.presskeycommandwindow)
+            self.editnote.destroy()
+            self.root.grab_set()
+        def edit(category):
+            def reload():
+                try:
+                    for i in self.current_notes:
+                        for j in i:
+                            j.destroy()
+                except:
+                    pass
+                self.connectproduct()
+                self.current_notes = []
+                temp = self.productcursor.execute("SELECT text FROM Notes WHERE category = ?", (category, ))
+                for k, i in enumerate(temp):
+                    self.current_notes.append([ctk.CTkLabel(self.framenotes, bg_color=self.colors[4], text=i[0], ), ctk.CTkButton()])
+
+                    n = k + 2
+                    self.current_notes[k][0].grid(row=n, column=1, padx=1, pady=1)
+                    self.current_notes[k][1].grid(row=n, column=2, padx=1, pady=1)
+                self.desconnectproduct()
+            self.editnote = ctk.CTkToplevel(self.root)
+            self.editnote.geometry("400x500")
+            self.editnote.transient(self.root)
+            self.editnote.resizable(False, False)
+            self.editnote.title("EDITAR ANOTAÇÕES DA CATEGORIA " + str(category))
+            self.editnote.grab_set()
+
+            self.framenotes = ctk.CTkScrollableFrame(self.editnote)
+            self.framenotes.place(relx=, reçy=, relwidth=0.98, relheight=0.)
+
+            self.notes = ctk.CTkLabel(self.framenotes, bg_color=self.colors[4], text="ANOTAÇÕES", width=300, height=50)
+            self.notes.grid(row=1, column=1, padx=1, pady=1)
+
+            self.root.bind_all("<KeyPress>", click)
+            self.editnote.protocol("WM_DELETE_WINDOW", close)
+            reload()
+
         self.deletewindow()
         self.currentwindow = "ANOTAÇÕES"
         
         self.frame_note = ctk.CTkScrollableFrame(self.root)
         self.frame_note.place(relx=0.01, rely=0.145, relwidth=0.98, relheight=0.85)
 
-        self.categoryname = ctk.CTkLabel(self.frame_note)
-        self.categoryname.grid(row=1, column=1, padx=1, pady=1)
+        self.categoryname = ctk.CTkLabel(self.frame_note, width=300, height=50, bg_color=self.colors[4], text="CATEGORIA")
+        self.categoryname.grid(row=1, column=1, padx=1, pady=2)
 
-        self.editnotes = ctk.CTkButton()
-        self.editnotes.grid(row=1, column=2, padx=1, pady=1)
+        self.editnotes = ctk.CTkLabel(self.frame_note, width=50, height=50, bg_color=self.colors[4], text="EDITAR")
+        self.editnotes.grid(row=1, column=2, padx=1, pady=2)
 
         self.tablecategory = []
 
         self.connectproduct()
-        temp = self.productcursor.execute("SELECT name From Category")
-        self.desconnectproduct()
+        temp = self.productcursor.execute("SELECT cod, name From Category")
 
         for k, i in enumerate(temp):
-            self.tablecategory.append([ctk.CTkLabel(), ctk.CTkButton()])
+            self.tablecategory.append([ctk.CTkLabel(self.frame_note, fg_color=self.colors[4], width=300, height=50, text=i[1]), ctk.CTkButton(self.frame_note, hover=False, fg_color=self.colors[4], width=50, height=50, text="", image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(35, 35)), command=lambda x = i[0]:edit(x))])
 
             n = k + 2
 
-            self.tablecategory[k][0].grid(row=n, column=2, padx=1, pady=1)
+            self.tablecategory[k][0].grid(row=n, column=1, padx=1, pady=1)
             self.tablecategory[k][1].grid(row=n, column=2, padx=1, pady=1)
+            
+
+        self.desconnectproduct()
 
     def reloadproductsnormal(self):
         self.connectproduct()
@@ -1684,7 +1728,7 @@ class application():
         elif text == "PRODUTO":
             productimgs = [ctk.CTkImage(Image.open("imgs/produtos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/complementos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tiposetamanhos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/categorias.jpg"), size=(60,60)), ctk.CTkImage(Image.open("imgs/promocoes.png"), size=(60,60))]
             
-            productbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.productswindow), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab, command=self.categorieswindow), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
+            productbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.productswindow), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab, command=self.notewindow), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab, command=self.categorieswindow), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
             
             self.currentmain = productbuttons
             self.currentimgs = productimgs
@@ -1828,6 +1872,11 @@ class application():
                                    category VARCHAR(10),
                                    price VARCHAR(8)
                                    )""")
+        self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Notes(
+                                    id INTEGER PRIMARY KEY,
+                                    text VARCHAR(30),
+                                    category VARCHAR(30)
+                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Combo(
                                    name VARCHAR(30),
                                    price VARCHAR(8),
