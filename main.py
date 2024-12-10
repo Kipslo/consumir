@@ -319,6 +319,17 @@ class application():
             self.editnote.destroy()
             self.root.grab_set()
         def edit(category):
+            def remove(id):
+                self.connectproduct()
+                self.productcursor.execute("DELETE FROM Notes WHERE id = ?", (id, ))
+                self.desconnectproduct()
+                reload()
+            def add():
+                self.connectproduct()
+                self.productcursor.execute("INSERT INTO Notes (text, category) VALUES (?, ?)", (self.entrynote.get(), category))
+                self.desconnectproduct()
+                reload()
+                
             def reload():
                 try:
                     for i in self.current_notes:
@@ -328,26 +339,35 @@ class application():
                     pass
                 self.connectproduct()
                 self.current_notes = []
-                temp = self.productcursor.execute("SELECT text FROM Notes WHERE category = ?", (category, ))
+                temp = self.productcursor.execute("SELECT id, text FROM Notes WHERE category = ?", (category, ))
                 for k, i in enumerate(temp):
-                    self.current_notes.append([ctk.CTkLabel(self.framenotes, bg_color=self.colors[4], text=i[0], ), ctk.CTkButton()])
+                    self.current_notes.append([ctk.CTkLabel(self.framenotes, bg_color=self.colors[4], text=i[1], width=500, height=50), ctk.CTkButton(self.framenotes, fg_color=self.colors[4], hover=False, width=60, height=50, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(45, 45)), text="", command=lambda x = i[0]:remove(x))])
 
                     n = k + 2
                     self.current_notes[k][0].grid(row=n, column=1, padx=1, pady=1)
                     self.current_notes[k][1].grid(row=n, column=2, padx=1, pady=1)
                 self.desconnectproduct()
             self.editnote = ctk.CTkToplevel(self.root)
-            self.editnote.geometry("400x500")
+            self.editnote.geometry("600x500")
             self.editnote.transient(self.root)
             self.editnote.resizable(False, False)
             self.editnote.title("EDITAR ANOTAÇÕES DA CATEGORIA " + str(category))
             self.editnote.grab_set()
 
             self.framenotes = ctk.CTkScrollableFrame(self.editnote)
-            self.framenotes.place(relx=, reçy=, relwidth=0.98, relheight=0.)
+            self.framenotes.place(relx=0.01, rely=0.2, relwidth=0.98, relheight=0.79)
 
-            self.notes = ctk.CTkLabel(self.framenotes, bg_color=self.colors[4], text="ANOTAÇÕES", width=300, height=50)
+            self.entrynote = ctk.CTkEntry(self.editnote)
+            self.entrynote.place(relx=0.01, rely=0.03, relwidth=0.75, relheight=0.15)
+
+            self.addnote = ctk.CTkButton(self.editnote, text="Adicionar", fg_color=self.colors[4], hover_color=self.colors[3], command=add)
+            self.addnote.place(relx=0.76, rely=0.03, relwidth=0.23, relheight=0.15)
+
+            self.notes = ctk.CTkLabel(self.framenotes, bg_color=self.colors[4], text="ANOTAÇÕES", width=500, height=50)
             self.notes.grid(row=1, column=1, padx=1, pady=1)
+
+            self.dellabel = ctk.CTkLabel(self.framenotes, bg_color=self.colors[4], text="DELETAR", width=60, height=50)
+            self.dellabel.grid(row=1, column=2, padx=1, pady=1)
 
             self.root.bind_all("<KeyPress>", click)
             self.editnote.protocol("WM_DELETE_WINDOW", close)
@@ -371,7 +391,7 @@ class application():
         temp = self.productcursor.execute("SELECT cod, name From Category")
 
         for k, i in enumerate(temp):
-            self.tablecategory.append([ctk.CTkLabel(self.frame_note, fg_color=self.colors[4], width=300, height=50, text=i[1]), ctk.CTkButton(self.frame_note, hover=False, fg_color=self.colors[4], width=50, height=50, text="", image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(35, 35)), command=lambda x = i[0]:edit(x))])
+            self.tablecategory.append([ctk.CTkLabel(self.frame_note, fg_color=self.colors[4], width=300, height=50, text=i[1]), ctk.CTkButton(self.frame_note, hover=False, fg_color=self.colors[4], width=50, height=50, text="", image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(35, 35)), command=lambda x = i[1]:edit(x))])
 
             n = k + 2
 
@@ -430,7 +450,7 @@ class application():
         elif self.currentwindow == "HISTORYCASH":
             self.scrollframehis.destroy(); self.scrollframehis.place_forget(); self.entrysearchhis.destroy()
         elif self.currentwindow == "ANOTAÇÕES":
-            pass
+            self.frame_note.destroy(); self.frame_note.place_forget()
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     def clientswindow(self):
@@ -1212,7 +1232,6 @@ class application():
             listen = [temp[0]]
             self.connectcommands()
             cod, command, product, category, unitprice, qtd, text, waiter, tipe = temp[0]
-            
             date = str(datetime.datetime.now())[0:19]
             date, hour = date[0:10], date[11:20]
             self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size, text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, date, hour, waiter, float(unitprice)*qtd, unitprice, qtd, product, tipe, "", text))
@@ -1891,10 +1910,6 @@ class application():
                                    releasefunctionary VARCHAR(30),
                                    currentprice VARCHAR(8)
                                    )""")
-        self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Text(
-                                    idproduct INTEGER,
-                                    text VARCHAR(30)
-                                   )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Category(
                                    cod INTEGER PRIMARY KEY,
                                    name VARCHAR(30)
@@ -2106,6 +2121,7 @@ class server():
                         else:
                             product, category, unitprice, qtd, description, tipe = listen
                         self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe))
+                        print("recebeu")
                         self.desconnecttemp()
                         conn.sendall(str.encode("Y"))
                     else:
