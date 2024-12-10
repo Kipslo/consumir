@@ -1234,7 +1234,7 @@ class application():
             cod, command, product, category, unitprice, qtd, text, waiter, tipe = temp[0]
             date = str(datetime.datetime.now())[0:19]
             date, hour = date[0:10], date[11:20]
-            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size, text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, date, hour, waiter, float(unitprice)*qtd, unitprice, qtd, product, tipe, "", text))
+            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size, text, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, date, hour, waiter, float(unitprice)*qtd, unitprice, qtd, product, tipe, "", text, category))
             del temp[0]
             self.connecttemp()
             self.tempdbcursor.execute("DELETE FROM TempProducts Where cod = ?", (cod, ))
@@ -1274,7 +1274,7 @@ class application():
                 name = product + " (" + self.combobox_products.get() + ")"
             elif tipe == "NORMAL":
                 name = product
-            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, str(float(unitprice)*int(quantity)), unitprice, quantity, name, tipe, ""))
+            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, str(float(unitprice)*int(quantity)), unitprice, quantity, name, tipe, "", category))
             self.desconnectcommands()
             close()
             self.reloadproductforcommands(self.currentcommandwindow)
@@ -1287,30 +1287,49 @@ class application():
             self.desconnectcommands()
             self.reloadproductforcommands(self.currentcommandwindow)
             close2()
+        def reloadnotes():
+            try:
+                for i in self.currentnotes:
+                    for j in i:
+                        j.destroy()
+            except:
+                pass
         if cod != "":
             self.rooteditaddproduct = ctk.CTkToplevel(self.rootcommand)
             self.rooteditaddproduct.transient(self.rootcommand)
         else:
             self.rooteditaddproduct = ctk.CTkToplevel(self.rootaddpdctcommand)
             self.rooteditaddproduct.transient(self.rootaddpdctcommand)
-        self.rooteditaddproduct.geometry("500x200")
+        self.rooteditaddproduct.geometry("500x800")
         self.rooteditaddproduct.resizable(False, False)
         self.rooteditaddproduct.title("CONFIGURAÇÕES DO PRODUTO")
         self.rooteditaddproduct.grab_set()
 
         self.label_product = ctk.CTkLabel(self.rooteditaddproduct, text= product + " (" + category + ")", fg_color=self.colors[4], font=("Arial", 25))
-        self.label_product.place(relx=0.01, rely=0.01, relwidth=0.59, relheight=0.48)
+        self.label_product.place(relx=0.01, rely=0.01, relwidth=0.59, relheight=0.15)
 
         self.entry_quantity = ctk.CTkEntry(self.rooteditaddproduct, fg_color=self.colors[4], font=("Arial", 25))
-        self.entry_quantity.place(relx=0.61, rely=0.01, relwidth=0.14, relheight=0.48)
+        self.entry_quantity.place(relx=0.61, rely=0.01, relwidth=0.14, relheight=0.15)
         self.entry_quantity.insert(0, "1")
 
         self.entry_unitprice = ctk.CTkEntry(self.rooteditaddproduct, fg_color=self.colors[4], font=("Arial", 25), placeholder_text="PREÇO")
-        self.entry_unitprice.place(relx=0.76, rely=0.01, relwidth=0.23, relheight=0.48)
+        self.entry_unitprice.place(relx=0.76, rely=0.01, relwidth=0.23, relheight=0.15)
         
         self.button_confirm = ctk.CTkButton(self.rooteditaddproduct, fg_color=self.colors[4], hover_color=self.colors[5], command=confirm, text="CONFIRMAR", font=("Arial", 25))
-        self.button_confirm.place(relx=0.51, rely=0.50, relwidth=0.48, relheight=0.49)
+        self.button_confirm.place(relx=0.51, rely=0.17, relwidth=0.48, relheight=0.15)
         
+        self.scrollframenote = ctk.CTkScrollableFrame(self.rooteditaddproduct, )
+
+        self.buttonaddnote = ctk.CTkButton(self.rooteditaddproduct, fg_color=self.colors[4], hover_color=self.colors[3])
+
+        self.entryaddnote = ctk.CTkEntry(self.rooteditaddproduct, )
+
+        self.titletext = ctk.CTkLabel(self.scrollframenote, width=300, height=50)
+
+        self.titleremove = ctk.CTkLabel(self.scrollframenote, width=60, height=50)
+
+        currentnotes = []
+
         self.root.bind_all("<KeyPress>", pressesc)
         self.rooteditaddproduct.protocol("WM_DELETE_WINDOW", close)
         if tipe == "NORMAL":
@@ -1341,7 +1360,14 @@ class application():
             self.entry_unitprice.insert(0, unitprice)
 
             self.button_confirm.configure(command=lambda x=cod:confirm2(x))
+
+            temp = self.commandscursor.execute("SELECT text FROM Consumption WHERE cod = ?", (cod, ))
+            for i in temp:
+                temp = i.split(".=")
+            for i in temp:
+                currentnotes.append(i[0])
             self.desconnectcommands()
+            reloadnotes()
     def reloadproductstable(self, search = ""):
         def addproductincommand(product, category, tipe, price):
             if tipe == "SIZE":
@@ -1350,7 +1376,7 @@ class application():
                 self.connectcommands()
                 date = str(datetime.datetime.now())[0:19]
                 date, hour = date[0:10], date[11:20]
-                self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, price, price, "1", product, tipe, ""))
+                self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.currentcommandwindow, date, hour, self.namelogin, price, price, "1", product, tipe, "", category))
                 self.desconnectcommands()
                 self.insertcommandactive(self.currentcommandwindow)
                 self.reloadcommands()
@@ -1875,7 +1901,8 @@ class application():
                                     product VARCHAR(30),
                                     type VARCHAR(30),
                                     size VARCHAR(30),
-                                    text VARCHAR(100)
+                                    text VARCHAR(100),
+                                    category VARCHAR(30)
                                     )""")
         self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS Payments(
                                     cod INTEGER PRIMARY KEY,
