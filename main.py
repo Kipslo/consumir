@@ -1294,6 +1294,21 @@ class application():
                         j.destroy()
             except:
                 pass
+            self.connectproduct()
+            temp = self.productcursor.execute("SELECT text FROM Notes WHERE category = ?", (category, ))
+            predeftexts = []
+            for i in temp:
+                predeftexts.append(i)
+            self.connectcommands()    
+            temp = self.commandscursor("SELECT text FROM Consumption WHERE cod = ?",(cod, ))
+            for i in temp:
+                temp = i[0].split(".=")
+            self.currentnotes = []
+            for k, i in enumerate(predeftexts):
+                self.currentnotes.append([ctk.CTkLabel(), ctk.CTkCheckBox()])
+            self.desconnectcommands()
+            self.desconnectproduct()
+                
         if cod != "":
             self.rooteditaddproduct = ctk.CTkToplevel(self.rootcommand)
             self.rooteditaddproduct.transient(self.rootcommand)
