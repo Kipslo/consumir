@@ -1234,7 +1234,7 @@ class application():
             cod, command, product, category, unitprice, qtd, text, waiter, tipe = temp[0]
             date = str(datetime.datetime.now())[0:19]
             date, hour = date[0:10], date[11:20]
-            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size, text, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, date, hour, waiter, float(unitprice)*qtd, unitprice, qtd, product, tipe, "", text, category))
+            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size, text, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, date, hour, waiter, float(unitprice)*qtd, unitprice, qtd, product, tipe, "", text, category))
             del temp[0]
             self.connecttemp()
             self.tempdbcursor.execute("DELETE FROM TempProducts Where cod = ?", (cod, ))
@@ -1287,9 +1287,16 @@ class application():
             self.desconnectcommands()
             self.reloadproductforcommands(self.currentcommandwindow)
             close2()
+        def select(x):
+            self.currentnotesvar[x] = self.currentnotes.get()
+        def delete(x):
+            pass
         def reloadnotes():
             try:
                 for i in self.currentnotes:
+                    for j in i:
+                        j.destroy()
+                for i in self.currentpredefnotes:
                     for j in i:
                         j.destroy()
             except:
@@ -1300,12 +1307,28 @@ class application():
             for i in temp:
                 predeftexts.append(i)
             self.connectcommands()    
-            temp = self.commandscursor("SELECT text FROM Consumption WHERE cod = ?",(cod, ))
+            temp = self.commandscursor.execute("SELECT text FROM Consumption WHERE cod = ?",(cod, ))
             for i in temp:
                 temp = i[0].split(".=")
+            self.currentpredefnotes = []
+            self.currentpredefnotesvar = []
+            for k, i in enumerate(predeftexts): 
+                self.currentpredefnotesvar.append(ctk.StringVar(value=""))
+                for n, l in enumerate(temp):
+                    if temp == l[0]:
+                        self.currentnotesvar[k].set(i[0])
+                        del temp[n]
+                        break
+                n = k + 2
+                self.currentpredefnotes.append([ctk.CTkLabel(self.scrollframenote, text=i[0], width=300, height=50), ctk.CTkCheckBox(self.scrollframenote, text="", variable=self.currentnotesvar[k], onvalue=i[0], offvalue="", command=lambda x = k:select(x), width=60, height=50)])
+            
+                self.currentpredefnotes[k][0].grid(row=n, column=1, padx=1, pady=1)
+                self.currentpredefnotes[k][1].grid(row=n, column=2, padx=1, pady=1)
             self.currentnotes = []
-            for k, i in enumerate(predeftexts):
-                self.currentnotes.append([ctk.CTkLabel(), ctk.CTkCheckBox()])
+            for k, i in enumerate(temp):
+                n = len(self.currentpredefnotes) + k + 3
+                self.currentnotes.append([ctk.CTkLabel(self.scrollframenote, text=i[0], width=300, height=50), ctk.CTkButton(self.scrollframenote, text="", command=lambda x = k:delete(x), width=60, height=50, fg_color=self.colors[4], hover=False)])
+
             self.desconnectcommands()
             self.desconnectproduct()
                 
@@ -1315,33 +1338,38 @@ class application():
         else:
             self.rooteditaddproduct = ctk.CTkToplevel(self.rootaddpdctcommand)
             self.rooteditaddproduct.transient(self.rootaddpdctcommand)
-        self.rooteditaddproduct.geometry("500x800")
+        self.rooteditaddproduct.geometry("750x750")
         self.rooteditaddproduct.resizable(False, False)
         self.rooteditaddproduct.title("CONFIGURAÇÕES DO PRODUTO")
         self.rooteditaddproduct.grab_set()
 
         self.label_product = ctk.CTkLabel(self.rooteditaddproduct, text= product + " (" + category + ")", fg_color=self.colors[4], font=("Arial", 25))
-        self.label_product.place(relx=0.01, rely=0.01, relwidth=0.59, relheight=0.15)
+        self.label_product.place(relx=0.01, rely=0.01, relwidth=0.59, relheight=0.1)
 
         self.entry_quantity = ctk.CTkEntry(self.rooteditaddproduct, fg_color=self.colors[4], font=("Arial", 25))
-        self.entry_quantity.place(relx=0.61, rely=0.01, relwidth=0.14, relheight=0.15)
+        self.entry_quantity.place(relx=0.61, rely=0.01, relwidth=0.14, relheight=0.1)
         self.entry_quantity.insert(0, "1")
 
         self.entry_unitprice = ctk.CTkEntry(self.rooteditaddproduct, fg_color=self.colors[4], font=("Arial", 25), placeholder_text="PREÇO")
-        self.entry_unitprice.place(relx=0.76, rely=0.01, relwidth=0.23, relheight=0.15)
+        self.entry_unitprice.place(relx=0.76, rely=0.01, relwidth=0.23, relheight=0.1)
         
         self.button_confirm = ctk.CTkButton(self.rooteditaddproduct, fg_color=self.colors[4], hover_color=self.colors[5], command=confirm, text="CONFIRMAR", font=("Arial", 25))
-        self.button_confirm.place(relx=0.51, rely=0.17, relwidth=0.48, relheight=0.15)
+        self.button_confirm.place(relx=0.51, rely=0.12, relwidth=0.48, relheight=0.1)
         
         self.scrollframenote = ctk.CTkScrollableFrame(self.rooteditaddproduct, )
+        self.scrollframenote.place(relx=0.01, rely=0.34, relwidth=0.98, relheight=0.65)
 
-        self.buttonaddnote = ctk.CTkButton(self.rooteditaddproduct, fg_color=self.colors[4], hover_color=self.colors[3])
+        self.buttonaddnote = ctk.CTkButton(self.rooteditaddproduct, fg_color=self.colors[4], hover_color=self.colors[3], text="ADICIONAR ANOTAÇÃO")
+        self.buttonaddnote.place(relx=0.71, rely=0.23, relwidth=0.28, relheight=0.1)
 
-        self.entryaddnote = ctk.CTkEntry(self.rooteditaddproduct, )
+        self.entryaddnote = ctk.CTkEntry(self.rooteditaddproduct, bg_color=self.colors[4])
+        self.entryaddnote.place(relx=0.01, rely=0.23, relwidth=0.69, relheight=0.1)
 
-        self.titletext = ctk.CTkLabel(self.scrollframenote, width=300, height=50)
+        self.titletext = ctk.CTkLabel(self.scrollframenote, width=300, height=50, text="Anotação", bg_color=self.colors[3])
+        self.titletext.grid(row=1, column=1, padx=1, pady=1)
 
-        self.titleremove = ctk.CTkLabel(self.scrollframenote, width=60, height=50)
+        self.titleremove = ctk.CTkLabel(self.scrollframenote, width=60, height=50, text="SELECIONAR/EXLUIR", bg_color=self.colors[3])
+        self.titleremove.grid(row=1, column=2, padx=1, pady=1)
 
         currentnotes = []
 
@@ -1378,7 +1406,7 @@ class application():
 
             temp = self.commandscursor.execute("SELECT text FROM Consumption WHERE cod = ?", (cod, ))
             for i in temp:
-                temp = i.split(".=")
+                temp = i[0].split(".=")
             for i in temp:
                 currentnotes.append(i[0])
             self.desconnectcommands()
