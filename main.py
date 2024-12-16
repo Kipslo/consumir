@@ -1287,19 +1287,59 @@ class application():
             self.desconnectcommands()
             self.reloadproductforcommands(self.currentcommandwindow)
             close2()
-        def select(x):
-            self.currentnotesvar[x] = self.currentnotes.get()
-        def delete(x):
-            pass
-        def add(x):
-            text = ""
-            for i in self.currentpredefnotesvar:
-                text = text + ".=" + i.get()
-            for i in self.currentnotes:
-                text = text + ".=" + i[0].cget("text")
-            if self.entryaddnote.get() != "":
-                text = text + ".=" + self.entryaddnote.get()
+        def select(id, par):
             self.connectcommands()
+            if self.currentpredefnotesvar[id].get() == "":
+                temp = self.commandscursor.execute("SELECT text FROM Consumption WHERE cod = ?", (cod, ))
+                for i in temp:
+                    temp = i[0].split(".=")
+                text = ""
+                num = 1
+                for i in temp:
+                    if par != i:
+                        if num != 1:
+                            text = text + ".=" + i
+                        else:
+                            text = i
+                            num = 2
+            else:
+                temp = self.commandscursor.execute("SELECT text FROM Consumption WHERE cod = ?", (cod, ))
+                for i in temp:
+                    if i[0] != "":
+                        text = i[0] + ".=" + self.currentpredefnotesvar[id].get()
+                    else:
+                        text = self.currentpredefnotesvar[id].get()
+            self.commandscursor.execute("UPDATE Consumption SET text = ? WHERE cod = ?", (text, cod))
+            self.desconnectcommands()
+        def delete(x):
+            self.connectcommands()
+            temp = self.commandscursor.execute("SELECT text FROM Consumption WHERE cod = ?", (cod, ))
+            text = ""
+            for i in temp:
+                temp = i[0].split(".=")
+            num = 1
+            for i in temp:
+                if x != i:
+                    if num != 1:
+                        text = text + ".=" + i
+                    else:
+                        text = i
+                        num = 2
+            self.commandscursor.execute("UPDATE Consumption SET text = ? WHERE cod = ?", (text, cod))
+            self.desconnectcommands()
+            reloadnotes()
+        def add():
+            self.connectcommands()
+            temp = self.commandscursor.execute("SELECT text FROM Consumption WHERE cod = ?", (cod, ))
+            text = ""
+            for i in temp:
+                temp = i[0]
+            if self.entryaddnote.get() != "":
+                if temp != "":
+                    text = temp + ".=" + self.entryaddnote.get()
+                else:
+                    text = self.entryaddnote.get()
+            print(text)
             self.commandscursor.execute("UPDATE Consumption SET text = ? WHERE cod = ?", (text, cod))
             self.desconnectcommands()
             reloadnotes()
@@ -1308,46 +1348,36 @@ class application():
                 for i in self.currentnotes:
                     for j in i:
                         j.destroy()
-                for i in self.currentpredefnotes:
-                    for j in i:
-                        j.destroy()
             except:
                 pass
             self.connectproduct()
             self.connectcommands()
-            temp = self.commandscursor.execute("SELECT text, category, FROM Consumption WHERE cod = ?",(cod, ))
+            temp = self.commandscursor.execute("SELECT text, category FROM Consumption WHERE cod = ?",(cod, ))
             for i in temp:
                 temp = i[0].split(".=")
                 category = i[1]
-            print(category)
             tmp = self.productcursor.execute("SELECT text FROM Notes WHERE category = ?", (category, ))
             predeftexts = []
             for i in tmp:
                 predeftexts.append(i[0])
-            print(predeftexts)
-            self.currentpredefnotes = []
+            self.currentnotes = []
             self.currentpredefnotesvar = []
             for k, i in enumerate(predeftexts): 
                 self.currentpredefnotesvar.append(ctk.StringVar(value=""))
                 for n, l in enumerate(temp):
-                    if temp == l:
-                        self.currentnotesvar[k].set(i[0])
+                    if i[0] == l:
+                        self.currentpredefnotesvar[k].set(i[0])
                         del temp[n]
                         break
                 n = k + 2
-                print(i)
-                self.currentpredefnotes.append([ctk.CTkLabel(self.scrollframenote, text=i[0], width=300, height=50, bg_color=self.colors[4]), ctk.CTkCheckBox(self.scrollframenote, text="", variable=self.currentpredefnotesvar[k], onvalue=i[0], offvalue="", command=lambda x = k:select(x), width=60, height=50, bg_color=self.colors[4])])
-            
-                self.currentpredefnotes[k][0].grid(row=n, column=1, padx=1, pady=1)
-                self.currentpredefnotes[k][1].grid(row=n, column=2, padx=1, pady=1)
-            self.currentnotes = []
-            print(temp)
-            if temp != [""]:
-                for k, i in enumerate(temp):
-                    print(i)
-                    n = len(self.currentpredefnotes) + k + 3
-                    self.currentnotes.append([ctk.CTkLabel(self.scrollframenote, text=i[0], width=300, height=50, bg_color=self.colors[4]), ctk.CTkButton(self.scrollframenote, text="", command=lambda x = k:delete(x), width=60, height=50, fg_color=self.colors[4], hover=False, bg_color=self.colors[4])])
-
+                self.currentnotes.append([ctk.CTkLabel(self.scrollframenote, text=i[0], width=300, height=50, bg_color=self.colors[4]), ctk.CTkCheckBox(self.scrollframenote, text="", variable=self.currentpredefnotesvar[k], onvalue=i[0], offvalue="", command=lambda x = k - 1, y = i[0]:select(x, y), width=130, height=50, bg_color=self.colors[4])])
+            if temp != [""] and temp != "":
+                for i in temp:
+                    self.currentnotes.append([ctk.CTkLabel(self.scrollframenote, text=i, width=300, height=50, bg_color=self.colors[4]), ctk.CTkButton(self.scrollframenote, text="", command=lambda x = i:delete(x), width=130, height=50, fg_color=self.colors[4], hover=False, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(45, 45)))])
+            for k, i in enumerate(self.currentnotes):
+                n = k + 2
+                self.currentnotes[k][0].grid(row=n, column=1, padx=1, pady=1)
+                self.currentnotes[k][1].grid(row=n, column=2, padx=1, pady=1)
             self.desconnectcommands()
             self.desconnectproduct()
                 
@@ -1387,7 +1417,7 @@ class application():
         self.titletext = ctk.CTkLabel(self.scrollframenote, width=300, height=50, text="Anotação", bg_color=self.colors[3])
         self.titletext.grid(row=1, column=1, padx=1, pady=1)
 
-        self.titleremove = ctk.CTkLabel(self.scrollframenote, width=60, height=50, text="SELECIONAR/EXLUIR", bg_color=self.colors[3])
+        self.titleremove = ctk.CTkLabel(self.scrollframenote, width=130, height=50, text="SELECIONAR/EXLUIR", bg_color=self.colors[3])
         self.titleremove.grid(row=1, column=2, padx=1, pady=1)
 
         currentnotes = []
