@@ -2239,6 +2239,19 @@ class server():
                         conn.sendall(str.encode("Y"))
                     else:
                         conn.sendall(str.encode("N"))
+                elif listen[0] == "GETNOTES":
+                    self.connectproduct()
+                    temp = self.productcursor.execute("SELECT text FROM Notes WHERE category = ?", (listen[1], ))
+                    text = ""
+                    num = 1
+                    for i in temp:
+                        if num == 1:
+                            text = i[0]
+                            num = 2
+                        else:
+                            text = text + ".=" + i[0]
+                    self.desconnectproduct()
+                    conn.sendall(str.encode(text))
                 else:
                     conn.sendall(data)
                 conn.close()
