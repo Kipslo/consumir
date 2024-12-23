@@ -447,7 +447,7 @@ class application():
             self.scroolframe_functionary.destroy; self.scroolframe_functionary.place_forget(); self.button_addfunctionary.destroy(); self.entry_name.destroy(); self.entry_passwordcont.destroy()
         elif self.currentwindow == "CLIENTES":
             self.frameclients.destroy(); self.frameclients.place_forget(); self.buttonaddclient.destroy(); self.searchclients.destroy()
-        elif self.currentwindow == "HISTORYCASH":
+        elif self.currentwindow == "CASH":
             self.scrollframehis.destroy(); self.scrollframehis.place_forget(); self.entrysearchhis.destroy()
         elif self.currentwindow == "ANOTAÇÕES":
             self.frame_note.destroy(); self.frame_note.place_forget()
@@ -927,7 +927,12 @@ class application():
                     payments.append(i)
                     pay = pay + float(i[3])
                 date = str(datetime.datetime.now())[0:19]
-                self.historycursor.execute("INSERT INTO ClosedCommand (number, date, hour, nameclient, idclient, totalprice, datefinish, cashier, pay) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandactive[0], commandactive[1], commandactive[2], commandactive[3], commandactive[4], totalprice, date, self.namelogin, pay))
+
+                tim = self.historycursor.execute("""SELECT id FROM Cashdesk WHERE status = ?""", ("open", ))
+                for i in tim:
+                    tim = i[0]
+
+                self.historycursor.execute("INSERT INTO ClosedCommand (number, date, hour, nameclient, idclient, totalprice, datefinish, cashier, pay, cashdesk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandactive[0], commandactive[1], commandactive[2], commandactive[3], commandactive[4], totalprice, date, self.namelogin, pay, tim))
                 temp = self.historycursor.execute("SELECT cod FROM ClosedCommand WHERE number = ? AND nameclient = ? AND idclient = ? AND totalprice = ? AND datefinish = ?", (commandactive[0], commandactive[3], commandactive[4], totalprice, date))
                 for i in temp:
                     cod = i[0]
@@ -1776,7 +1781,20 @@ class application():
         self.deletefunctionary_heading.grid(row=1, column=7, padx=1, pady=1)
 
         reload()
-    def historycash(self):
+    def cash(self):
+        def open():
+            self.connecthistory()
+            date = str(datetime.datetime.now())[0:19]
+            self.historycursor.execute("INSERT INTO Cashdesk (initdate, status) VALUES (?, ?)", (date, "open"))
+            self.desconnecthistory()
+            self.cash()
+        def close():
+            self.connecthistory()
+            date = str(datetime.datetime.now())[0:19]
+            print(date)
+            self.historycursor.execute("UPDATE Cashdesk set finishdate = ?, status = ? WHERE status = ?", (date, "closed", "open"))
+            self.desconnecthistory()
+            self.cash()
         def reload():
             try:
                 for i in self.currenthistory:
@@ -1785,7 +1803,13 @@ class application():
             except:
                 pass
             self.connecthistory()
-            temp = self.historycursor.execute("SELECT * FROM ClosedCommand")
+            temp = self.historycursor.execute("SELECT id FROM Cashdesk WHERE status = ?", ("open", ))
+            for i in temp:
+                temp = i[0]
+            try:
+                temp = self.historycursor.execute("SELECT * FROM ClosedCommand WHERE cashdesk = ?", (temp, ))
+            except:
+                pass
             self.currenthistory = []
             for k, i in enumerate(temp):
                 self.currenthistory.append([ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[1]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[2]} às {i[3]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[7][0:10]} às {i[7][11:20]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[6]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[9]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=i[4])])
@@ -1799,13 +1823,14 @@ class application():
                 self.currenthistory[k][5].grid(row=n, column=6, padx=1, pady=1)
             self.desconnecthistory()
         self.deletewindow()
-        self.currentwindow = "HISTORYCASH"
+        self.currentwindow = "CASH"
 
         self.scrollframehis = ctk.CTkScrollableFrame(self.root)
         self.scrollframehis.place(relx=0.01, rely=0.20, relwidth=0.98, relheight=0.78)
 
         self.entrysearchhis = ctk.CTkEntry(self.root)
         self.entrysearchhis.place(relx=0.01, rely=0.145, relwidth=0.2, relheight=0.05)
+
 
         self.numberhis = ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], text="COMANDA", width=100, height=50)
         self.numberhis.grid(row=1, column=1, padx=1, pady=1)
@@ -1825,6 +1850,18 @@ class application():
         self.clienthis = ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], text="CLIENTE", width=200, height=50)
         self.clienthis.grid(row=1, column=6, padx=1, pady=1)
 
+        self.connecthistory()
+        tmp = self.historycursor.execute("SELECT status FROM Cashdesk WHERE status = ?", ("open", ))
+        for i in tmp:
+            print(i[0])
+            tmp = i[0]
+        if tmp == "open":
+            self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="FECHAR CAIXA", command=close)
+        else:
+            self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="ABRIR CAIXA", command=open)
+        self.desconnecthistory()
+
+        self.buttonopencash.place(relx=0.75, rely=0.145, relwidth=0.2, relheight=0.05)
         reload()
     def rankingproducts(self):
 
@@ -1833,6 +1870,17 @@ class application():
     
         self.calendar = Calendar(self.root)
         self.calendar.place(relx=0.01, rely=0.2)
+    def cashdeskwindow(self):
+        try:
+            for i in self.currentcashs:
+                for j in i:
+                    j.destroy()
+        except:
+            pass
+        self.deletewindow()
+        self.currentwindow = "CASHDESKHISTORY"
+
+
 
     def changemainbuttons(self, button):
         
@@ -1850,9 +1898,9 @@ class application():
             pass
         if text == "PRINCIPAL":
 
-            mainimgs = [ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tables.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/clientes.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/trofeu.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/garçom.png"), size=(60,60))]
+            mainimgs = [ctk.CTkImage(Image.open("imgs/caixa.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tables.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/clientes.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/trofeu.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/garçom.png"), size=(60,60))]
             
-            mainbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.historycash), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, command=self.clientswindow), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab, command=self.rankingproducts), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
+            mainbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.cash), "ABRIR CAIXA"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, command=self.clientswindow), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab, command=self.rankingproducts), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
             
             self.currentmain = mainbuttons
             self.currentimgs = mainimgs
@@ -2046,7 +2094,14 @@ class application():
                                     totalprice VARCHAR(8),
                                     datefinish VARCHAR(19),
                                     cashier VARCHAR(30),
-                                    pay VARCHAR(8)
+                                    pay VARCHAR(8),
+                                    cashdesk INTEGER(6)
+                                    )""")
+        self.historycursor.execute("""CREATE TABLE IF NOT EXISTS Cashdesk(
+                                    id INTEGER PRIMARY KEY,
+                                    initdate VARCHAR(20),
+                                    finishdate VARCHAR(20),
+                                    status VARCHAR(5)
                                     )""")
         self.historycursor.execute("""CREATE TABLE IF NOT EXISTS Payments(
                                     commandid INTEGER(4),
@@ -2241,7 +2296,7 @@ class server():
                         conn.sendall(str.encode("N"))
                 elif listen[0] == "GETNOTES":
                     self.connectproduct()
-                    temp = self.productcursor.execute("SELECT text FROM Notes WHERE category = ?", (listen[1], ))
+                    temp = self.productcursor.execute("SELECT text FROM Notes WHERE category = ?", (listen[1],  ))
                     text = ""
                     num = 1
                     for i in temp:
