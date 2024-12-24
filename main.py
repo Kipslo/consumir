@@ -448,7 +448,7 @@ class application():
         elif self.currentwindow == "CLIENTES":
             self.frameclients.destroy(); self.frameclients.place_forget(); self.buttonaddclient.destroy(); self.searchclients.destroy()
         elif self.currentwindow == "CASH":
-            self.scrollframehis.destroy(); self.scrollframehis.place_forget(); self.entrysearchhis.destroy()
+            self.scrollframehis.destroy(); self.scrollframehis.place_forget(); self.entrysearchhis.destroy(); self.buttonopencash.destroy()
         elif self.currentwindow == "ANOTAÇÕES":
             self.frame_note.destroy(); self.frame_note.place_forget()
         self.root.bind_all("<KeyPress>", self.nonclick)
@@ -1792,7 +1792,14 @@ class application():
             self.connecthistory()
             date = str(datetime.datetime.now())[0:19]
             print(date)
-            self.historycursor.execute("UPDATE Cashdesk set finishdate = ?, status = ? WHERE status = ?", (date, "closed", "open"))
+            temp = self.historycursor.execute("SELECT id FROM Cashdesk WHERE status = ?", ("open", ))
+            for i in temp:
+                temp = i[0]
+            temp = self.historycursor.execute("SELECT totalprice FROM Closedcommand WHERE id = ?", (temp, ))
+            totalprice = 0
+            for i in temp:
+                totalprice = totalprice + i[0]
+            self.historycursor.execute("UPDATE Cashdesk set finishdate = ?, status = ?, totalcash = ? WHERE status = ?", (date, "closed", totalprice, "open"))
             self.desconnecthistory()
             self.cash()
         def reload():
@@ -1871,6 +1878,8 @@ class application():
         self.calendar = Calendar(self.root)
         self.calendar.place(relx=0.01, rely=0.2)
     def cashdeskwindow(self):
+        def reload():
+            pass
         try:
             for i in self.currentcashs:
                 for j in i:
@@ -1880,8 +1889,47 @@ class application():
         self.deletewindow()
         self.currentwindow = "CASHDESKHISTORY"
 
+        self.connecthistory()
+        temp = self.historycursor.execute("SELECT id, initdate, finishdate, totalcash FROM Cashdesk WHERE status = ?", ("closed", ))
+        self.desconnecthistory()
 
+        self.scrollframecashs = ctk.CTkScrollableFrame(self.root)
+        self.scrollframecashs.place(relx=0.17, rely=0.145, relwidth=0.82, relheight=0.85)
 
+        self.idcash = ctk.CTkLabel(self.scrollframecashs)
+        self.idcash.grid(row=1, column=1, padx=1, pady=1)
+
+        self.initdate = ctk.CTkLabel(self.scrollframecashs)
+        self.initdate.grid(row=1, column=2, padx=1, pady=1)
+
+        self.finishdate = ctk.CTkLabel(self.scrollframecashs)
+        self.finishdate.grid(row=1, column=3, padx=1, pady=1)
+
+        self.totalcash = ctk.CTkLabel(self.scrollframecashs)
+        self.totalcash.grid(row=1, column=4, padx=1, pady=1)
+
+        self.infocash = ctk.CTkLabel(self.scrollframecashs)
+        self.infocash.grid(row=1, column=5, padx=1, pady=1)
+
+        self.initlb = ctk.CTkLabel(self.root, text="DE")
+        self.initlb.place(relx=0.01, rely=0.19, relwidth=0.15, relheight=0.05)
+
+        self.initcalendar = Calendar(self.root)
+        self.initcalendar.place(relx=0.01, rely=0.25, relwidth=0.15, relheight=0.15)
+
+        self.initentry = ctk.CTkEntry(self.root)
+        self.initentry.place(relx=0.01, rely=0.41, relwidth=0.15, relheight=0.05)
+
+        self.finishlb = ctk.CTkLabel(self.root, text="ATÉ")
+        self.finishlb.place(relx=0.01, rely=0.47, relwidth=0.15, relheight=0.05)
+
+        self.finishcalendar = Calendar(self.root)
+        self.finishcalendar.place(relx=0.01, rely=0.53, relwidth=0.15, relheight=0.15)
+
+        self.finishentry = ctk.CTkEntry(self.root)
+        self.finishentry.place(relx=0.01, rely=0.69, relwidth=0.15, relheight=0.05)
+
+        reload()
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
@@ -1900,7 +1948,7 @@ class application():
 
             mainimgs = [ctk.CTkImage(Image.open("imgs/caixa.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tables.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/clientes.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/trofeu.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/garçom.png"), size=(60,60))]
             
-            mainbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.cash), "ABRIR CAIXA"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, command=self.clientswindow), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab, command=self.rankingproducts), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
+            mainbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.cash), "ABRIR CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.cashdeskwindow), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, command=self.clientswindow), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab, command=self.rankingproducts), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
             
             self.currentmain = mainbuttons
             self.currentimgs = mainimgs
@@ -2101,7 +2149,8 @@ class application():
                                     id INTEGER PRIMARY KEY,
                                     initdate VARCHAR(20),
                                     finishdate VARCHAR(20),
-                                    status VARCHAR(5)
+                                    status VARCHAR(5),
+                                    totalcash VARCHAR(10)
                                     )""")
         self.historycursor.execute("""CREATE TABLE IF NOT EXISTS Payments(
                                     commandid INTEGER(4),
