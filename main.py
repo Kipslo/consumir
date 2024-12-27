@@ -448,7 +448,11 @@ class application():
         elif self.currentwindow == "CLIENTES":
             self.frameclients.destroy(); self.frameclients.place_forget(); self.buttonaddclient.destroy(); self.searchclients.destroy()
         elif self.currentwindow == "CASH":
-            self.scrollframehis.destroy(); self.scrollframehis.place_forget(); self.entrysearchhis.destroy(); self.buttonopencash.destroy()
+            self.scrollframehis.destroy(); self.scrollframehis.place_forget(); self.entrysearchhis.destroy(); 
+            try:
+                self.buttonopencash.destroy()
+            except:
+                pass
         elif self.currentwindow == "ANOTAÇÕES":
             self.frame_note.destroy(); self.frame_note.place_forget()
         elif self.currentwindow == "CASHDESKHISTORY":
@@ -1783,7 +1787,7 @@ class application():
         self.deletefunctionary_heading.grid(row=1, column=7, padx=1, pady=1)
 
         reload()
-    def cash(self):
+    def cash(self, idcash = "open"):
         def open():
             self.connecthistory()
             date = str(datetime.datetime.now())[0:19]
@@ -1811,16 +1815,19 @@ class application():
             except:
                 pass
             self.connecthistory()
-            temp = self.historycursor.execute("SELECT id FROM Cashdesk WHERE status = ?", ("open", ))
-            for i in temp:
-                temp = i[0]
+            if idcash == "open":
+                temp = self.historycursor.execute("SELECT id FROM Cashdesk WHERE status = ?", (idcash, ))
+                for i in temp:
+                    temp = i[0]
+            else:
+                temp = idcash
             try:
                 temp = self.historycursor.execute("SELECT * FROM ClosedCommand WHERE cashdesk = ?", (temp, ))
             except:
                 pass
             self.currenthistory = []
             for k, i in enumerate(temp):
-                self.currenthistory.append([ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[1]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[2]} às {i[3]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[7][0:10]} às {i[7][11:20]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[6]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[9]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=i[4])])
+                self.currenthistory.append([ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[1]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[2]} às {i[3]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[7][0:10]} às {i[7][11:20]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[6]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[9]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=i[4]), ctk.CTkButton()])
                 n = k + 2
                 
                 self.currenthistory[k][0].grid(row=n, column=1, padx=1, pady=1)
@@ -1829,6 +1836,7 @@ class application():
                 self.currenthistory[k][3].grid(row=n, column=4, padx=1, pady=1)
                 self.currenthistory[k][4].grid(row=n, column=5, padx=1, pady=1)
                 self.currenthistory[k][5].grid(row=n, column=6, padx=1, pady=1)
+                self.currenthistory[k][6].grid(row=n, column=7, padx=1, pady=1)
             self.desconnecthistory()
         self.deletewindow()
         self.currentwindow = "CASH"
@@ -1836,7 +1844,7 @@ class application():
         self.scrollframehis = ctk.CTkScrollableFrame(self.root)
         self.scrollframehis.place(relx=0.01, rely=0.20, relwidth=0.98, relheight=0.78)
 
-        self.entrysearchhis = ctk.CTkEntry(self.root)
+        self.entrysearchhis = ctk.CTkEntry(self.root, placeholder_text="Cliente ou comanda")
         self.entrysearchhis.place(relx=0.01, rely=0.145, relwidth=0.2, relheight=0.05)
 
 
@@ -1859,17 +1867,19 @@ class application():
         self.clienthis.grid(row=1, column=6, padx=1, pady=1)
 
         self.connecthistory()
-        tmp = self.historycursor.execute("SELECT status FROM Cashdesk WHERE status = ?", ("open", ))
-        for i in tmp:
-            print(i[0])
-            tmp = i[0]
-        if tmp == "open":
-            self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="FECHAR CAIXA", command=close)
-        else:
-            self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="ABRIR CAIXA", command=open)
+        if idcash == "open":
+            tmp = self.historycursor.execute("SELECT status FROM Cashdesk WHERE status = ?", (idcash, ))
+            for i in tmp:
+                print(i[0])
+                tmp = i[0]
+            if tmp == "open":
+                self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="FECHAR CAIXA", command=close)
+            else:
+                self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="ABRIR CAIXA", command=open)
+            self.buttonopencash.place(relx=0.75, rely=0.145, relwidth=0.2, relheight=0.05)
         self.desconnecthistory()
 
-        self.buttonopencash.place(relx=0.75, rely=0.145, relwidth=0.2, relheight=0.05)
+        
         reload()
     def rankingproducts(self):
 
@@ -1891,9 +1901,8 @@ class application():
             self.connecthistory()
             temp = self.historycursor.execute("SELECT * FROM Cashdesk")
             for k, i in enumerate(temp):
-                self.currentcashs.append([ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=75, height=50, text=i[0]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=200, height=50, text=i[1]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=200, height=50, text=i[2]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=100, height=50, text=i[4]), ctk.CTkButton(self.scrollframecashs, fg_color=self.colors[4], width=75, height=50, hover=False, text="")])
+                self.currentcashs.append([ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=75, height=50, text=i[0]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=200, height=50, text=i[1]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=200, height=50, text=i[2]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=100, height=50, text=i[4]), ctk.CTkButton(self.scrollframecashs, fg_color=self.colors[4], width=75, height=50, hover=False, text="", command=lambda x = i[0]:self.cash(x))])
                 n = k + 2
-                print(i)
                 self.currentcashs[k][0].grid(row=n, column=1, padx=1, pady=1)
                 self.currentcashs[k][1].grid(row=n, column=2, padx=1, pady=1)
                 self.currentcashs[k][2].grid(row=n, column=3, padx=1, pady=1)
@@ -1945,7 +1954,8 @@ class application():
         self.finishentry.place(relx=0.01, rely=0.69, relwidth=0.15, relheight=0.05)
         self.finishentry.insert(0, str(datetime.datetime.now())[0:10].replace("-", "/"))
 
-        self.confirmdate = ctk.CTkButton()
+        self.confirmdate = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Procurar", )
+        self.confirmdate.place(relx=0.01, rely=0.75, relwidth=0.15, relheight=0.05)
 
         reload()
     def changemainbuttons(self, button):
