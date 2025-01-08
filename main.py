@@ -860,7 +860,7 @@ class application():
         revert(id)
         self.desconnectproduct()
         self.reloadcategories()
-    def windowcommand(self, command = 0):
+    def windowcommand(self, command = 0, closed = 0):
         def close():
             self.root.bind_all("<KeyPress>", self.presskeycommandwindow)
             self.rootconfirmdelete.destroy()
@@ -945,7 +945,7 @@ class application():
                 for i in payments:
                     self.historycursor.execute("INSERT INTO Payments (commandid, type, quantity) VALUES (?, ?, ?)", (cod, i[2], i[3]))
                 for i in products:
-                    self.historycursor.execute("INSERT INTO Products (commandid, name, type, releasedate, releasehour, waiter, price) VALUES (?, ?, ?, ?, ?, ?, ?)", (cod, i[8], i[9], i[2], i[3], i[4], i[5]))
+                    self.historycursor.execute("INSERT INTO Products (commandid, name, type, releasedate, releasehour, waiter, price, unitprice, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (cod, i[8], i[9], i[2], i[3], i[4], i[5], i[6], i[7]))
                 self.commandscursor.execute("DELETE FROM CommandsActive WHERE number = ?", (commandactive[0], ))
                 for i in products:
                     self.commandscursor.execute("DELETE FROM Consumption WHERE cod = ?", (i[0], ))
@@ -1055,10 +1055,65 @@ class application():
                 if i == " ":
                     break
                 num = num + i
+
+        
         self.rootcommand = ctk.CTkToplevel()
 
+        
+        self.frame_infocommand = ctk.CTkFrame(self.rootcommand, fg_color=self.colors[2])
+        self.frame_infocommand.place(relx=0,rely=0.8,relwidth=1,relheight=0.2)
+    
+        if closed == 0:
+            self.rootcommand.geometry("900x800")
+            
+            self.button_addproductoncommand = ctk.CTkButton(self.rootcommand, text="ADICIONAR PRODUTO", command=self.addpdctcommandwindow, fg_color=self.colors[4], hover_color=self.colors[5])
+            self.button_addproductoncommand.place(relx=0.7, rely=0.002, relwidth=0.29, relheight=0.057)
+            
+            self.edit_heading = ctk.CTkLabel(self.rootcommand, text="EDITAR", fg_color=self.colors[4], width=50, height=30)
+            self.edit_heading.grid(row=1, column=7, padx=1, pady=50)
+
+            self.del_heading = ctk.CTkLabel(self.rootcommand, text="EXCLUIR", fg_color=self.colors[4], width=50, height=30)
+            self.del_heading.grid(row=1, column=8, padx=1, pady=50)
+            
+            self.button_delcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="EXCLUIR COMANDA", hover_color=self.colors[5], command=deletecommand)
+            self.button_delcommand.place(relx=0.01, rely=0.15, relwidth=0.29, relheight=0.7)
+
+            self.button_finishcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="PAGAMENTO", hover_color=self.colors[5], command=windowpay)
+            self.button_finishcommand.place(relx=0.7, rely=0.15, relwidth=0.29, relheight=0.7)
+            
+            self.connectcommands()
+            tmp = self.commandscursor.execute("SELECT idclient, nameclient FROM CommandsActive WHERE number = ?", (num, ))
+            idclient, self.actuallyname = "", ""
+            for i in tmp:
+                idclient, self.actuallyname = i
+            self.desconnectcommands()
+            self.connectclients()
+            temp = self.clientscursor.execute("SELECT * FROM Clients")
+            ids = []
+            names = []
+            for i in temp:
+                ids.append(str(i[0]))
+                names.append(f"{str(i[0])} - {i[1]}")
+            self.desconnectclients()
+
+            self.idclient = ctk.StringVar(value=idclient)
+            self.nameclient = ctk.StringVar(value=self.actuallyname)
+
+            self.clientid = ctk.CTkComboBox(self.frame_infocommand, width=100, height=50, values=ids, command=selectid, font=("Arial", 15), variable=self.idclient)
+            self.clientid.place(relx=0.31, rely=0.51)
+
+            self.clientname = ctk.CTkComboBox(self.frame_infocommand, width=235, height=50, values=names, command=selectname, font=("Arial", 15), variable=self.nameclient)
+            self.clientname.place(relx=0.43, rely=0.51)
+        else:
+            self.rootcommand.geometry("900x800")
+            self.connecthistory()
+            temp = self.historycursor.execute("SELECT * FROM ClosedCommand WHERE cod = ?", (str(closed), ))
+            for i in temp:
+                temp = i
+                num = i[1]
+            self.desconnecthistory()
+        
         self.rootcommand.title("COMANDA " + num)
-        self.rootcommand.geometry("900x800")
         self.rootcommand.resizable(False, False)
         self.rootcommand.transient(self.root)
         self.rootcommand.grab_set()
@@ -1066,14 +1121,8 @@ class application():
         self.frame_consume = ctk.CTkScrollableFrame(self.rootcommand, fg_color=self.colors[3])
         self.frame_consume.place(relx=0, rely=0.1, relwidth=1, relheight=0.7)
 
-        self.frame_infocommand = ctk.CTkFrame(self.rootcommand, fg_color=self.colors[2])
-        self.frame_infocommand.place(relx=0,rely=0.8,relwidth=1,relheight=0.2)
 
-        self.button_delcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="EXCLUIR COMANDA", hover_color=self.colors[5], command=deletecommand)
-        self.button_delcommand.place(relx=0.01, rely=0.15, relwidth=0.29, relheight=0.7)
-
-        self.button_finishcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="PAGAMENTO", hover_color=self.colors[5], command=windowpay)
-        self.button_finishcommand.place(relx=0.7, rely=0.15, relwidth=0.29, relheight=0.7)
+        
 
         self.placeholder_heading = ctk.CTkLabel(self.rootcommand, text="", fg_color=self.colors[0], width=5, height=30)
         self.placeholder_heading.grid(row=1, column=0, padx=0, pady=50)
@@ -1096,53 +1145,29 @@ class application():
         self.time_heading = ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30)
         self.time_heading.grid(row=1, column=6, padx=1, pady=50)
 
-        self.edit_heading = ctk.CTkLabel(self.rootcommand, text="EDITAR", fg_color=self.colors[4], width=50, height=30)
-        self.edit_heading.grid(row=1, column=7, padx=1, pady=50)
-
-        self.del_heading = ctk.CTkLabel(self.rootcommand, text="EXCLUIR", fg_color=self.colors[4], width=50, height=30)
-        self.del_heading.grid(row=1, column=8, padx=1, pady=50)
 
         self.totalpricelabel = ctk.CTkLabel(self.frame_infocommand, text="TOTAL:", fg_color=self.colors[4])
         self.totalpricelabel.place(relx=0.31, rely=0.15, relwidth=0.06, relheight=0.3)
-
-        self.connectcommands()
-        tmp = self.commandscursor.execute("SELECT idclient, nameclient FROM CommandsActive WHERE number = ?", (num, ))
-        idclient, self.actuallyname = "", ""
-        for i in tmp:
-            idclient, self.actuallyname = i
-        self.desconnectcommands()
-        self.connectclients()
-        temp = self.clientscursor.execute("SELECT * FROM Clients")
-        ids = []
-        names = []
-        for i in temp:
-            ids.append(str(i[0]))
-            names.append(f"{str(i[0])} - {i[1]}")
-        self.desconnectclients()
-
-        self.idclient = ctk.StringVar(value=idclient)
-        self.nameclient = ctk.StringVar(value=self.actuallyname)
-
-        self.clientid = ctk.CTkComboBox(self.frame_infocommand, width=100, height=50, values=ids, command=selectid, font=("Arial", 15), variable=self.idclient)
-        self.clientid.place(relx=0.31, rely=0.51)
-
-        self.clientname = ctk.CTkComboBox(self.frame_infocommand, width=235, height=50, values=names, command=selectname, font=("Arial", 15), variable=self.nameclient)
-        self.clientname.place(relx=0.43, rely=0.51)
-
-        self.button_addproductoncommand = ctk.CTkButton(self.rootcommand, text="ADICIONAR PRODUTO", command=self.addpdctcommandwindow, fg_color=self.colors[4], hover_color=self.colors[5])
-        self.button_addproductoncommand.place(relx=0.7, rely=0.002, relwidth=0.29, relheight=0.057)
+        
         self.currentcommandwindow = num
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
-        self.reloadproductforcommands(num)
-    def reloadproductforcommands(self, number):
+        self.reloadproductforcommands(num, closed)
+    def reloadproductforcommands(self, number, closed = 0):
         def delete(cod):
             self.connectcommands()
             self.commandscursor.execute("DELETE FROM Consumption WHERE cod = ?", (cod,))
             self.desconnectcommands()
             self.reloadproductforcommands(self.currentcommandwindow)
+        
         self.connectcommands()
-        temp = self.commandscursor.execute("SELECT cod, number, date, hour, waiter, price, unitprice, quantity, product, type, size FROM Consumption WHERE number = ?", (number, ))
+        self.connecthistory()
+        if closed == 0:
+            temp = self.commandscursor.execute("SELECT cod, number, date, hour, waiter, price, unitprice, quantity, product, type, size FROM Consumption WHERE number = ?",
+            (number, ))
+        else:
+            temp = self.historycursor.execute("SELECT releasedate, releasehour, waiter, price, quantity, name, type FROM Products WHERE commandid = ?",
+            (closed, ))
         try:
             self.label_totalprice.destroy()
             for i in self.current_productsincommands:
@@ -1192,6 +1217,7 @@ class application():
             totalprice = totalprice + float(price)
         self.label_totalprice = ctk.CTkLabel(self.frame_infocommand, text=totalprice, fg_color=self.colors[4])
         self.label_totalprice.place(relx=0.37, rely=0.15, relwidth=0.32, relheight=0.3)
+        self.desconnecthistory()
         self.desconnectcommands()
     def closewindowaddproduct(self):
         self.rootcommand.grab_set()
@@ -1827,7 +1853,7 @@ class application():
                 pass
             self.currenthistory = []
             for k, i in enumerate(temp):
-                self.currenthistory.append([ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[1]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[2]} às {i[3]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[7][0:10]} às {i[7][11:20]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[6]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[9]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=i[4]), ctk.CTkButton()])
+                self.currenthistory.append([ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[1]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[2]} às {i[3]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[7][0:10]} às {i[7][11:20]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[6]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[9]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=i[4]), ctk.CTkButton(self.scrollframehis, command=lambda x = i[0]: self.windowcommand(closed=x))])
                 n = k + 2
                 
                 self.currenthistory[k][0].grid(row=n, column=1, padx=1, pady=1)
@@ -1876,7 +1902,10 @@ class application():
                 self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="FECHAR CAIXA", command=close)
             else:
                 self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="ABRIR CAIXA", command=open)
-            self.buttonopencash.place(relx=0.75, rely=0.145, relwidth=0.2, relheight=0.05)
+        else:
+            self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="VOLTAR", command=self.cashdeskwindow)
+        
+        self.buttonopencash.place(relx=0.75, rely=0.145, relwidth=0.2, relheight=0.05)
         self.desconnecthistory()
 
         
@@ -2189,6 +2218,8 @@ class application():
                                     commandid INTEGER(4),
                                     name VARCHAR(30),
                                     type VARCHAR(10),
+                                    quantity VARCHAR(4),
+                                    unitprice(8),
                                     releasedate CHAR(10),
                                     releasehour CHAR(5),
                                     waiter VARCHAR(30),
