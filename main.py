@@ -1104,7 +1104,11 @@ class application():
 
             self.clientname = ctk.CTkComboBox(self.frame_infocommand, width=235, height=50, values=names, command=selectname, font=("Arial", 15), variable=self.nameclient)
             self.clientname.place(relx=0.43, rely=0.51)
+
+            self.time_heading = ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30)
+            self.time_heading.grid(row=1, column=6, padx=1, pady=50)
         else:
+            
             self.rootcommand.geometry("900x800")
             self.connecthistory()
             temp = self.historycursor.execute("SELECT * FROM ClosedCommand WHERE cod = ?", (str(closed), ))
@@ -1112,6 +1116,8 @@ class application():
                 temp = i
                 num = i[1]
             self.desconnecthistory()
+            self.time_heading = ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=150, height=30)
+            self.time_heading.grid(row=1, column=6, padx=1, pady=50)
         
         self.rootcommand.title("COMANDA " + num)
         self.rootcommand.resizable(False, False)
@@ -1142,8 +1148,7 @@ class application():
         self.productprice_heading = ctk.CTkLabel(self.rootcommand, text="PREÇO TOTAL", fg_color=self.colors[4], width=100, height=30)
         self.productprice_heading.grid(row=1, column=5, padx=1, pady=50)
 
-        self.time_heading = ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30)
-        self.time_heading.grid(row=1, column=6, padx=1, pady=50)
+        
 
 
         self.totalpricelabel = ctk.CTkLabel(self.frame_infocommand, text="TOTAL:", fg_color=self.colors[4])
@@ -1166,7 +1171,7 @@ class application():
             temp = self.commandscursor.execute("SELECT cod, number, date, hour, waiter, price, unitprice, quantity, product, type, size FROM Consumption WHERE number = ?",
             (number, ))
         else:
-            temp = self.historycursor.execute("SELECT releasedate, releasehour, waiter, price, quantity, name, type FROM Products WHERE commandid = ?",
+            temp = self.historycursor.execute("SELECT releasedate, releasehour, waiter, price, quantity, name, unitprice FROM Products WHERE commandid = ?",
             (closed, ))
         try:
             self.label_totalprice.destroy()
@@ -1181,23 +1186,24 @@ class application():
         self.current_productsincommands = []
         totalprice = 0
         for k, i in enumerate(listen):
-            cod, number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
-            tyme =  datetime.datetime(int(date[0:4]), int(date[5:7]), int(date[8:10]), int(hour[0:2]), int(hour[3:5]), int(hour[6:8]))
-            now = datetime.datetime.now()
-            delta = now - tyme
-            total_sec = delta.total_seconds()
-            total_min, sec = divmod(int(total_sec), 60)
-            total_hour, minute = divmod(total_min, 60)
-            total_days, hour = divmod(total_hour, 24)
-            text = ""
-            if total_days != 0:
-                text = text + str(total_days) + "D " + str(hour) + "H "
-            elif total_hour != 0:
-                text = text + str(hour) + "H "
+            if closed == 0:
+                cod, number, date, hour, waiter, price, unitprice, quantity, product, tipe, size = i
+                tyme =  datetime.datetime(int(date[0:4]), int(date[5:7]), int(date[8:10]), int(hour[0:2]), int(hour[3:5]), int(hour[6:8]))
+                now = datetime.datetime.now()
+                delta = now - tyme
+                total_sec = delta.total_seconds()
+                total_min, sec = divmod(int(total_sec), 60)
+                total_hour, minute = divmod(total_min, 60)
+                total_days, hour = divmod(total_hour, 24)
+                text = ""
+                if total_days != 0:
+                    text = text + str(total_days) + "D " + str(hour) + "H "
+                elif total_hour != 0:
+                    text = text + str(hour) + "H "
             
-            text = text + str(minute) + "M " + str(sec) + "S"
+                text = text + str(minute) + "M " + str(sec) + "S"
             
-            self.current_productsincommands.append([ctk.CTkLabel(self.frame_consume, text=product, fg_color=self.colors[4], width=200, height=40),
+                self.current_productsincommands.append([ctk.CTkLabel(self.frame_consume, text=product, fg_color=self.colors[4], width=200, height=40),
                                                    ctk.CTkLabel(self.frame_consume, text=waiter, fg_color=self.colors[4], width=200, height=40),
                                                    ctk.CTkLabel(self.frame_consume, text=unitprice, fg_color=self.colors[4], width=100, height=40),
                                                    ctk.CTkLabel(self.frame_consume, text=quantity, fg_color=self.colors[4], width=50, height=40),
@@ -1206,14 +1212,30 @@ class application():
                                                    ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)),hover=False, command=lambda x= cod:self.addproductincommandwindow(cod=x)),
                                                    ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30, 30)),hover=False, command=lambda x = cod: delete(x))
                                                    ])
-            self.current_productsincommands[k][0].grid(row= k + 1, column=1, padx=0, pady=1)
-            self.current_productsincommands[k][1].grid(row= k + 1, column=2, padx=1, pady=1)
-            self.current_productsincommands[k][2].grid(row= k + 1, column=3, padx=1, pady=1)
-            self.current_productsincommands[k][3].grid(row= k + 1, column=4, padx=1, pady=1)
-            self.current_productsincommands[k][4].grid(row= k + 1, column=5, padx=1, pady=1)
-            self.current_productsincommands[k][5].grid(row= k + 1, column=6, padx=1, pady=1)
-            self.current_productsincommands[k][6].grid(row= k + 1, column=7, padx=1, pady=1)
-            self.current_productsincommands[k][7].grid(row= k + 1, column=8, padx=1, pady=1)  
+                self.current_productsincommands[k][0].grid(row= k + 1, column=1, padx=0, pady=1)
+                self.current_productsincommands[k][1].grid(row= k + 1, column=2, padx=1, pady=1)
+                self.current_productsincommands[k][2].grid(row= k + 1, column=3, padx=1, pady=1)
+                self.current_productsincommands[k][3].grid(row= k + 1, column=4, padx=1, pady=1)
+                self.current_productsincommands[k][4].grid(row= k + 1, column=5, padx=1, pady=1)
+                self.current_productsincommands[k][5].grid(row= k + 1, column=6, padx=1, pady=1)
+                self.current_productsincommands[k][6].grid(row= k + 1, column=7, padx=1, pady=1)
+                self.current_productsincommands[k][7].grid(row= k + 1, column=8, padx=1, pady=1) 
+            else:
+                date, hour, waiter, price, quantity, product, unitprice = i
+            
+                self.current_productsincommands.append([ctk.CTkLabel(self.frame_consume, text=product, fg_color=self.colors[4], width=200, height=40),
+                                                   ctk.CTkLabel(self.frame_consume, text=waiter, fg_color=self.colors[4], width=200, height=40),
+                                                   ctk.CTkLabel(self.frame_consume, text=unitprice, fg_color=self.colors[4], width=100, height=40),
+                                                   ctk.CTkLabel(self.frame_consume, text=quantity, fg_color=self.colors[4], width=50, height=40),
+                                                   ctk.CTkLabel(self.frame_consume, text=price, fg_color=self.colors[4], width=100, height=40),
+                                                   ctk.CTkLabel(self.frame_consume, text=date + " ÀS " + hour, fg_color=self.colors[4], width=150, height=40)
+                                                   ])
+                self.current_productsincommands[k][0].grid(row= k + 1, column=1, padx=0, pady=1)
+                self.current_productsincommands[k][1].grid(row= k + 1, column=2, padx=1, pady=1)
+                self.current_productsincommands[k][2].grid(row= k + 1, column=3, padx=1, pady=1)
+                self.current_productsincommands[k][3].grid(row= k + 1, column=4, padx=1, pady=1)
+                self.current_productsincommands[k][4].grid(row= k + 1, column=5, padx=1, pady=1)
+                self.current_productsincommands[k][5].grid(row= k + 1, column=6, padx=1, pady=1)
             totalprice = totalprice + float(price)
         self.label_totalprice = ctk.CTkLabel(self.frame_infocommand, text=totalprice, fg_color=self.colors[4])
         self.label_totalprice.place(relx=0.37, rely=0.15, relwidth=0.32, relheight=0.3)
@@ -2219,7 +2241,7 @@ class application():
                                     name VARCHAR(30),
                                     type VARCHAR(10),
                                     quantity VARCHAR(4),
-                                    unitprice(8),
+                                    unitprice VARCHAR(8),
                                     releasedate CHAR(10),
                                     releasehour CHAR(5),
                                     waiter VARCHAR(30),
