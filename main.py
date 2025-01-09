@@ -861,6 +861,12 @@ class application():
         self.desconnectproduct()
         self.reloadcategories()
     def windowcommand(self, command = 0, closed = 0):
+        def onpresskey(event):
+            if event.keysym == "Escape":
+                ondelete()
+        def ondelete():
+            self.root.bind_all("<KeyPress>", self.presskey)
+            self.rootcommand.destroy()
         def close():
             self.root.bind_all("<KeyPress>", self.presskeycommandwindow)
             self.rootconfirmdelete.destroy()
@@ -1107,8 +1113,9 @@ class application():
 
             self.time_heading = ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30)
             self.time_heading.grid(row=1, column=6, padx=1, pady=50)
+            self.root.bind_all("<KeyPress>", self.presskey)
+            self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
         else:
-            
             self.rootcommand.geometry("900x800")
             self.connecthistory()
             temp = self.historycursor.execute("SELECT * FROM ClosedCommand WHERE cod = ?", (str(closed), ))
@@ -1118,7 +1125,8 @@ class application():
             self.desconnecthistory()
             self.time_heading = ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=150, height=30)
             self.time_heading.grid(row=1, column=6, padx=1, pady=50)
-        
+            self.root.bind_all("<KeyPress>", onpresskey)
+            self.rootcommand.protocol("WM_DELETE_WINDOW", ondelete)
         self.rootcommand.title("COMANDA " + num)
         self.rootcommand.resizable(False, False)
         self.rootcommand.transient(self.root)
@@ -1155,8 +1163,6 @@ class application():
         self.totalpricelabel.place(relx=0.31, rely=0.15, relwidth=0.06, relheight=0.3)
         
         self.currentcommandwindow = num
-        self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
-        self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
         self.reloadproductforcommands(num, closed)
     def reloadproductforcommands(self, number, closed = 0):
         def delete(cod):
