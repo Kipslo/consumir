@@ -10,7 +10,7 @@ import datetime
 from unidecode import unidecode
 from escpos.printer import network
 from multiprocessing import Process
-from tkcalendar import Calendar
+from tkcalendar import Calendar, DateEntry
 class application():
     def __init__(self):
         def close():
@@ -65,7 +65,7 @@ class application():
         self.button_login.place(relx=0.4, rely=0.65, relwidth=0.2, relheight=0.05)
         
 
-        self.personimg = ctk.CTkImage(Image.open("imgs/person.png"), size=(300,300))
+        self.personimg = ctk.CTkImage(Image.open("./imgs/person.png"), size=(300,300))
         self.label_person = ctk.CTkLabel(self.root, image = self.personimg, bg_color="#242424", text="")
         self.label_person.place(relx=0.423, rely=0.15)
         temp = ""
@@ -82,7 +82,7 @@ class application():
         if self.positionp == True:
             try:
                 pa.moveTo(0,0)
-                self.position_namecommand = pa.locateOnScreen("imgs/buttonname.PNG", confidence=0.7)
+                self.position_namecommand = pa.locateOnScreen("./imgs/buttonname.PNG", confidence=0.7)
                 self.positionp = False
             except:
                 self.root.after(500, self.searchnameentry)
@@ -302,8 +302,8 @@ class application():
             self.current_productslist.append([ctk.CTkLabel(self.frame_productreeviews, fg_color=self.colors[5], text=category, width=400, height=50), 
                                              ctk.CTkLabel(self.frame_productreeviews, fg_color=self.colors[5], text=product, width=400, height=50), 
                                              ctk.CTkLabel(self.frame_productreeviews, fg_color=self.colors[5], text=str(prices[0]) + " - " + str(prices[1]), width=200, height=50), 
-                                             ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(40,40)), hover=False, command=lambda x = product, y = category:self.addproductwindow(x, y)), 
-                                             ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(40,40)), hover=False, command=lambda x=product, y=category:deleteproductsize(x, y))])
+                                             ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("./imgs/pencil.jpg"), size=(40,40)), hover=False, command=lambda x = product, y = category:self.addproductwindow(x, y)), 
+                                             ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(40,40)), hover=False, command=lambda x=product, y=category:deleteproductsize(x, y))])
             self.current_productslist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.current_productslist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.current_productslist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
@@ -341,7 +341,7 @@ class application():
                 self.current_notes = []
                 temp = self.productcursor.execute("SELECT id, text FROM Notes WHERE category = ?", (category, ))
                 for k, i in enumerate(temp):
-                    self.current_notes.append([ctk.CTkLabel(self.framenotes, bg_color=self.colors[4], text=i[1], width=500, height=50), ctk.CTkButton(self.framenotes, fg_color=self.colors[4], hover=False, width=60, height=50, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(45, 45)), text="", command=lambda x = i[0]:remove(x))])
+                    self.current_notes.append([ctk.CTkLabel(self.framenotes, bg_color=self.colors[4], text=i[1], width=500, height=50), ctk.CTkButton(self.framenotes, fg_color=self.colors[4], hover=False, width=60, height=50, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(45, 45)), text="", command=lambda x = i[0]:remove(x))])
 
                     n = k + 2
                     self.current_notes[k][0].grid(row=n, column=1, padx=1, pady=1)
@@ -391,7 +391,7 @@ class application():
         temp = self.productcursor.execute("SELECT cod, name From Category")
 
         for k, i in enumerate(temp):
-            self.tablecategory.append([ctk.CTkLabel(self.frame_note, fg_color=self.colors[4], width=300, height=50, text=i[1]), ctk.CTkButton(self.frame_note, hover=False, fg_color=self.colors[4], width=50, height=50, text="", image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(35, 35)), command=lambda x = i[1]:edit(x))])
+            self.tablecategory.append([ctk.CTkLabel(self.frame_note, fg_color=self.colors[4], width=300, height=50, text=i[1]), ctk.CTkButton(self.frame_note, hover=False, fg_color=self.colors[4], width=50, height=50, text="", image=ctk.CTkImage(Image.open("./imgs/pencil.jpg"), size=(35, 35)), command=lambda x = i[1]:edit(x))])
 
             n = k + 2
 
@@ -419,8 +419,8 @@ class application():
             self.current_productslist.append([ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=400, height=40), 
                                               ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=400, height=40), 
                                               ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), 
-                                              ctk.CTkLabel(image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40), 
-                                              ctk.CTkButton(self.frame_productreeviews, command=lambda x=name, y=category, z=ttype:self.deleteproductnormal(x, y, z), image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), text="", fg_color=self.colors[5], width=100, hover=False)])
+                                              ctk.CTkLabel(image=ctk.CTkImage(Image.open("./imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40), 
+                                              ctk.CTkButton(self.frame_productreeviews, command=lambda x=name, y=category, z=ttype:self.deleteproductnormal(x, y, z), image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(30,30)), text="", fg_color=self.colors[5], width=100, hover=False)])
             self.current_productslist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.current_productslist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.current_productslist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
@@ -456,7 +456,9 @@ class application():
         elif self.currentwindow == "ANOTAÇÕES":
             self.frame_note.destroy(); self.frame_note.place_forget()
         elif self.currentwindow == "CASHDESKHISTORY":
-            self.scrollframecashs.destroy(); self.scrollframecashs.place_forget(); self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.initcalendar.destroy(); self.finishcalendar.destroy(); self.confirmdate.destroy()
+            self.scrollframecashs.destroy(); self.scrollframecashs.place_forget(); self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy()
+        elif self.currentwindow == "RANKINGPRODUCTS":
+            self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy()
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     def clientswindow(self):
@@ -486,7 +488,7 @@ class application():
                 ctk.CTkLabel(self.frameclients, text=fone, bg_color=self.colors[4], width=150, height=40), 
                 ctk.CTkLabel(self.frameclients, text=email, bg_color=self.colors[4], width=200, height=40), 
                 ctk.CTkLabel(self.frameclients, text=idade, bg_color=self.colors[4], width=70, height=40),
-                ctk.CTkButton(self.frameclients, text="", fg_color=self.colors[4], hover=False, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30, 30)), command=lambda x = id:removeclient(x), width=50, height=40)])
+                ctk.CTkButton(self.frameclients, text="", fg_color=self.colors[4], hover=False, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(30, 30)), command=lambda x = id:removeclient(x), width=50, height=40)])
                 n = k + 2
                 self.clientstable[k][0].grid(row=n, column=1, padx=1, pady=1)
                 self.clientstable[k][1].grid(row=n, column=2, padx=1, pady=1)
@@ -693,7 +695,7 @@ class application():
         for i, temp in enumerate(self.current_sizesfornewproduct):
             self.current_tablesizes.append([ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[0], width=300, height=40, fg_color=self.colors[6]), 
                                                ctk.CTkLabel(self.scroolframe_sizeproductsseize, text=temp[1], width=200, height=40, fg_color=self.colors[6]),
-                                               ctk.CTkButton(self.scroolframe_sizeproductsseize, text="", width=100, height=40, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), fg_color=self.colors[6], hover=False, command=lambda x=i:self.deletesizefromproduct(x))])
+                                               ctk.CTkButton(self.scroolframe_sizeproductsseize, text="", width=100, height=40, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(30,30)), fg_color=self.colors[6], hover=False, command=lambda x=i:self.deletesizefromproduct(x))])
             self.current_tablesizes[i][0].grid(row=i + 2, column=1, padx=1, pady=1)
             self.current_tablesizes[i][1].grid(row=i + 2, column=2, padx=1, pady=1)
             self.current_tablesizes[i][2].grid(row=i + 2, column=3, padx=1, pady=1)
@@ -840,7 +842,7 @@ class application():
         temp = self.productcursor.execute("SELECT cod, name FROM Category")
         for i, date in enumerate(temp):
             id, name = date
-            self.currentcategory.append([ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[4], text=id, width=100, height=40), ctk.CTkLabel(self.treeview_categories,fg_color=self.colors[4], text=name, width=400, height=40), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)),command=lambda x=id, y=name:self.editcategorybutton(y, x), fg_color=self.colors[4], hover=False, text="", width=100, height=40), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30, 30)), command=lambda x=id:self.deletecategory(x), fg_color=self.colors[4], hover=False, text="", width=100, height=40)])
+            self.currentcategory.append([ctk.CTkLabel(self.treeview_categories, fg_color=self.colors[4], text=id, width=100, height=40), ctk.CTkLabel(self.treeview_categories,fg_color=self.colors[4], text=name, width=400, height=40), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("./imgs/pencil.jpg"), size=(30, 30)),command=lambda x=id, y=name:self.editcategorybutton(y, x), fg_color=self.colors[4], hover=False, text="", width=100, height=40), ctk.CTkButton(self.treeview_categories, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(30, 30)), command=lambda x=id:self.deletecategory(x), fg_color=self.colors[4], hover=False, text="", width=100, height=40)])
             self.currentcategory[i][0].grid(row= i + 2, column= 1, padx= 1, pady=1)
             self.currentcategory[i][1].grid(row= i + 2, column= 2, padx= 1, pady=1)
             self.currentcategory[i][2].grid(row= i + 2, column= 3, padx= 1, pady=1)
@@ -974,7 +976,7 @@ class application():
                 temp = self.commandscursor.execute("SELECT * FROM Payments WHERE number = ?", (self.currentcommandwindow, ))
                 self.currentpayments = []
                 for k, i in enumerate(temp):
-                    self.currentpayments.append([ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=i[2], width=300, height=50), ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=i[3], width=100, height=50), ctk.CTkButton(self.scrollframepay, text="", image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(35, 35)), fg_color=self.colors[4], hover=False, command=lambda y = i[0]:delpay(y), width=50, height=50)])
+                    self.currentpayments.append([ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=i[2], width=300, height=50), ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=i[3], width=100, height=50), ctk.CTkButton(self.scrollframepay, text="", image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(35, 35)), fg_color=self.colors[4], hover=False, command=lambda y = i[0]:delpay(y), width=50, height=50)])
                     n = k + 2
                     self.currentpayments[k][0].grid(row=n, column=1, padx=1, pady=1)
                     self.currentpayments[k][1].grid(row=n, column=2, padx=1, pady=1)
@@ -1215,8 +1217,8 @@ class application():
                                                    ctk.CTkLabel(self.frame_consume, text=quantity, fg_color=self.colors[4], width=50, height=40),
                                                    ctk.CTkLabel(self.frame_consume, text=price, fg_color=self.colors[4], width=100, height=40),
                                                    ctk.CTkLabel(self.frame_consume, text=text, fg_color=self.colors[4], width=100, height=40),
-                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30, 30)),hover=False, command=lambda x= cod:self.addproductincommandwindow(cod=x)),
-                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30, 30)),hover=False, command=lambda x = cod: delete(x))
+                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("./imgs/pencil.jpg"), size=(30, 30)),hover=False, command=lambda x= cod:self.addproductincommandwindow(cod=x)),
+                                                   ctk.CTkButton(self.frame_consume, text="", fg_color=self.colors[4], width=50, height=40, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(30, 30)),hover=False, command=lambda x = cod: delete(x))
                                                    ])
                 self.current_productsincommands[k][0].grid(row= k + 1, column=1, padx=0, pady=1)
                 self.current_productsincommands[k][1].grid(row= k + 1, column=2, padx=1, pady=1)
@@ -1438,7 +1440,7 @@ class application():
                 self.currentnotes.append([ctk.CTkLabel(self.scrollframenote, text=i[0], width=300, height=50, bg_color=self.colors[4]), ctk.CTkCheckBox(self.scrollframenote, text="", variable=self.currentpredefnotesvar[k], onvalue=i[0], offvalue="", command=lambda x = k - 1, y = i[0]:select(x, y), width=130, height=50, bg_color=self.colors[4])])
             if temp != [""] and temp != "":
                 for i in temp:
-                    self.currentnotes.append([ctk.CTkLabel(self.scrollframenote, text=i, width=300, height=50, bg_color=self.colors[4]), ctk.CTkButton(self.scrollframenote, text="", command=lambda x = i:delete(x), width=130, height=50, fg_color=self.colors[4], hover=False, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(45, 45)))])
+                    self.currentnotes.append([ctk.CTkLabel(self.scrollframenote, text=i, width=300, height=50, bg_color=self.colors[4]), ctk.CTkButton(self.scrollframenote, text="", command=lambda x = i:delete(x), width=130, height=50, fg_color=self.colors[4], hover=False, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(45, 45)))])
             for k, i in enumerate(self.currentnotes):
                 n = k + 2
                 self.currentnotes[k][0].grid(row=n, column=1, padx=1, pady=1)
@@ -1557,8 +1559,8 @@ class application():
             self.currentproductsaddlist.append([ctk.CTkLabel(self.scroolframe_addproduct, text=category, width=200, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=name, width=200, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=price, width=90, height=40, fg_color=self.colors[5]),
-                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add1.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y = category, z = tipe, a= price:addproductincommand(x, y, z, a)),
-                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("imgs/add.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y= category, z= tipe, a= price:self.addproductincommandwindow(x, y, z, a))])
+                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("./imgs/add1.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y = category, z = tipe, a= price:addproductincommand(x, y, z, a)),
+                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("./imgs/add.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y= category, z= tipe, a= price:self.addproductincommandwindow(x, y, z, a))])
             self.currentproductsaddlist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.currentproductsaddlist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.currentproductsaddlist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
@@ -1741,8 +1743,8 @@ class application():
                                                     ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][0], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionmaster", y = k,z = name:update(x, y, z)),
                                                     ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][1], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionrelease", y = k,z = name:update(x, y, z)),
                                                     ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][2], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionentry", y = k,z = name:update(x, y, z)),
-                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=40, text="", hover=False, image=ctk.CTkImage(Image.open("imgs/pencil.jpg"), size=(30,30)), command=lambda x=name: edit(x)),
-                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=40, text="", hover=False, image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(30,30)), command=lambda x=name: delete(x))])
+                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=40, text="", hover=False, image=ctk.CTkImage(Image.open("./imgs/pencil.jpg"), size=(30,30)), command=lambda x=name: edit(x)),
+                                                    ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=40, text="", hover=False, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(30,30)), command=lambda x=name: delete(x))])
                 self.currentfunctionarylabel[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
                 self.currentfunctionarylabel[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
                 self.currentfunctionarylabel[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
@@ -1881,7 +1883,7 @@ class application():
                 pass
             self.currenthistory = []
             for k, i in enumerate(temp):
-                self.currenthistory.append([ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[1]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[2]} às {i[3]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[7][0:10]} às {i[7][11:20]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[6]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[9]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=i[4]), ctk.CTkButton(self.scrollframehis, command=lambda x = i[0]: self.windowcommand(closed=x))])
+                self.currenthistory.append([ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[1]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[2]} às {i[3]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[7][0:10]} às {i[7][11:20]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[6]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[9]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=i[4]), ctk.CTkButton(self.scrollframehis, command=lambda x = i[0]: self.windowcommand(closed=x), width=150, height=50, fg_color=self.colors[4], hover=False, text="", image=ctk.CTkImage(Image.open("./imgs/config.png"), size=(45, 45)))])
                 n = k + 2
                 
                 self.currenthistory[k][0].grid(row=n, column=1, padx=1, pady=1)
@@ -1920,6 +1922,9 @@ class application():
         self.clienthis = ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], text="CLIENTE", width=200, height=50)
         self.clienthis.grid(row=1, column=6, padx=1, pady=1)
 
+        self.infohis = ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], text="INFO", width=150, height=50) 
+        self.infohis.grid(row=1, column=7, padx=1, pady=1)
+
         self.connecthistory()
         if idcash == "open":
             tmp = self.historycursor.execute("SELECT status FROM Cashdesk WHERE status = ?", (idcash, ))
@@ -1939,14 +1944,29 @@ class application():
         
         reload()
     def rankingproducts(self):
+        def reload(date = False):
+            pass
+
 
         self.deletewindow()
         self.currentwindow = "RANKINGPRODUCTS"
-    
-        self.calendar = Calendar(self.root)
-        self.calendar.place(relx=0.01, rely=0.2)
+        
+        self.initlb = ctk.CTkLabel(self.root, text="Lançado dia")
+        self.initlb.place(relx=0.01, rely=0.19, relwidth=0.15, relheight=0.05)
+
+        self.initentry = DateEntry(self.root)
+        self.initentry.place(relx=0.01, rely=0.25, relwidth=0.15, relheight=0.05)
+
+        self.finishlb = ctk.CTkLabel(self.root, text="ATÉ")
+        self.finishlb.place(relx=0.01, rely=0.31, relwidth=0.15, relheight=0.05)
+
+        self.finishentry = DateEntry(self.root)
+        self.finishentry.place(relx=0.01, rely=0.37, relwidth=0.15, relheight=0.05)
+
+        self.confirmdate = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Procurar", command=lambda:reload(True))
+        self.confirmdate.place(relx=0.01, rely=0.43, relwidth=0.15, relheight=0.05)
     def cashdeskwindow(self):
-        def reload():
+        def reload(date = False):
             try:
                 for i in self.currentcashs:
                     for j in i:
@@ -1957,6 +1977,25 @@ class application():
 
             self.connecthistory()
             temp = self.historycursor.execute("SELECT * FROM Cashdesk")
+
+            if date:
+                dateinit = str(self.initentry.get_date())
+                datefinish = str(self.finishentry.get_date())
+                print(dateinit)
+                dateinit = datetime.date(int(dateinit[0:4]), int(dateinit[5:7]), int(dateinit[8:]))
+                datefinish = datetime.date(int(datefinish[0:4]), int(datefinish[5:7]), int(datefinish[8:]))
+                listen = []
+                for i in temp:
+                    listen.append(i)
+                temp = []
+                for i in listen:
+                    if i[2]:
+                        datefinishcash = datetime.date(int(i[2][0:4]), int(i[2][5:7]), int(i[2][8:10]))
+                    else:
+                        datefinishcash = datetime.date.today() 
+                    num = 0
+                    if (datefinishcash >= dateinit) and (datefinishcash <= datefinish):
+                        temp.append(i)
             for k, i in enumerate(temp):
                 self.currentcashs.append([ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=75, height=50, text=i[0]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=200, height=50, text=i[1]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=200, height=50, text=i[2]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=100, height=50, text=i[4]), ctk.CTkButton(self.scrollframecashs, fg_color=self.colors[4], width=75, height=50, hover=False, text="", command=lambda x = i[0]:self.cash(x))])
                 n = k + 2
@@ -1991,28 +2030,20 @@ class application():
         self.infocash = ctk.CTkLabel(self.scrollframecashs, text="Visualizar", bg_color=self.colors[4], width=75, height=50)
         self.infocash.grid(row=1, column=5, padx=1, pady=1)
 
-        self.initlb = ctk.CTkLabel(self.root, text="DE")
+        self.initlb = ctk.CTkLabel(self.root, text="FECHADO EM")
         self.initlb.place(relx=0.01, rely=0.19, relwidth=0.15, relheight=0.05)
 
-        self.initcalendar = Calendar(self.root)
-        self.initcalendar.place(relx=0.01, rely=0.25, relwidth=0.15, relheight=0.15)
-
-        self.initentry = ctk.CTkEntry(self.root)
-        self.initentry.place(relx=0.01, rely=0.41, relwidth=0.15, relheight=0.05)
-        self.initentry.insert(0, str(datetime.datetime.now())[0:10].replace("-", "/"))
+        self.initentry = DateEntry(self.root)
+        self.initentry.place(relx=0.01, rely=0.25, relwidth=0.15, relheight=0.05)
 
         self.finishlb = ctk.CTkLabel(self.root, text="ATÉ")
-        self.finishlb.place(relx=0.01, rely=0.47, relwidth=0.15, relheight=0.05)
+        self.finishlb.place(relx=0.01, rely=0.31, relwidth=0.15, relheight=0.05)
 
-        self.finishcalendar = Calendar(self.root)
-        self.finishcalendar.place(relx=0.01, rely=0.53, relwidth=0.15, relheight=0.15)
+        self.finishentry = DateEntry(self.root)
+        self.finishentry.place(relx=0.01, rely=0.37, relwidth=0.15, relheight=0.05)
 
-        self.finishentry = ctk.CTkEntry(self.root)
-        self.finishentry.place(relx=0.01, rely=0.69, relwidth=0.15, relheight=0.05)
-        self.finishentry.insert(0, str(datetime.datetime.now())[0:10].replace("-", "/"))
-
-        self.confirmdate = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Procurar", )
-        self.confirmdate.place(relx=0.01, rely=0.75, relwidth=0.15, relheight=0.05)
+        self.confirmdate = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Procurar", command=lambda:reload(True))
+        self.confirmdate.place(relx=0.01, rely=0.43, relwidth=0.15, relheight=0.05)
 
         reload()
     def changemainbuttons(self, button):
@@ -2031,21 +2062,21 @@ class application():
             pass
         if text == "PRINCIPAL":
 
-            mainimgs = [ctk.CTkImage(Image.open("imgs/caixa.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tables.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/clientes.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/trofeu.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/garçom.png"), size=(60,60))]
+            mainimgs = [ctk.CTkImage(Image.open("./imgs/caixa.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/tables.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/clientes.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/trofeu.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60))]
             
             mainbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.cash), "ABRIR CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.cashdeskwindow), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, command=self.clientswindow), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab, command=self.rankingproducts), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
             
             self.currentmain = mainbuttons
             self.currentimgs = mainimgs
         elif text == "PRODUTO":
-            productimgs = [ctk.CTkImage(Image.open("imgs/produtos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/complementos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("imgs/tiposetamanhos.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/categorias.jpg"), size=(60,60)), ctk.CTkImage(Image.open("imgs/promocoes.png"), size=(60,60))]
+            productimgs = [ctk.CTkImage(Image.open("./imgs/produtos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/complementos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/tiposetamanhos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/categorias.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/promocoes.png"), size=(60,60))]
             
             productbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.productswindow), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab, command=self.notewindow), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab, command=self.categorieswindow), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
             
             self.currentmain = productbuttons
             self.currentimgs = productimgs
         elif text == "CONFIGURAÇÕES":  
-            configimgs = [ctk.CTkImage(Image.open("imgs/config.png"), size=(60,60)), ctk.CTkImage(Image.open("imgs/garçom.png"), size=(60,60))]
+            configimgs = [ctk.CTkImage(Image.open("./imgs/config.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60))]
             configbuttons = [[ctk.CTkButton(master=self.frame_tab), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab, command=self.functionarywindow), "FUNCIONÁRIOS"]]
 
             self.currentmain = configbuttons
