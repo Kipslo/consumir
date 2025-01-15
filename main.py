@@ -1115,7 +1115,7 @@ class application():
 
             self.time_heading = ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30)
             self.time_heading.grid(row=1, column=6, padx=1, pady=50)
-            self.root.bind_all("<KeyPress>", self.presskey)
+            self.root.bind_all("<KeyPress>", self.presskeycommandwindow)
             self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
         else:
             self.rootcommand.geometry("900x800")
@@ -1883,7 +1883,7 @@ class application():
                 pass
             self.currenthistory = []
             for k, i in enumerate(temp):
-                self.currenthistory.append([ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[1]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[2]} às {i[3]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[7][0:10]} às {i[7][11:20]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[6]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[9]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=i[4]), ctk.CTkButton(self.scrollframehis, command=lambda x = i[0]: self.windowcommand(closed=x), width=150, height=50, fg_color=self.colors[4], hover=False, text="", image=ctk.CTkImage(Image.open("./imgs/config.png"), size=(45, 45)))])
+                self.currenthistory.append([ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[1]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[2]} às {i[3]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[7][0:10]} às {i[7][11:20]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[6]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[9]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=i[4]), ctk.CTkButton(self.scrollframehis, command=lambda x = i[0]: self.windowcommand(closed=x), width=150, height=50, fg_color=self.colors[4], hover=False, text="", image=ctk.CTkImage(Image.open("./imgs/info.png"), size=(43, 43)))])
                 n = k + 2
                 
                 self.currenthistory[k][0].grid(row=n, column=1, padx=1, pady=1)
@@ -1950,7 +1950,10 @@ class application():
 
         self.deletewindow()
         self.currentwindow = "RANKINGPRODUCTS"
-        
+
+        self.frameranking = ctk.CTkScrollableFrame(self.root)
+        self.frameranking.place(relx=0.17, rely=0.01, relwidth=0.82, relheight=0.98)
+
         self.initlb = ctk.CTkLabel(self.root, text="Lançado dia")
         self.initlb.place(relx=0.01, rely=0.19, relwidth=0.15, relheight=0.05)
 
@@ -1997,7 +2000,7 @@ class application():
                     if (datefinishcash >= dateinit) and (datefinishcash <= datefinish):
                         temp.append(i)
             for k, i in enumerate(temp):
-                self.currentcashs.append([ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=75, height=50, text=i[0]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=200, height=50, text=i[1]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=200, height=50, text=i[2]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=100, height=50, text=i[4]), ctk.CTkButton(self.scrollframecashs, fg_color=self.colors[4], width=75, height=50, hover=False, text="", command=lambda x = i[0]:self.cash(x))])
+                self.currentcashs.append([ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=75, height=50, text=i[0]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=200, height=50, text=i[1]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=200, height=50, text=i[2]), ctk.CTkLabel(self.scrollframecashs, bg_color=self.colors[4], width=100, height=50, text=i[4]), ctk.CTkButton(self.scrollframecashs, fg_color=self.colors[4], width=75, height=50, hover=False, text="", command=lambda x = i[0]:self.cash(x), image=ctk.CTkImage(Image.open("./imgs/info.png"), size=(43, 43)))])
                 n = k + 2
                 self.currentcashs[k][0].grid(row=n, column=1, padx=1, pady=1)
                 self.currentcashs[k][1].grid(row=n, column=2, padx=1, pady=1)
@@ -2304,7 +2307,8 @@ class application():
                                 name VARCHAR(30),
                                 fone INTEGER(13),
                                 email VARCHAR(30),
-                                idade INTEGER(3)
+                                idade INTEGER(3),
+                                genero VARCHAR(10)
         )""")
         self.desconnectclients()
 class server():
