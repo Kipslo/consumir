@@ -53,7 +53,6 @@ class application():
         self.root.protocol("WM_DELETE_WINDOW", close)
         self.root.after(3000, self.insertcurrentproduct)
         self.root.after(3000, self.printerexecute)
-        print(self.root.size)
         self.root.mainloop()
     def printerexecute(self):
         if aprinter.active:
@@ -1336,6 +1335,9 @@ class application():
                 date, hour = date[0:10], date[11:20]
                 self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, "", ""))           
             self.desconnectcommands()
+            self.connectprinter()
+            self.printercursor.execute("INSERT INTO QueuePrinter (text, printer, type) VALUES (?, ?, 'product')", (product))
+            self.desconnectprinter()
             
         self.root.after(3000, self.insertcurrentproduct)
     def addproductincommandwindow(self, product = "", category = "", tipe = "", price = "", cod = ""):
@@ -2186,7 +2188,7 @@ class application():
         self.tempdb.commit()
         self.tempdb.close()
     def connectprinter(self):
-        self.database = sql.connect("press.db")
+        self.database = sql.connect("printer.db")
         self.printercursor = self.database.cursor()
     def desconnectprinter(self):
         self.database.commit()
@@ -2343,9 +2345,10 @@ class application():
         )""")
         self.desconnectclients()
         self.connectprinter()
-        self.printercursor.execute("""CREATE TABLE IF NOT EXISTS QueuePress(
+        self.printercursor.execute("""CREATE TABLE IF NOT EXISTS QueuePrint(
                                    text VARCHAR(500),
-                                   printer VARCHAR(30)
+                                   printer VARCHAR(30),
+                                   type VARCHAR(10)
                                    )""")
         self.printercursor.execute("""CREATE TABLE IF NOT EXISTS Printers(
                                    name VARCHAR(30),
@@ -2524,9 +2527,14 @@ class server():
                 conn.close()
 class printer():
     active = False
-    inoperation = False
+    def connectconfig(self):
+        self.config = sql.connect("config.db")
+        self.configcursor = self.config.cursor()
+    def desconnectconfig(self):
+        self.config.commit()
+        self.config.close()
     def connect(self):
-        self.database = sql.connect("press.db")
+        self.database = sql.connect("printer.db")
         self.cursor = self.database.cursor()
     def desconnect(self):
         self.database.commit()
@@ -2536,8 +2544,12 @@ class printer():
     def close(self):
         self.printervar.terminate()
     def processprinter(self):
-        pass
-
+        self.connect()
+        temp = self.cursor('SELECT * FROM QueuePrint')
+        for i in temp:
+            pass
+        self.desconnect()
+        self.close()
 if __name__ ==  "__main__":
     aserver = server()
     aprinter = printer()
