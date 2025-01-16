@@ -8,7 +8,7 @@ import threading
 import pyautogui as pa
 import datetime
 from unidecode import unidecode
-from escpos.printer import network
+from escpos.printer import Network
 from multiprocessing import Process
 from tkcalendar import Calendar, DateEntry
 class application():
