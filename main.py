@@ -16,6 +16,7 @@ class application():
         def close():
             self.root.destroy()
             aserver.close()
+            aprinter.close()
         self.insertproductlist = []
         self.createtables()
         self.desconnecthistory()
@@ -51,7 +52,14 @@ class application():
         self.loginwindow()
         self.root.protocol("WM_DELETE_WINDOW", close)
         self.root.after(3000, self.insertcurrentproduct)
+        self.root.after(3000, self.printerexecute)
+        print(self.root.size)
         self.root.mainloop()
+    def printerexecute(self):
+        if aprinter.active:
+            pass
+        else:
+            aprinter.init()
     def loginwindow(self):
         self.currentwindow = "LOGIN"
         self.root.attributes("-fullscreen", True)
@@ -400,6 +408,19 @@ class application():
             
 
         self.desconnectproduct()
+    def configwindow(self):
+        self.deletewindow()
+        self.currentwindow = "CONFIG"
+
+        self.entry_namehome = ctk.CTkEntry(self.root, placeholder_text="NOME DO ESTABELECIMENTO")
+
+        self.entry_cnpj = ctk.CTkEntry(self.root, placeholder_text="CNPJ")
+
+        self.entry_adress = ctk.CTkEntry(self.root, placeholder_text="ENDEREÇO DO ESTABELECIMENTO")
+
+        self.entry_fone = ctk.CTkEntry(self.root, placeholder_text="TELEFONE DO ESTABELECIMENTO")
+
+        self.button_saveconfig = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="SALVAR")
 
     def reloadproductsnormal(self):
         self.connectproduct()
@@ -441,7 +462,7 @@ class application():
             self.frame_producttypes.destroy(); self.frame_modproducts.destroy(); self.frame_productreeviews.destroy(); self.frame_productreeviews.place_forget()
         elif self.currentwindow == "CATEGORIES":
             self.treeview_categories.destroy(); self.treeview_categories.place_forget(); self.frame_categoriesmod.destroy()
-        elif self.currentwindow == "CONFIGURAÇÕES":
+        elif self.currentwindow == "CONFIG":
             pass
         elif self.currentwindow == "FUNCIONÁRIOS":
             self.scroolframe_functionary.destroy; self.scroolframe_functionary.place_forget(); self.button_addfunctionary.destroy(); self.entry_name.destroy(); self.entry_passwordcont.destroy()
@@ -2080,7 +2101,7 @@ class application():
             self.currentimgs = productimgs
         elif text == "CONFIGURAÇÕES":  
             configimgs = [ctk.CTkImage(Image.open("./imgs/config.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60))]
-            configbuttons = [[ctk.CTkButton(master=self.frame_tab), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab, command=self.functionarywindow), "FUNCIONÁRIOS"]]
+            configbuttons = [[ctk.CTkButton(master=self.frame_tab, command=self.configwindow), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab, command=self.functionarywindow), "FUNCIONÁRIOS"]]
 
             self.currentmain = configbuttons
             self.currentimgs = configimgs
@@ -2164,12 +2185,22 @@ class application():
     def desconnecttemp(self):
         self.tempdb.commit()
         self.tempdb.close()
+    def connectprinter(self):
+        self.database = sql.connect("press.db")
+        self.printercursor = self.database.cursor()
+    def desconnectprinter(self):
+        self.database.commit()
+        self.database.close()
     def createtables(self):
         self.connectconfig()
         self.configcursor.execute("""CREATE TABLE IF NOT EXISTS Config(
                                   cod INTEGER PRIMARY KEY,
                                   stylemode VARCHAR,
-                                  maxcommands INTEGER(4)
+                                  maxcommands INTEGER(4), 
+                                  cnpj VARCHAR(20),
+                                  housename VARCHAR(30),
+                                  adress VARCHAR(30),
+                                  fone VARCHAR(10)
                                   )""")
         self.desconnectconfig()
         self.connectconts()
@@ -2311,6 +2342,16 @@ class application():
                                 genero VARCHAR(10)
         )""")
         self.desconnectclients()
+        self.connectprinter()
+        self.printercursor.execute("""CREATE TABLE IF NOT EXISTS QueuePress(
+                                   text VARCHAR(500),
+                                   printer VARCHAR(30)
+                                   )""")
+        self.printercursor.execute("""CREATE TABLE IF NOT EXISTS Printers(
+                                   name VARCHAR(30),
+                                   ip VARCHAR(19)
+                                   )""")
+        self.desconnectprinter()
 class server():
     def connectproduct(self):
         self.product = sql.connect("products.db")
@@ -2482,7 +2523,21 @@ class server():
                     conn.sendall(data)
                 conn.close()
 class printer():
-    pass
+    active = False
+    inoperation = False
+    def connect(self):
+        self.database = sql.connect("press.db")
+        self.cursor = self.database.cursor()
+    def desconnect(self):
+        self.database.commit()
+        self.database.close()
+    def init(self):
+        self.printervar = Process(target=self.processprinter)    
+    def close(self):
+        self.printervar.terminate()
+    def processprinter(self):
+        pass
+
 if __name__ ==  "__main__":
     aserver = server()
     aprinter = printer()
