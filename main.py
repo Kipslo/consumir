@@ -10,7 +10,7 @@ import datetime
 from unidecode import unidecode
 from escpos.printer import Network
 from multiprocessing import Process
-from tkcalendar import Calendar, DateEntry
+from tkcalendar import DateEntry
 class application():
     def __init__(self):
         def close():
@@ -79,13 +79,13 @@ class application():
         self.desconnectconts()
         self.root.bind_all("<KeyPress>", self.keypresslogin)
     def searchnameentry(self, n = True):
-        if self.positionp == True:
+        '''if self.positionp == True:
             try:
                 pa.moveTo(0,0)
                 self.position_namecommand = pa.locateOnScreen("./imgs/buttonname.PNG", confidence=0.7)
                 self.positionp = False
             except:
-                self.root.after(500, self.searchnameentry)
+                self.root.after(500, self.searchnameentry)'''
     def keypresslogin(self, event):
         n = event.keysym
         if n == "Return":
@@ -1667,7 +1667,7 @@ class application():
                 self.button_newcommand[i].configure(fg_color="#6f0000", hover_color="#4f0000")
             self.button_newcommand[i].grid(row=int(i/4), column=i%4, padx=10 ,pady=10)
     def clickmain(self, event):
-        try:
+        '''try:
             if not "self.rootnewcom" in globals():
                 if "self.rootnewcom" in globals() or "self.rootnewcom" in locals():
                     pass
@@ -1683,7 +1683,7 @@ class application():
                         self.entry_namecommand.delete(0, "end")
                         event.widget.focus_set()
         except:
-            pass
+            pass'''
     def presskey(self, event):
         key = event.keysym
         n = self.entry_namecommand.get()
@@ -2481,6 +2481,9 @@ class server():
                 else:
                     conn.sendall(data)
                 conn.close()
+class printer():
+    pass
 if __name__ ==  "__main__":
     aserver = server()
+    aprinter = printer()
     application() 
