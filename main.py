@@ -1318,7 +1318,7 @@ class application():
         while temp != []:
             listen = [temp[0]]
             self.connectcommands()
-            cod, command, product, category, unitprice, qtd, text, waiter, tipe = temp[0]
+            cod, command, product, category, unitprice, qtd, text, waiter, tipe, prynter = temp[0]
             date = str(datetime.datetime.now())[0:19]
             date, hour = date[0:10], date[11:20]
             self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size, text, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, date, hour, waiter, float(unitprice)*qtd, unitprice, qtd, product, tipe, "", text, category))
@@ -1336,8 +1336,7 @@ class application():
                 self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, "", ""))           
             self.desconnectcommands()
             self.connectprinter()
-            temp = self.printercursor.execute("SELECT")
-            self.printercursor.execute("INSERT INTO QueuePrinter (text, printer, type, command, waiter) VALUES (?, ?, 'product', ?, ?)", (product, , command, waiter))
+            self.printercursor.execute("INSERT INTO ProductPrint (product, printer, type, command, waiter) VALUES (?, ?, 'product', ?, ?)", (product, prynter, command, waiter))
             self.desconnectprinter()
             
         self.root.after(3000, self.insertcurrentproduct)
@@ -2237,7 +2236,8 @@ class application():
                                     type VARCHAR(30),
                                     size VARCHAR(30),
                                     text VARCHAR(100),
-                                    category VARCHAR(30)
+                                    category VARCHAR(30),
+                                    printer VARCHAR(30)
                                     )""")
         self.commandscursor.execute("""CREATE TABLE IF NOT EXISTS Payments(
                                     cod INTEGER PRIMARY KEY,
@@ -2333,7 +2333,8 @@ class application():
                                 quatity INTEGER(3),
                                 text VARCHAR(100),
                                 waiter VARCHAR(30),
-                                type VARCHAR(10)
+                                type VARCHAR(10),
+                                printer VARCHAR(30)
                                     )""")
         self.desconnecttemp()
         self.connectclients()
@@ -2347,8 +2348,8 @@ class application():
         )""")
         self.desconnectclients()
         self.connectprinter()
-        self.printercursor.execute("""CREATE TABLE IF NOT EXISTS QueuePrint(
-                                   text VARCHAR(500),
+        self.printercursor.execute("""CREATE TABLE IF NOT EXISTS ProductPrint(
+                                   product VARCHAR(500),
                                    printer VARCHAR(30),
                                    type VARCHAR(10),
                                    command INTEGER(4),
@@ -2449,7 +2450,7 @@ class server():
                     TEMp = self.commandscursor.execute("SELECT product, quantity, price, type, size FROM Consumption WHERE number = ?", (listen[1], ))
                     temp = ""
                     for i in TEMp:
-                        product, quantity, price, tipe, size = i
+                        product, quantity, price, tipe, size, prynter = i
                         if temp == "":
                             temp = f"{product}|{quantity}|{price}"
                         else:
@@ -2470,13 +2471,13 @@ class server():
                     conn.sendall(str.encode(temp))
                 elif listen[0] == "PRODUCTSCATEGORY":
                     self.connectproduct()
-                    TEMp = self.productcursor.execute("SELECT name, type, price FROM Products WHERE category = ?", (listen[1], ))
+                    TEMp = self.productcursor.execute("SELECT name, type, price, printer FROM Products WHERE category = ?", (listen[1], ))
                     temp = ""
                     for i in TEMp:
                         if temp != "":
-                            temp = temp + f",={i[0]}|{i[1]}|{i[2]}"
+                            temp = temp + f",={i[0]}|{i[1]}|{i[2]}|{i[3]}"
                         else:
-                            temp = f"{i[0]}|{i[1]}|{i[2]}"                    
+                            temp = f"{i[0]}|{i[1]}|{i[2]}|{i[3]}"                    
                     self.desconnectproduct()
                     conn.sendall(str.encode(temp))
                 elif listen[0] == "SIZESCATEGORY":
@@ -2502,13 +2503,12 @@ class server():
                     self.desconnectconts()
                     if temp != "":
                         self.connecttemp()
-                        if len(listen) == 5:
-                            product, category, unitprice, qtd, tipe = listen
+                        if len(listen) == 6:
+                            product, category, unitprice, qtd, tipe, prynter = listen
                             description = ""
                         else:
-                            product, category, unitprice, qtd, description, tipe = listen
-                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe))
-                        print(category)
+                            product, category, unitprice, qtd, description, tipe, prynter = listen
+                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe, prynter))
                         self.desconnecttemp()
                         conn.sendall(str.encode("Y"))
                     else:
@@ -2549,7 +2549,7 @@ class printer():
         self.printervar.terminate()
     def processprinter(self):
         self.connect()
-        temp = self.cursor('SELECT * FROM QueuePrint')
+        temp = self.cursor('SELECT * FROM ProductPrint')
         for i in temp:
             pass
         self.desconnect()
