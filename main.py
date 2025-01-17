@@ -1336,7 +1336,8 @@ class application():
                 self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, "", ""))           
             self.desconnectcommands()
             self.connectprinter()
-            self.printercursor.execute("INSERT INTO QueuePrinter (text, printer, type) VALUES (?, ?, 'product')", (product))
+            temp = self.printercursor.execute("SELECT")
+            self.printercursor.execute("INSERT INTO QueuePrinter (text, printer, type, command, waiter) VALUES (?, ?, 'product', ?, ?)", (product, , command, waiter))
             self.desconnectprinter()
             
         self.root.after(3000, self.insertcurrentproduct)
@@ -2250,7 +2251,8 @@ class application():
                                    name VARCHAR(30),
                                    type VARCHAR(10),
                                    category VARCHAR(10),
-                                   price VARCHAR(8)
+                                   price VARCHAR(8),
+                                   printer VARCHAR(30)
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Notes(
                                     id INTEGER PRIMARY KEY,
@@ -2348,7 +2350,9 @@ class application():
         self.printercursor.execute("""CREATE TABLE IF NOT EXISTS QueuePrint(
                                    text VARCHAR(500),
                                    printer VARCHAR(30),
-                                   type VARCHAR(10)
+                                   type VARCHAR(10),
+                                   command INTEGER(4),
+                                   waiter VARCHAR(30)
                                    )""")
         self.printercursor.execute("""CREATE TABLE IF NOT EXISTS Printers(
                                    name VARCHAR(30),
