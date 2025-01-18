@@ -11,12 +11,13 @@ from unidecode import unidecode
 from escpos.printer import Network
 from multiprocessing import Process
 from tkcalendar import DateEntry
+from time import sleep
 class application():
     def __init__(self):
         def close():
             self.root.destroy()
             aserver.close()
-            aprinter.close()
+            aprinter.printervar.terminate()
         self.insertproductlist = []
         self.createtables()
         self.desconnecthistory()
@@ -55,13 +56,7 @@ class application():
         self.root.after(3000, self.printerexecute)
         self.root.mainloop()
     def printerexecute(self):
-        print("tentando")
-        print(aprinter.getactive())
-        if aprinter.getactive():
-            pass
-        else:
-            aprinter.init()
-        self.root.after(3000, self.printerexecute)
+        aprinter.init()
     def loginwindow(self):
         self.currentwindow = "LOGIN"
         self.root.attributes("-fullscreen", True)
@@ -2534,6 +2529,8 @@ class server():
                 else:
                     conn.sendall(data)
                 conn.close()
+def closeprinter():
+    aprinter.active = False
 class printer():
     active = False
     paused = False
@@ -2551,11 +2548,8 @@ class printer():
         self.database.commit()
         self.database.close()
     def init(self):
-        self.active = True
         self.printervar = Process(target=self.processprinter)  
         self.printervar.start()  
-    def close(self):
-        self.active = 0
     def pause(self):
         self.paused = True
     def retome(self):
@@ -2568,11 +2562,8 @@ class printer():
         self.commands.close()
     def reloadprinters(self):
         pass
-    def getactive(self):
-        return self.active
     def processprinter(self):
-        print("ta ino")
-        while self.active:
+        while True:
             self.connect()
             temp = self.cursor.execute('SELECT * FROM ProductPrint')
             listen = []
@@ -2587,11 +2578,9 @@ class printer():
                     if listen[0][4] == i[4] and listen[0][1] == i[1] and listen[0][3] == i[3]:
                         listen.append(i)
             #self.printers[listen[0][1]]
-            print(listen)
             if listen != []:
                 prynter = Network("192.168.0.202")
                 prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
-                print(listen)
                 prynter.textln(listen[0][1])
                 prynter.ln()
                 prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
@@ -2616,11 +2605,7 @@ class printer():
                 for i in listen:
                     self.cursor.execute("DELETE FROM ProductPrint WHERE product = ? AND printer = ? AND type = ? AND command = ? AND waiter = ? AND date = ? AND qtd = ?", (i[0], i[1], i[2], i[3], i[4], i[5], i[6]))
                 prynter.close()
-            else:
-                self.close()
-                break
             self.desconnect()
-        self.close()
 if __name__ ==  "__main__":
     aserver = server()
     aprinter = printer()
