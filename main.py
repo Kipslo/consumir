@@ -55,10 +55,13 @@ class application():
         self.root.after(3000, self.printerexecute)
         self.root.mainloop()
     def printerexecute(self):
-        if aprinter.active:
+        print("tentando")
+        print(aprinter.getactive())
+        if aprinter.getactive():
             pass
         else:
             aprinter.init()
+        self.root.after(3000, self.printerexecute)
     def loginwindow(self):
         self.currentwindow = "LOGIN"
         self.root.attributes("-fullscreen", True)
@@ -435,7 +438,7 @@ class application():
             listen.append(i)
         self.current_productslist = []
         for k, i in enumerate(listen):
-            name, ttype, category, price = i
+            name, ttype, category, price, prynter = i
             self.current_productslist.append([ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=400, height=40), 
                                               ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=400, height=40), 
                                               ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), 
@@ -1336,7 +1339,7 @@ class application():
                 self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, "", ""))           
             self.desconnectcommands()
             self.connectprinter()
-            self.printercursor.execute("INSERT INTO ProductPrint (product, printer, type, command, waiter) VALUES (?, ?, 'product', ?, ?)", (product, prynter, command, waiter))
+            self.printercursor.execute("INSERT INTO ProductPrint (product, printer, type, command, waiter, date, qtd) VALUES (?, ?, 'product', ?, ?, ?, ?)", (product, prynter, command, waiter, str(datetime.datetime.now())[0:19], qtd))
             self.desconnectprinter()
             
         self.root.after(3000, self.insertcurrentproduct)
@@ -2353,7 +2356,9 @@ class application():
                                    printer VARCHAR(30),
                                    type VARCHAR(10),
                                    command INTEGER(4),
-                                   waiter VARCHAR(30)
+                                   waiter VARCHAR(30),
+                                   date VARCHAR(20),
+                                   qtd INTEGER(3)
                                    )""")
         self.printercursor.execute("""CREATE TABLE IF NOT EXISTS Printers(
                                    name VARCHAR(30),
@@ -2450,7 +2455,7 @@ class server():
                     TEMp = self.commandscursor.execute("SELECT product, quantity, price, type, size FROM Consumption WHERE number = ?", (listen[1], ))
                     temp = ""
                     for i in TEMp:
-                        product, quantity, price, tipe, size, prynter = i
+                        product, quantity, price, tipe, size = i
                         if temp == "":
                             temp = f"{product}|{quantity}|{price}"
                         else:
@@ -2531,6 +2536,8 @@ class server():
                 conn.close()
 class printer():
     active = False
+    paused = False
+    printers = {}
     def connectconfig(self):
         self.config = sql.connect("config.db")
         self.configcursor = self.config.cursor()
@@ -2544,15 +2551,75 @@ class printer():
         self.database.commit()
         self.database.close()
     def init(self):
-        self.printervar = Process(target=self.processprinter)    
+        self.active = True
+        self.printervar = Process(target=self.processprinter)  
+        self.printervar.start()  
     def close(self):
-        self.printervar.terminate()
+        self.active = 0
+    def pause(self):
+        self.paused = True
+    def retome(self):
+        self.paused = False
+    def connectcommands(self):
+        self.commands = sql.connect("commands.db")
+        self.commandscursor = self.commands.cursor()
+    def desconnectcommands(self):
+        self.commands.commit()
+        self.commands.close()
+    def reloadprinters(self):
+        pass
+    def getactive(self):
+        return self.active
     def processprinter(self):
-        self.connect()
-        temp = self.cursor('SELECT * FROM ProductPrint')
-        for i in temp:
-            pass
-        self.desconnect()
+        print("ta ino")
+        while self.active:
+            self.connect()
+            temp = self.cursor.execute('SELECT * FROM ProductPrint')
+            listen = []
+            for i in temp:
+                if self.paused:
+                    self.desconnect()
+                    self.close()
+                #product, prynter, tipe, command, waiter, date, qtd = i
+                if listen == []:
+                    listen.append(i)
+                else:
+                    if listen[0][4] == i[4] and listen[0][1] == i[1] and listen[0][3] == i[3]:
+                        listen.append(i)
+            #self.printers[listen[0][1]]
+            print(listen)
+            if listen != []:
+                prynter = Network("192.168.0.202")
+                prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
+                print(listen)
+                prynter.textln(listen[0][1])
+                prynter.ln()
+                prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
+                prynter.textln(listen[0][5].replace("-", "/"))
+                prynter.ln()
+                prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
+                prynter.textln(f"COMANDA: {listen[0][3]}")
+                prynter.ln()
+                prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
+                self.connectcommands()
+                temp = self.commandscursor.execute("SELECT nameclient FROM CommandsActive WHERE number = ?", (listen[0][3], ))
+                for i in temp:
+                    if i[0] != "":
+                        prynter.text("   " + i[0].encode("UTF-8"))
+                self.desconnectcommands()
+                prynter.textln(f"Atendente: {listen[0][4]}")
+                prynter.set(bold=True)
+                for i in listen:
+                    prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
+                    prynter.textln(f"{i[6]} {i[0]}")
+                prynter.cut()
+                for i in listen:
+                    self.cursor.execute("DELETE FROM ProductPrint WHERE product = ? AND printer = ? AND type = ? AND command = ? AND waiter = ? AND date = ? AND qtd = ?", (i[0], i[1], i[2], i[3], i[4], i[5], i[6]))
+                prynter.close()
+            else:
+                self.close()
+                break
+            self.desconnect()
         self.close()
 if __name__ ==  "__main__":
     aserver = server()
