@@ -409,13 +409,35 @@ class application():
         self.deletewindow()
         self.currentwindow = "CONFIG"
 
+        self.limitcommandslb = ctk.CTkLabel(self.root)
+
+        self.limitcommands = ctk.CTkEntry(self.root)
+        self.limitcommands.place(relx=, rely=, relwidth=, relheight=)
+
+        self.stylelb = ctk.CTkLabel(self.root)
+
+        self.style = ctk.CTkComboBox(self.root)
+        self.style.place(relx=, rely=, relwidth=, relheight=)
+        
+        self.lb_namehome = ctk.CTkLabel()
+
         self.entry_namehome = ctk.CTkEntry(self.root, placeholder_text="NOME DO ESTABELECIMENTO")
+        self.entry_namehome.place(relx=, rely=, relwidth=, relheight=)
+
+        self.lb_cnpj = ctk.CTkLabel(self.root)
 
         self.entry_cnpj = ctk.CTkEntry(self.root, placeholder_text="CNPJ")
+        self.entry_cnpj.place(relx=, rely=, relwidth=, relheight=)
+
+        self.lb_adress = ctk.CTkLabel()
 
         self.entry_adress = ctk.CTkEntry(self.root, placeholder_text="ENDEREÇO DO ESTABELECIMENTO")
+        self.entry_adress.place(relx=, rely=, relwidth=, relheight=)
+
+        self.lb_fone = ctk.CTkLabel()
 
         self.entry_fone = ctk.CTkEntry(self.root, placeholder_text="TELEFONE DO ESTABELECIMENTO")
+        self.entry_fone.place(relx=, rely=, relwidth=, relheight=)
 
         self.button_saveconfig = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="SALVAR")
 
