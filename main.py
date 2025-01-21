@@ -25,26 +25,26 @@ class application():
         self.cod, self.stylemode, self.maxcommands = "", "", ""
         mod, up = False, False
         self.connectconfig()
-        self.currentconfig = self.configcursor.execute("""SELECT * FROM Config WHERE cod = 1""") 
+        self.currentconfig = self.configcursor.execute("""SELECT cod, stylemode, maxcommands FROM Config WHERE cod = 1""") 
         for i in self.currentconfig:
             self.cod, self.stylemode, self.maxcommands = i
         if self.cod == "":
             self.cod = 1
             mod = True
         if self.stylemode == "":
-            self.stylemode = "DARK"
+            self.stylemode = "ESCURO"
             up = True
         if self.maxcommands == "":
             self.maxcommands = 400
             up = True
         if mod:
-            self.configcursor.execute("""INSERT INTO Config (stylemode, maxcommands) VALUES (?, ?)""", (self.stylemode, self.maxcommands))
+            self.configcursor.execute("""INSERT INTO Config (stylemode, maxcommands, cnpj, housename, adress, fone) VALUES (?, ?, '', '', '', '')""", (self.stylemode, self.maxcommands))
         elif mod == False and up == True:
             self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ? WHERE cod = 1""", (self.stylemode, self.maxcommands))
-        if self.stylemode == "DARK":
+        if self.stylemode == "ESCURO":
             ctk.set_appearance_mode("dark")
             self.colors = ["#1f1f1f", "#2f2f2f", "#383838", "#3f3f3f", "#484848", "#4f4f4f", "#585858", "#5f5f5f", "#6f6f6f", "#7f7f7f"]
-        elif self.stylemode == "LIGHT":
+        elif self.stylemode == "CLARO":
             ctk.set_appearance_mode("light")
             self.colors = ["#8f8f8f", "#8f8f8f", "#787878", "#7f7f7f", "#686868", "#6f6f6f", "#585858", "#5f5f5f", "#5f5f5f", "#4f4f4f"]
         self.desconnectconfig()
@@ -406,40 +406,67 @@ class application():
 
         self.desconnectproduct()
     def configwindow(self):
+        def save():
+            self.connectconfig()
+            self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ?, cnpj = ?, housename = ?, adress = ?, fone = ? WHERE cod = 1""", (self.stylevar.get(), self.limitcommands.get(), self.entry_cnpj.get(), self.entry_namehome.get(), self.entry_adress.get(), self.entry_fone.get()))
+            self.desconnectconfig()
         self.deletewindow()
         self.currentwindow = "CONFIG"
 
-        self.limitcommandslb = ctk.CTkLabel(self.root)
+        self.connectconfig()
+        temp = self.configcursor.execute("SELECT stylemode, maxcommands, cnpj, housename, adress, fone FROM Config WHERE cod = '1'")
 
-        self.limitcommands = ctk.CTkEntry(self.root)
-        self.limitcommands.place(relx=, rely=, relwidth=, relheight=)
+        for i in temp:
+            style, maxcommands, cnpj, housename, adress, fone = i
+        self.desconnectconfig()
 
-        self.stylelb = ctk.CTkLabel(self.root)
+        self.frame_config = ctk.CTkScrollableFrame(self.root)
+        self.frame_config.place(relx=0.01, rely=0.2, relwidth=0.98, relheight=0.79)
 
-        self.style = ctk.CTkComboBox(self.root)
-        self.style.place(relx=, rely=, relwidth=, relheight=)
-        
-        self.lb_namehome = ctk.CTkLabel()
+        self.limitcommandslb = ctk.CTkLabel(self.frame_config, text="LIMITE DE COMANDAS:", bg_color=self.colors[4], width=200, height=40)
+        self.limitcommandslb.grid(row=1, column=1, padx=1, pady=1)
 
-        self.entry_namehome = ctk.CTkEntry(self.root, placeholder_text="NOME DO ESTABELECIMENTO")
-        self.entry_namehome.place(relx=, rely=, relwidth=, relheight=)
+        self.limitcommands = ctk.CTkEntry(self.frame_config, width=200, height=40)
+        self.limitcommands.grid(row=1, column=2, padx=1, pady=1)
+        self.limitcommands.insert(0, maxcommands)
 
-        self.lb_cnpj = ctk.CTkLabel(self.root)
+        self.stylelb = ctk.CTkLabel(self.frame_config, text="MODO:", bg_color=self.colors[4], width=200, height=40)
+        self.stylelb.grid(row=2, column=1, padx=1, pady=1)
 
-        self.entry_cnpj = ctk.CTkEntry(self.root, placeholder_text="CNPJ")
-        self.entry_cnpj.place(relx=, rely=, relwidth=, relheight=)
+        self.stylevar = ctk.StringVar(value=style)
+        self.style = ctk.CTkComboBox(self.frame_config, values=("ESCURO", "CLARO"), variable=self.stylevar, width=200, height=40)
+        self.style.grid(row=2, column=2, padx=1, pady=1)
 
-        self.lb_adress = ctk.CTkLabel()
+        self.lb_namehome = ctk.CTkLabel(self.frame_config, text="Nome do estabelecimento", bg_color=self.colors[4], width=200, height=40)
+        self.lb_namehome.grid(row=3, column=1, padx=1, pady=1)
 
-        self.entry_adress = ctk.CTkEntry(self.root, placeholder_text="ENDEREÇO DO ESTABELECIMENTO")
-        self.entry_adress.place(relx=, rely=, relwidth=, relheight=)
+        self.entry_namehome = ctk.CTkEntry(self.frame_config, placeholder_text="NOME DO ESTABELECIMENTO", width=200, height=40)
+        self.entry_namehome.grid(row=3, column=2, padx=1, pady=1)
+        self.entry_namehome.insert(0, housename)
 
-        self.lb_fone = ctk.CTkLabel()
+        self.lb_cnpj = ctk.CTkLabel(self.frame_config, text="CNPJ:", bg_color=self.colors[4], width=200, height=40)
+        self.lb_cnpj.grid(row=4, column=1, padx=1, pady=1)
 
-        self.entry_fone = ctk.CTkEntry(self.root, placeholder_text="TELEFONE DO ESTABELECIMENTO")
-        self.entry_fone.place(relx=, rely=, relwidth=, relheight=)
+        self.entry_cnpj = ctk.CTkEntry(self.frame_config, width=200, height=40)
+        self.entry_cnpj.grid(row=4, column=2, padx=1, pady=1)
+        self.entry_cnpj.insert(0, cnpj)
 
-        self.button_saveconfig = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="SALVAR")
+        self.lb_adress = ctk.CTkLabel(self.frame_config, text="Endereço:", bg_color=self.colors[4], width=200, height=40)
+        self.lb_adress.grid(row=5, column=1, padx=1, pady=1)
+
+        self.entry_adress = ctk.CTkEntry(self.frame_config, width=200, height=40)
+        self.entry_adress.grid(row=5, column=2, padx=1, pady=1)
+        self.entry_adress.insert(0, adress)
+
+        self.lb_fone = ctk.CTkLabel(self.frame_config, text="Telefone:", bg_color=self.colors[4], width=200, height=40)
+        self.lb_fone.grid(row=6, column=1, padx=1, pady=1)
+
+        self.entry_fone = ctk.CTkEntry(self.frame_config, width=200, height=40)
+        self.entry_fone.grid(row=6, column=2, padx=1, pady=1)
+        self.entry_fone.insert(0, fone)
+
+        self.button_saveconfig = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="SALVAR", command=save)
+        self.button_saveconfig.place(relx=0.8, rely=0.145, relwidth=0.1, relheight=0.05)
 
     def reloadproductsnormal(self):
         self.connectproduct()
@@ -482,7 +509,7 @@ class application():
         elif self.currentwindow == "CATEGORIES":
             self.treeview_categories.destroy(); self.treeview_categories.place_forget(); self.frame_categoriesmod.destroy()
         elif self.currentwindow == "CONFIG":
-            pass
+            self.button_saveconfig.destroy(); self.frame_config.destroy(); self.frame_config.place_forget()
         elif self.currentwindow == "FUNCIONÁRIOS":
             self.scroolframe_functionary.destroy; self.scroolframe_functionary.place_forget(); self.button_addfunctionary.destroy(); self.entry_name.destroy(); self.entry_passwordcont.destroy()
         elif self.currentwindow == "CLIENTES":
