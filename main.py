@@ -46,7 +46,7 @@ class application():
             self.colors = ["#1f1f1f", "#2f2f2f", "#383838", "#3f3f3f", "#484848", "#4f4f4f", "#585858", "#5f5f5f", "#6f6f6f", "#7f7f7f"]
         elif self.stylemode == "CLARO":
             ctk.set_appearance_mode("light")
-            self.colors = ["#8f8f8f", "#8f8f8f", "#787878", "#7f7f7f", "#686868", "#6f6f6f", "#585858", "#5f5f5f", "#5f5f5f", "#4f4f4f"]
+            self.colors = ["#ffffff", "#efefef", "#c8c8c8", "#bfbfbf", "#a8a8a8", "#9f9f9f", "#888888", "#8f8f8f", "#8f8f8f", "#7f7f7f"]
         self.desconnectconfig()
         
         self.root = ctk.CTk()
@@ -526,6 +526,8 @@ class application():
             self.scrollframecashs.destroy(); self.scrollframecashs.place_forget(); self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy()
         elif self.currentwindow == "RANKINGPRODUCTS":
             self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy()
+        elif self.currentwindow == "PRINTERS":
+            pass
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     def clientswindow(self):
@@ -2119,6 +2121,32 @@ class application():
         self.confirmdate.place(relx=0.01, rely=0.43, relwidth=0.15, relheight=0.05)
 
         reload()
+    def windowprinters(self):
+        def reload():
+            pass
+        def delete():
+            pass
+        def add():
+            pass
+        self.deletewindow()
+
+        self.currentwindow = "PRINTERS"
+
+        self.addprinter = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="ADICIONAR")
+        self.addprinter.place(relx=0.8, rely=0.145, relwidth=0.19, relheight=0.05)
+
+        self.frameprinters = ctk.CTkScrollableFrame(self.root)
+        self.frameprinters.place(relx=0.01, rely=0.2, relwidth=0.98, relheight=0.79)
+
+        self.printername = ctk.CTkLabel(self.frameprinters, text="NOME", width=300, height=50, bg_color=self.colors[4])
+        self.printername.grid(row=1, column=1, padx=1, pady=1)
+
+        self.printerip = ctk.CTkLabel(self.frameprinters, text="IP", width=200, height=50, bg_color=self.colors[4])
+        self.printerip.grid(row=1, column=2, padx=1, pady=1)
+
+        self.delprinter = ctk.CTkLabel(self.frameprinters, text="DELETAR", width=100, height=50, bg_color=self.colors[4])
+        self.delprinter.grid(row=1, column=3, padx=1, pady=1)
+
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
@@ -2149,8 +2177,8 @@ class application():
             self.currentmain = productbuttons
             self.currentimgs = productimgs
         elif text == "CONFIGURAÇÕES":  
-            configimgs = [ctk.CTkImage(Image.open("./imgs/config.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60))]
-            configbuttons = [[ctk.CTkButton(master=self.frame_tab, command=self.configwindow), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab, command=self.functionarywindow), "FUNCIONÁRIOS"]]
+            configimgs = [ctk.CTkImage(Image.open("./imgs/config.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/caixa.png"), size=(60, 60))]
+            configbuttons = [[ctk.CTkButton(master=self.frame_tab, command=self.configwindow), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab, command=self.functionarywindow), "FUNCIONÁRIOS"], [ctk.CTkButton(self.frame_tab, command=self.windowprinters), "IMPRESSORAS"]]
 
             self.currentmain = configbuttons
             self.currentimgs = configimgs
