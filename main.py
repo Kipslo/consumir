@@ -2127,7 +2127,10 @@ class application():
         def delete():
             pass
         def add():
-            pass
+            self.addroot = ctk.CTkToplevel()
+            self.addroot.title("")
+
+
         self.deletewindow()
 
         self.currentwindow = "PRINTERS"
@@ -2656,7 +2659,7 @@ class printer():
                         listen.append(i)
             #self.printers[listen[0][1]]
             if listen != []:
-                prynter = Network("192.168.0.202")
+                prynter = Network("192.168.0.202",)
                 prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
                 prynter.textln(listen[0][1])
                 prynter.ln()
@@ -2671,7 +2674,13 @@ class printer():
                 temp = self.commandscursor.execute("SELECT nameclient FROM CommandsActive WHERE number = ?", (listen[0][3], ))
                 for i in temp:
                     if i[0] != "":
-                        prynter.text("   " + i[0].encode("UTF-8"))
+                        #prynter.ln
+                        #for j in i[0]:
+                         #   if j == "ã"
+
+                          #  elif == ""
+                                #prynter.text(j)
+                        prynter.textln(i[0])
                 self.desconnectcommands()
                 prynter.textln(f"Atendente: {listen[0][4]}")
                 prynter.set(bold=True)
