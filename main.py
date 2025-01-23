@@ -527,7 +527,7 @@ class application():
         elif self.currentwindow == "RANKINGPRODUCTS":
             self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy()
         elif self.currentwindow == "PRINTERS":
-            pass
+            self.nameprinter.destroy(); self.ipprinter.destroy(); self.addprinter.destroy(); self.frameprinters.destroy(); self.frameprinters.place_forget()
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     def clientswindow(self):
@@ -2123,19 +2123,57 @@ class application():
         reload()
     def windowprinters(self):
         def reload():
-            pass
-        def delete():
-            pass
-        def add():
-            self.addroot = ctk.CTkToplevel()
-            self.addroot.title("")
+            try:
+                for i in self.printers:
+                    for j in i:
+                        j.destroy()
+            except:
+                pass
+            
+            self.printers = []
 
+            self.connectprinter()
+            temp = self.printercursor.execute("SELECT * FROM Printers")
+            for k, i in enumerate(temp):
+                self.printers.append([ctk.CTkLabel(self.frameprinters, bg_color=self.colors[4], width=300, height=50, text=i[0], ), ctk.CTkLabel(self.frameprinters, bg_color=self.colors[4], width=200, height=50, text=i[1], ), ctk.CTkButton(self.frameprinters, fg_color=self.colors[4], hover=False, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(45, 45)), command=lambda x=i[0], y=i[1]: delete(x,y), text="")])
+
+                n = k+2
+                self.printers[k][0].grid(row=n, column=1, padx=1, pady=1)
+                self.printers[k][1].grid(row=n, column=2, padx=1, pady=1)
+                self.printers[k][2].grid(row=n, column=3, padx=1, pady=1)
+
+            self.desconnectprinter()
+        def delete(name, ip):
+            self.connectprinter()
+            self.printercursor.execute("DELETE FROM Printers WHERE name = ? AND ip = ?",(name, ip))
+            self.desconnectprinter()
+            reload()
+        def add():
+            if self.nameprinter.get() != "" and self.ipprinter.get() != "":
+                self.connectprinter()
+                temp = self.printercursor.execute("SELECT * FROM Printers WHERE name = ?", (self.nameprinter.get(), ))
+                tmp = ""
+                for i in temp:
+                    tmp = "a"
+                if tmp == "":
+                    self.printercursor.execute("INSERT INTO Printers (name, ip) VALUES (?, ?)", (self.nameprinter.get(), self.ipprinter.get()))
+                self.desconnectprinter()
+                
+                self.nameprinter.delete(0, ctk.END)
+                self.ipprinter.delete(0, ctk.END)
+                reload()
 
         self.deletewindow()
 
         self.currentwindow = "PRINTERS"
 
-        self.addprinter = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="ADICIONAR")
+        self.nameprinter = ctk.CTkEntry(self.root, placeholder_text="Nome da impressora")
+        self.nameprinter.place(relx=0.01, rely=0.145, relwidth=0.2, relheight=0.05)
+
+        self.ipprinter = ctk.CTkEntry(self.root, placeholder_text="IP da impressora")
+        self.ipprinter.place(relx=0.22, rely=0.145, relwidth=0.2, relheight=0.05)
+
+        self.addprinter = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="ADICIONAR", command=add)
         self.addprinter.place(relx=0.8, rely=0.145, relwidth=0.19, relheight=0.05)
 
         self.frameprinters = ctk.CTkScrollableFrame(self.root)
@@ -2150,6 +2188,7 @@ class application():
         self.delprinter = ctk.CTkLabel(self.frameprinters, text="DELETAR", width=100, height=50, bg_color=self.colors[4])
         self.delprinter.grid(row=1, column=3, padx=1, pady=1)
 
+        reload()
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
