@@ -288,12 +288,12 @@ class application():
             pass
         self.connectproduct()
         self.current_productslist = []
-        temp = self.productcursor.execute("SELECT name, category FROM Products WHERE type = ?", ("SIZE", ))
+        temp = self.productcursor.execute("SELECT name, category, printer FROM Products WHERE type = ?", ("SIZE", ))
         for i in temp:
             listofproducts.append(i)
         for k, i in enumerate(listofproducts):
             print(i)
-            product, category = i
+            product, category, printer = i
             temp = self.productcursor.execute("SELECT price FROM SizeofProducts WHERE product = ? AND category = ?", (product, category))
             prices = [9999, -1]
             for n in temp:
@@ -307,7 +307,7 @@ class application():
             self.current_productslist.append([ctk.CTkLabel(self.frame_productreeviews, fg_color=self.colors[5], text=category, width=400, height=50), 
                                              ctk.CTkLabel(self.frame_productreeviews, fg_color=self.colors[5], text=product, width=400, height=50), 
                                              ctk.CTkLabel(self.frame_productreeviews, fg_color=self.colors[5], text=str(prices[0]) + " - " + str(prices[1]), width=200, height=50), 
-                                             ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("./imgs/pencil.jpg"), size=(40,40)), hover=False, command=lambda x = product, y = category:self.addproductwindow(x, y)), 
+                                             ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("./imgs/pencil.jpg"), size=(40,40)), hover=False, command=lambda x = product, y = category, z = printer:self.addproductwindow(x, y, z)), 
                                              ctk.CTkButton(self.frame_productreeviews, fg_color=self.colors[5], text="", width=100, height=50, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(40,40)), hover=False, command=lambda x=product, y=category:deleteproductsize(x, y))])
             self.current_productslist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.current_productslist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
@@ -655,7 +655,7 @@ class application():
         self.deleteclient.grid(row=1, column=6, padx=1, pady=1)
 
         reloadclients()
-    def addproductwindow(self, product = "", category = ""):
+    def addproductwindow(self, product = "", category = "", printer = ""):
         
         if self.current_productlisttab == "PRODUTOS":
             self.rootnewproduct = ctk.CTkToplevel()
@@ -681,6 +681,15 @@ class application():
 
             self.combobox_categoryname = ctk.CTkComboBox(self.frame_mainnewproduct, fg_color=self.colors[4], values=categories, width=200,height=60)
             self.combobox_categoryname.place(relx=0.5, rely=0.6)
+
+            self.connectprinter()
+            tmp = self.printercursor.execute("SELECT name FROM Printers")
+            printers = []
+            for i in tmp:
+                printers.append(i[0])
+            self.desconnectprinter()
+
+            self.combobox_printer = ctk.CTkComboBox(self.rootnewproduct, values=printers)
 
             self.button_addproductconfirm = ctk.CTkButton(self.rootnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command=self.addproductfunc)
             self.button_addproductconfirm.place(relx=0.7, rely=0.6, relwidth=0.29, relheight=0.2)
@@ -789,7 +798,7 @@ class application():
         if temp == "":
             for i in self.current_sizesfornewproduct:
                 self.productcursor.execute("INSERT INTO SizeofProducts (product, price, name, category) VALUES (?, ?, ?, ?)", (name, i[1], i[0], category))
-            self.product.execute("INSERT INTO Products (name, category, type) VALUES (?, ?, ?)", (name, category, "SIZE"))
+            self.product.execute("INSERT INTO Products (name, category, type, printer) VALUES (?, ?, ?, ?)", (name, category, "SIZE", self.entryprinter.get()))
             self.rootaddproductsize.destroy()
         self.desconnectproduct()
         self.reloadproductssize()
@@ -798,7 +807,7 @@ class application():
         category = self.combobox_categoryname.get()
         price = self.entry_price.get()
         self.connectproduct()
-        self.productcursor.execute("INSERT INTO Products (name, type, category, price) VALUES (?,?,?,?)", (name, "NORMAL", category, price))
+        self.productcursor.execute("INSERT INTO Products (name, type, category, price, printer) VALUES (?, ?, ?, ?, ?)", (name, "NORMAL", category, price, self.entryprinter.get()))
         self.desconnectproduct()
         self.rootnewproduct.destroy()
         self.reloadproductsnormal()
@@ -2698,7 +2707,7 @@ class printer():
                         listen.append(i)
             #self.printers[listen[0][1]]
             if listen != []:
-                prynter = Network("192.168.0.202",)
+                prynter = Network(listen[1])
                 prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
                 prynter.textln(listen[0][1])
                 prynter.ln()
