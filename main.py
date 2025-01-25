@@ -655,8 +655,13 @@ class application():
         self.deleteclient.grid(row=1, column=6, padx=1, pady=1)
 
         reloadclients()
-    def addproductwindow(self, product = "", category = "", printer = ""):
-        
+    def addproductwindow(self, product = "", category = "", prynter = ""):
+        self.connectprinter()
+        tmp = self.printercursor.execute("SELECT name FROM Printers")
+        printers = []
+        for i in tmp:
+            printers.append(i[0])
+        self.desconnectprinter()
         if self.current_productlisttab == "PRODUTOS":
             self.rootnewproduct = ctk.CTkToplevel()
             self.rootnewproduct.title("ADICIONAR PRODUTO")
@@ -682,14 +687,8 @@ class application():
             self.combobox_categoryname = ctk.CTkComboBox(self.frame_mainnewproduct, fg_color=self.colors[4], values=categories, width=200,height=60)
             self.combobox_categoryname.place(relx=0.5, rely=0.6)
 
-            self.connectprinter()
-            tmp = self.printercursor.execute("SELECT name FROM Printers")
-            printers = []
-            for i in tmp:
-                printers.append(i[0])
-            self.desconnectprinter()
-
-            self.combobox_printer = ctk.CTkComboBox(self.rootnewproduct, values=printers)
+            self.combobox_printer = ctk.CTkComboBox(self.rootnewproduct, values=printers, width=150, height=55)
+            self.combobox_printer.place(relx=0.4, rely=0.6)
 
             self.button_addproductconfirm = ctk.CTkButton(self.rootnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command=self.addproductfunc)
             self.button_addproductconfirm.place(relx=0.7, rely=0.6, relwidth=0.29, relheight=0.2)
@@ -708,7 +707,7 @@ class application():
             self.entry_price.place(relx=0.41, rely=0.60, relwidth=0.27, relheight=0.39)
 
             self.entry_namenewproduct = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="NOME", fg_color=self.colors[4])
-            self.entry_namenewproduct.place(relx=0.01, rely=0.11, relwidth=0.42, relheight=0.39)
+            self.entry_namenewproduct.place(relx=0.01, rely=0.11, relwidth=0.22, relheight=0.39)
 
             self.entry_namesize = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="NOME DO TAMANHO", fg_color= self.colors[4])
             self.entry_namesize.place(relx=0.01, rely=0.60, relwidth=0.39, relheight=0.39)
@@ -721,7 +720,10 @@ class application():
             self.desconnectproduct()
 
             self.combobox_categoryname = ctk.CTkComboBox(self.frame_mainnewproduct, fg_color=self.colors[4], values=categories, width=200,height=60)
-            self.combobox_categoryname.place(relx=0.44, rely=0.10)
+            self.combobox_categoryname.place(relx=0.24, rely=0.10)
+
+            self.combobox_printer = ctk.CTkComboBox(self.frame_mainnewproduct, values=printers, width=150, height=60)
+            self.combobox_printer.place(relx=0.5, rely=0.10)
 
             self.button_addproductconfirm = ctk.CTkButton(self.frame_mainnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="SALVAR", command=self.addproductsize)
             self.button_addproductconfirm.place(relx=0.70, rely=0.11, relwidth=0.29, relheight=0.39)
@@ -751,6 +753,7 @@ class application():
                 self.entry_namenewproduct.insert(0, product)
                 self.combobox_categoryname.set(category)
                 self.button_addproductconfirm.configure(command=lambda x=product, y=category:self.addproductsize(x, y))
+                self.combobox_printer.set(prynter)
                 self.reloadsizesinwindow()
     def addsizeforproduct(self):
         name = self.entry_namesize.get()
@@ -783,7 +786,6 @@ class application():
     def addproductsize(self, oldname = "", oldcategory = ""):
         name = self.entry_namenewproduct.get()
         category = self.combobox_categoryname.get()
-        print(category)
         self.connectproduct()
         if oldname != "":
             self.productcursor.execute("DELETE FROM SizeofProducts WHERE product = ? AND category = ?", (oldname, oldcategory))
@@ -798,7 +800,7 @@ class application():
         if temp == "":
             for i in self.current_sizesfornewproduct:
                 self.productcursor.execute("INSERT INTO SizeofProducts (product, price, name, category) VALUES (?, ?, ?, ?)", (name, i[1], i[0], category))
-            self.product.execute("INSERT INTO Products (name, category, type, printer) VALUES (?, ?, ?, ?)", (name, category, "SIZE", self.entryprinter.get()))
+            self.product.execute("INSERT INTO Products (name, category, type, printer) VALUES (?, ?, ?, ?)", (name, category, "SIZE", self.combobox_printer.get()))
             self.rootaddproductsize.destroy()
         self.desconnectproduct()
         self.reloadproductssize()
@@ -807,7 +809,7 @@ class application():
         category = self.combobox_categoryname.get()
         price = self.entry_price.get()
         self.connectproduct()
-        self.productcursor.execute("INSERT INTO Products (name, type, category, price, printer) VALUES (?, ?, ?, ?, ?)", (name, "NORMAL", category, price, self.entryprinter.get()))
+        self.productcursor.execute("INSERT INTO Products (name, type, category, price, printer) VALUES (?, ?, ?, ?, ?)", (name, "NORMAL", category, price, self.combobox_printer.get()))
         self.desconnectproduct()
         self.rootnewproduct.destroy()
         self.reloadproductsnormal()
@@ -2144,7 +2146,7 @@ class application():
             self.connectprinter()
             temp = self.printercursor.execute("SELECT * FROM Printers")
             for k, i in enumerate(temp):
-                self.printers.append([ctk.CTkLabel(self.frameprinters, bg_color=self.colors[4], width=300, height=50, text=i[0], ), ctk.CTkLabel(self.frameprinters, bg_color=self.colors[4], width=200, height=50, text=i[1], ), ctk.CTkButton(self.frameprinters, fg_color=self.colors[4], hover=False, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(45, 45)), command=lambda x=i[0], y=i[1]: delete(x,y), text="")])
+                self.printers.append([ctk.CTkLabel(self.frameprinters, bg_color=self.colors[4], width=300, height=50, text=i[0], ), ctk.CTkLabel(self.frameprinters, bg_color=self.colors[4], width=200, height=50, text=i[1], ), ctk.CTkButton(self.frameprinters, fg_color=self.colors[4], hover=False, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(45, 45)), command=lambda x=i[0], y=i[1]: delete(x,y), text="", width=100, height=50)])
 
                 n = k+2
                 self.printers[k][0].grid(row=n, column=1, padx=1, pady=1)
@@ -2157,6 +2159,7 @@ class application():
             self.printercursor.execute("DELETE FROM Printers WHERE name = ? AND ip = ?",(name, ip))
             self.desconnectprinter()
             reload()
+            aprinter.reloadprinters()
         def add():
             if self.nameprinter.get() != "" and self.ipprinter.get() != "":
                 self.connectprinter()
@@ -2171,7 +2174,7 @@ class application():
                 self.nameprinter.delete(0, ctk.END)
                 self.ipprinter.delete(0, ctk.END)
                 reload()
-
+            aprinter.reloadprinters()
         self.deletewindow()
 
         self.currentwindow = "PRINTERS"
@@ -2688,28 +2691,25 @@ class printer():
     def desconnectcommands(self):
         self.commands.commit()
         self.commands.close()
-    def reloadprinters(self):
-        pass
     def processprinter(self):
         while True:
             self.connect()
             temp = self.cursor.execute('SELECT * FROM ProductPrint')
             listen = []
             for i in temp:
-                if self.paused:
-                    self.desconnect()
-                    self.close()
                 #product, prynter, tipe, command, waiter, date, qtd = i
                 if listen == []:
                     listen.append(i)
                 else:
                     if listen[0][4] == i[4] and listen[0][1] == i[1] and listen[0][3] == i[3]:
                         listen.append(i)
-            #self.printers[listen[0][1]]
             if listen != []:
-                prynter = Network(listen[1])
+                temp = self.cursor.execute("SELECT ip FROM Printers WHERE name = ?", (listen[0][1], ))
+                for i in temp:
+                    prynter = i[0]
+                prynter = Network(prynter)
                 prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
-                prynter.textln(listen[0][1])
+                prynter.textln(listen[0][1].replace("ã", "a").replace("Ã", "A"))
                 prynter.ln()
                 prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
                 prynter.textln(listen[0][5].replace("-", "/"))
@@ -2722,23 +2722,40 @@ class printer():
                 temp = self.commandscursor.execute("SELECT nameclient FROM CommandsActive WHERE number = ?", (listen[0][3], ))
                 for i in temp:
                     if i[0] != "":
-                        #prynter.ln
-                        #for j in i[0]:
-                         #   if j == "ã"
-
-                          #  elif == ""
-                                #prynter.text(j)
-                        prynter.textln(i[0])
+                        print(i[0])
+                        prynter.textln(i[0].replace("ã", "a").replace("Ã", "A"))
                 self.desconnectcommands()
                 prynter.textln(f"Atendente: {listen[0][4]}")
                 prynter.set(bold=True)
                 for i in listen:
                     prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
-                    prynter.textln(f"{i[6]} {i[0]}")
+                    prynter.textln(f"{i[6]} {i[0]}".replace("ã", "a").replace("Ã", "A"))
                 prynter.cut()
                 for i in listen:
                     self.cursor.execute("DELETE FROM ProductPrint WHERE product = ? AND printer = ? AND type = ? AND command = ? AND waiter = ? AND date = ? AND qtd = ?", (i[0], i[1], i[2], i[3], i[4], i[5], i[6]))
                 prynter.close()
+            
+            temp = ""
+            temp = self.cursor.execute("SELECT * FROM ClosedPrinter")
+            if temp != "":            
+                self.connectconfig()
+                config = self.configcursor.execute("SELECT cnpj, housename, adress, fone")
+            
+                for i in config:
+                    cnpj, housename, adress, fone, prynter = i
+                prynter = self.cursor.execute("SELECT ip FROM Printers WHERE name = ?", (prynter, ))
+                for i in prynter:
+                    ip = i[0]
+                listen = []
+                for i in temp:
+                    listen.append(i)
+                for i in listen:
+                    date, client, command, time, total, = i
+                    prynter = Network(ip)
+
+                    prynter.close()
+                self.desconnectconfig()
+            
             self.desconnect()
 if __name__ ==  "__main__":
     aserver = server()
