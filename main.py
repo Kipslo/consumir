@@ -2788,7 +2788,16 @@ class printer():
                     prynter.close()
                 self.desconnectconfig()
             for i in tmp:
+                products = []
+                temp = self.cursor.execute("SELECT * FROM ProductsClosed WHERE id = ?", (i[0], ))
+                for i in temp:
+                    products.append(i)
                 
+                #print products
+                for i in products:
+                    pass
+
+
             self.desconnect()
 if __name__ ==  "__main__":
     aserver = server()
