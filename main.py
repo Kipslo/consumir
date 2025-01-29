@@ -408,16 +408,16 @@ class application():
     def configwindow(self):
         def save():
             self.connectconfig()
-            self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ?, cnpj = ?, housename = ?, adress = ?, fone = ? WHERE cod = 1""", (self.stylevar.get(), self.limitcommands.get(), self.entry_cnpj.get(), self.entry_namehome.get(), self.entry_adress.get(), self.entry_fone.get()))
+            self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ?, cnpj = ?, housename = ?, adress = ?, fone = ?, printer = ? WHERE cod = 1""", (self.stylevar.get(), self.limitcommands.get(), self.entry_cnpj.get(), self.entry_namehome.get(), self.entry_adress.get(), self.entry_fone.get(), self.printerclosedvar.get()))
             self.desconnectconfig()
         self.deletewindow()
         self.currentwindow = "CONFIG"
 
         self.connectconfig()
-        temp = self.configcursor.execute("SELECT stylemode, maxcommands, cnpj, housename, adress, fone FROM Config WHERE cod = '1'")
+        temp = self.configcursor.execute("SELECT stylemode, maxcommands, cnpj, housename, adress, fone, printer FROM Config WHERE cod = '1'")
 
         for i in temp:
-            style, maxcommands, cnpj, housename, adress, fone = i
+            style, maxcommands, cnpj, housename, adress, fone, prynter = i
         self.desconnectconfig()
 
         self.frame_config = ctk.CTkScrollableFrame(self.root)
@@ -440,7 +440,7 @@ class application():
         self.lb_namehome = ctk.CTkLabel(self.frame_config, text="Nome do estabelecimento", bg_color=self.colors[4], width=200, height=40)
         self.lb_namehome.grid(row=3, column=1, padx=1, pady=1)
 
-        self.entry_namehome = ctk.CTkEntry(self.frame_config, placeholder_text="NOME DO ESTABELECIMENTO", width=200, height=40)
+        self.entry_namehome = ctk.CTkEntry(self.frame_config, width=200, height=40)
         self.entry_namehome.grid(row=3, column=2, padx=1, pady=1)
         self.entry_namehome.insert(0, housename)
 
@@ -463,7 +463,22 @@ class application():
 
         self.entry_fone = ctk.CTkEntry(self.frame_config, width=200, height=40)
         self.entry_fone.grid(row=6, column=2, padx=1, pady=1)
+
         self.entry_fone.insert(0, fone)
+
+        self.lb_printerclosed = ctk.CTkLabel(self.frame_config, text="Impressão padrão:", bg_color=self.colors[4], width=200, height=40)
+        self.lb_printerclosed.grid(row=7, column=1, padx=1, pady=1)
+
+        printers = []
+        self.connectprinter()
+        temp = self.printercursor.execute("SELECT name FROM Printers")
+        for i in temp:
+            printers.append(i[0])
+        self.desconnectprinter()
+
+        self.printerclosedvar = ctk.StringVar(value=prynter)
+        self.printerclosed = ctk.CTkComboBox(self.frame_config, width=200, height=40, values=printers, variable=self.printerclosedvar)
+        self.printerclosed.grid(row=7, column=2, padx=1, pady=1)
 
         self.button_saveconfig = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="SALVAR", command=save)
         self.button_saveconfig.place(relx=0.8, rely=0.145, relwidth=0.1, relheight=0.05)
@@ -2331,7 +2346,8 @@ class application():
                                   cnpj VARCHAR(20),
                                   housename VARCHAR(30),
                                   adress VARCHAR(30),
-                                  fone VARCHAR(10)
+                                  fone VARCHAR(10),
+                                  printer VARCHAR(30)
                                   )""")
         self.desconnectconfig()
         self.connectconts()
@@ -2486,6 +2502,20 @@ class application():
                                    date VARCHAR(20),
                                    qtd INTEGER(3)
                                    )""")
+        self.printercursor.execute("""CREATE TABLE IF NOT EXISTS ClosedPrinter(
+                                    id INTEGER PRIMARY KEY,
+                                    command INTEGER(4),
+                                    date VARCHAR(20)
+                                    
+        
+        )""")
+        self.printercursor.execute("""CREATE TABLE IF NOT EXISTS ProductsClosed(
+                                    id INTEGER(10),
+                                    command VARCHAR(4),
+                                    product VARCHAR(500),
+                                    type VARCHAR(10),
+                                    qtd INTEGER(3)
+                                    )""")
         self.printercursor.execute("""CREATE TABLE IF NOT EXISTS Printers(
                                    name VARCHAR(30),
                                    ip VARCHAR(19)
@@ -2735,11 +2765,13 @@ class printer():
                     self.cursor.execute("DELETE FROM ProductPrint WHERE product = ? AND printer = ? AND type = ? AND command = ? AND waiter = ? AND date = ? AND qtd = ?", (i[0], i[1], i[2], i[3], i[4], i[5], i[6]))
                 prynter.close()
             
-            temp = ""
+            tmp = []
             temp = self.cursor.execute("SELECT * FROM ClosedPrinter")
-            if temp != "":            
+            for i in temp:
+                tmp.append(i)
+            if tmp != []:            
                 self.connectconfig()
-                config = self.configcursor.execute("SELECT cnpj, housename, adress, fone")
+                config = self.configcursor.execute("SELECT cnpj, housename, adress, fone, prynter FROM Config WHERE cod = 1")
             
                 for i in config:
                     cnpj, housename, adress, fone, prynter = i
@@ -2755,7 +2787,8 @@ class printer():
 
                     prynter.close()
                 self.desconnectconfig()
-            
+            for i in tmp:
+                
             self.desconnect()
 if __name__ ==  "__main__":
     aserver = server()
