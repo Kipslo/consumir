@@ -1053,6 +1053,7 @@ class application():
                 for i in printertemp:
                     idcom = i[0]
                 for i in products:
+                    print(i)
                     self.printercursor.execute("INSERT INTO ProductsClosed (id, product, type, qtd, unitprice) VALUES (?, ?, ?, ?, ?)", (idcom, i[8], i[9], i[7], i[6]))
                     self.historycursor.execute("INSERT INTO Products (commandid, name, type, releasedate, releasehour, waiter, price, unitprice, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (cod, i[8], i[9], i[2], i[3], i[4], i[5], i[6], i[7]))
                 self.printercursor.execute("UPDATE ClosedPrinter SET permission = ? WHERE command = ? AND date = ?", ("True", commandactive[0], date))
@@ -2796,6 +2797,7 @@ class printer():
                 productstemp = []
                 temp = self.cursor.execute("SELECT * FROM ProductsClosed WHERE id = ?", (i[0], ))
                 for i in temp:
+                    print(i)
                     productstemp.append(i)
                 prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
                 prynter.textln(housename.replace("ã", "a").replace("Ã", "A"))
@@ -2813,25 +2815,35 @@ class printer():
                 print(len("PRODUTOS (V.Unit): TOTAL"))
                 products = {}
                 for i in productstemp:
+                    print(i)
                     try:
-                        products[i[1]] = products[i[1]] + i[3]
+                        products[i[1]][3] = products[i[1]][3] + i[3]
                     except:
-                        products[i[1]] = i[3]
+                        products[i[1]] = i
                 print(products)
                 for i in products:
                     text = f"{products[i]} ({i})"
                     num = len(text)
                     times = num/24
+                    print(times)
                     if num%24 != 0:
                         times += 1
                     a = 0
-                    price = 
+                    price = products[i][4].replace(".", ",")
+                    if not "," in price:
+                        price = price + ",00"
+                    elif ",00" in price:
+                        pass
+                    elif ",0" in price:
+                        price = price + "0"
+                    while len(price) < 7:
+                        price = " " + price
                     while a < times:
                         prynter.set(font="b", custom_size=True, width=2, height=2)
                         if a == 0:
-                            prynter.textln(f"{text[0:24]} {}")
+                            prynter.textln(f"{text[0:24]} {price}")
                         else:
-                            prynter.textln()
+                            prynter.textln(f"{text[a*24:(a+1)*24]}")
                         a = a + 1
                 prynter.cut()
                 break
