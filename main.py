@@ -1047,8 +1047,16 @@ class application():
                     cod = i[0]
                 for i in payments:
                     self.historycursor.execute("INSERT INTO Payments (commandid, type, quantity) VALUES (?, ?, ?)", (cod, i[2], i[3]))
+                self.connectprinter()
+                self.printercursor.execute("INSERT INTO ClosedPrinter (command, date, permission, client) VALUES (?, ?, ?, ?)", (commandactive[0], date, "False", commandactive[3]))
+                printertemp = self.printercursor.execute("SELECT id FROM ClosedPrinter WHERE command = ? AND date = ?", (commandactive[0], date))
+                for i in printertemp:
+                    idcom = i[0]
                 for i in products:
+                    self.printercursor.execute("INSERT INTO ProductsClosed (id, product, type, qtd, unitprice) VALUES (?, ?, ?, ?, ?)", (idcom, i[8], i[9], i[7], i[6]))
                     self.historycursor.execute("INSERT INTO Products (commandid, name, type, releasedate, releasehour, waiter, price, unitprice, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (cod, i[8], i[9], i[2], i[3], i[4], i[5], i[6], i[7]))
+                self.printercursor.execute("UPDATE ClosedPrinter SET permission = ? WHERE command = ? AND date = ?", ("True", commandactive[0], date))
+                self.desconnectprinter()
                 self.commandscursor.execute("DELETE FROM CommandsActive WHERE number = ?", (commandactive[0], ))
                 for i in products:
                     self.commandscursor.execute("DELETE FROM Consumption WHERE cod = ?", (i[0], ))
@@ -1129,7 +1137,7 @@ class application():
             self.payment = ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=100, height=50, text="QUANTIDADE")
             self.payment.grid(row=1, column=2, padx=1, pady=1)
 
-            self.deletepay = ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=50, height=50)
+            self.deletepay = ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=50, height=50, text="Deletar")
             self.deletepay.grid(row=1, column=3, padx=1, pady=1)
 
             self.framepay = ctk.CTkFrame(self.rootpay)
@@ -2505,16 +2513,16 @@ class application():
         self.printercursor.execute("""CREATE TABLE IF NOT EXISTS ClosedPrinter(
                                     id INTEGER PRIMARY KEY,
                                     command INTEGER(4),
-                                    date VARCHAR(20)
-                                    
-        
+                                    date VARCHAR(20),
+                                    permission VARCHAR(5),
+                                    client VARCHAR(30)
         )""")
         self.printercursor.execute("""CREATE TABLE IF NOT EXISTS ProductsClosed(
                                     id INTEGER(10),
-                                    command VARCHAR(4),
                                     product VARCHAR(500),
                                     type VARCHAR(10),
-                                    qtd INTEGER(3)
+                                    qtd INTEGER(3), 
+                                    unitprice VARCHAR(8)
                                     )""")
         self.printercursor.execute("""CREATE TABLE IF NOT EXISTS Printers(
                                    name VARCHAR(30),
@@ -2769,9 +2777,10 @@ class printer():
             temp = self.cursor.execute("SELECT * FROM ClosedPrinter")
             for i in temp:
                 tmp.append(i)
-            if tmp != []:            
+            if tmp != [] and tmp[0][3] == "True":  
+                id, command, date, permission, client = tmp[0]          
                 self.connectconfig()
-                config = self.configcursor.execute("SELECT cnpj, housename, adress, fone, prynter FROM Config WHERE cod = 1")
+                config = self.configcursor.execute("SELECT cnpj, housename, adress, fone, printer FROM Config WHERE cod = 1")
             
                 for i in config:
                     cnpj, housename, adress, fone, prynter = i
@@ -2781,22 +2790,54 @@ class printer():
                 listen = []
                 for i in temp:
                     listen.append(i)
-                for i in listen:
-                    date, client, command, time, total, = i
-                    prynter = Network(ip)
-
-                    prynter.close()
+                prynter = Network(ip)
+                    
                 self.desconnectconfig()
-            for i in tmp:
-                products = []
+                productstemp = []
                 temp = self.cursor.execute("SELECT * FROM ProductsClosed WHERE id = ?", (i[0], ))
                 for i in temp:
-                    products.append(i)
-                
-                #print products
+                    productstemp.append(i)
+                prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
+                prynter.textln(housename.replace("ã", "a").replace("Ã", "A"))
+                prynter.set(bold=False, align='center', width=2, height=2, custom_size=True)
+                prynter.textln(adress.replace("ã", "a").replace("Ã", "A"))
+                prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
+                prynter.textln("CNPJ: " + str(cnpj))
+                if client != "":
+                    prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
+                    prynter.textln("Cliente: " + client.replace("ã", "a").replace("Ã", "A"))
+                prynter.set(bold=False, align='center', width=2, height=2, custom_size=True)
+                prynter.textln("COMANDA: " + str(command))
+                prynter.set(bold=False, align='center', width=2, height=2, custom_size=True)
+                prynter.textln("PRODUTOS (V.Unit): TOTAL")
+                print(len("PRODUTOS (V.Unit): TOTAL"))
+                products = {}
+                for i in productstemp:
+                    try:
+                        products[i[1]] = products[i[1]] + i[3]
+                    except:
+                        products[i[1]] = i[3]
+                print(products)
                 for i in products:
-                    pass
-
+                    text = f"{products[i]} ({i})"
+                    num = len(text)
+                    times = num/24
+                    if num%24 != 0:
+                        times += 1
+                    a = 0
+                    price = 
+                    while a < times:
+                        prynter.set(font="b", custom_size=True, width=2, height=2)
+                        if a == 0:
+                            prynter.textln(f"{text[0:24]} {}")
+                        else:
+                            prynter.textln()
+                        a = a + 1
+                prynter.cut()
+                break
+                #print products
+                
+                prynter.close()
 
             self.desconnect()
 if __name__ ==  "__main__":
