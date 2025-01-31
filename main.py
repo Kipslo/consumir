@@ -2821,6 +2821,7 @@ class printer():
                     except:
                         products[i[1]] = i
                 print(products)
+                totalprice = 0.0
                 for i in products:
                     text = f"{products[i]} ({i})"
                     num = len(text)
@@ -2830,6 +2831,7 @@ class printer():
                         times += 1
                     a = 0
                     price = products[i][4].replace(".", ",")
+                    totalprice = totalprice + float(price)
                     if not "," in price:
                         price = price + ",00"
                     elif ",00" in price:
@@ -2846,10 +2848,10 @@ class printer():
                             prynter.textln(f"{text[a*24:(a+1)*24]}")
                         a = a + 1
                 prynter.cut()
-                break
                 #print products
                 
                 prynter.close()
+                break
 
             self.desconnect()
 if __name__ ==  "__main__":
