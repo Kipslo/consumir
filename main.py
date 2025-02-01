@@ -2800,12 +2800,11 @@ class printer():
                     productstemp.append(i)
                 prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
                 prynter.textln(housename.replace("ã", "a").replace("Ã", "A"))
-                prynter.set(bold=False, align='center', width=2, height=2, custom_size=True)
-                prynter.textln(adress.replace("ã", "a").replace("Ã", "A"))
-                prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
+                if adress != "":
+                    prynter.textln(adress.replace("ã", "a").replace("Ã", "A"))
+                prynter.set(align="left")
                 prynter.textln("CNPJ: " + str(cnpj))
                 if client != "":
-                    prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
                     prynter.textln("Cliente: " + client.replace("ã", "a").replace("Ã", "A"))
                 prynter.set(bold=False, align='center', width=2, height=2, custom_size=True)
                 prynter.textln("COMANDA: " + str(command))
@@ -2860,11 +2859,14 @@ class printer():
                     totalpay = totalpay + "0"
                 qtdword = len("Total:" + totalpay)
                 prynter.textln("Total:" + " " * (31 - qtdword) + totalpay)
+                if fone != "":
+                    prynter.ln()
+                    prynter.textln(f"TELEFONE: {fone}")
                 prynter.cut()
-                #print products
                 
                 prynter.close()
-                break
+                self.cursor.execute("DELETE FROM ClosedPrinter WHERE id = ?", (tmp[0][0], ))
+                self.cursor.execute("DELETE FROM ProductsClosed WHERE id = ?", (tmp[0][0], ))
 
             self.desconnect()
 if __name__ ==  "__main__":
