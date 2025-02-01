@@ -1048,15 +1048,15 @@ class application():
                 for i in payments:
                     self.historycursor.execute("INSERT INTO Payments (commandid, type, quantity) VALUES (?, ?, ?)", (cod, i[2], i[3]))
                 self.connectprinter()
-                self.printercursor.execute("INSERT INTO ClosedPrinter (command, date, permission, client) VALUES (?, ?, ?, ?)", (commandactive[0], date, "False", commandactive[3]))
-                printertemp = self.printercursor.execute("SELECT id FROM ClosedPrinter WHERE command = ? AND date = ?", (commandactive[0], date))
+                self.printercursor.execute("INSERT INTO ClosedPrinter (command, date, permission, client) VALUES (?, ?, ?, ?)", (commandactive[0], commandactive[1] + " " + commandactive[2], "False", commandactive[3]))
+                printertemp = self.printercursor.execute("SELECT id FROM ClosedPrinter WHERE command = ? AND date = ?", (commandactive[0], commandactive[1] + " " + commandactive[2]))
                 for i in printertemp:
                     idcom = i[0]
                 for i in products:
                     print(i)
                     self.printercursor.execute("INSERT INTO ProductsClosed (id, product, type, qtd, unitprice) VALUES (?, ?, ?, ?, ?)", (idcom, i[8], i[9], i[7], i[6]))
                     self.historycursor.execute("INSERT INTO Products (commandid, name, type, releasedate, releasehour, waiter, price, unitprice, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (cod, i[8], i[9], i[2], i[3], i[4], i[5], i[6], i[7]))
-                self.printercursor.execute("UPDATE ClosedPrinter SET permission = ? WHERE command = ? AND date = ?", ("True", commandactive[0], date))
+                self.printercursor.execute("UPDATE ClosedPrinter SET permission = ? WHERE command = ? AND date = ?", ("True", commandactive[0], commandactive[1] + " " + commandactive[2]))
                 self.desconnectprinter()
                 self.commandscursor.execute("DELETE FROM CommandsActive WHERE number = ?", (commandactive[0], ))
                 for i in products:
@@ -2778,8 +2778,9 @@ class printer():
             temp = self.cursor.execute("SELECT * FROM ClosedPrinter")
             for i in temp:
                 tmp.append(i)
-            if tmp != [] and tmp[0][3] == "True":  
-                id, command, date, permission, client = tmp[0]          
+            if tmp != [] and tmp[0][3] == "True": 
+                id, command, date, permission, client = tmp[0]
+                print(date)
                 self.connectconfig()
                 config = self.configcursor.execute("SELECT cnpj, housename, adress, fone, printer FROM Config WHERE cod = 1")
             
@@ -2800,17 +2801,34 @@ class printer():
                     productstemp.append(i)
                 prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
                 prynter.textln(housename.replace("ã", "a").replace("Ã", "A"))
+                prynter.set(font="b", custom_size=True, width=1, height=1)
+                prynter.ln()
                 if adress != "":
+                    prynter.set(bold=True, font='b', align='center', width=2, height=2, custom_size=True)
                     prynter.textln(adress.replace("ã", "a").replace("Ã", "A"))
-                prynter.set(align="left")
+                    prynter.set(font="b", custom_size=True, width=1, height=1)
+                    prynter.ln()
+                prynter.set(font="b", custom_size=True, width=2, height=2, align="left")
                 prynter.textln("CNPJ: " + str(cnpj))
+                prynter.set(font="b", custom_size=True, width=1, height=1)
+                prynter.ln()
+                prynter.set(font="b", custom_size=True, width=2, height=2)
+                prynter.textln("IMPRESSO EM: " + str(datetime.datetime.now())[0:19].replace("-", "/"))
                 if client != "":
+                    prynter.set(font="b", custom_size=True, width=1, height=1)
+                    prynter.ln()
                     prynter.textln("Cliente: " + client.replace("ã", "a").replace("Ã", "A"))
+                prynter.set(font="b", custom_size=True, width=1, height=1)
+                prynter.ln()
                 prynter.set(bold=False, align='center', width=2, height=2, custom_size=True)
                 prynter.textln("COMANDA: " + str(command))
+                prynter.set(font="b", custom_size=True, width=1, height=1)
+                prynter.ln()
                 prynter.set(bold=False, align='center', width=2, height=2, custom_size=True)
                 prynter.textln("PRODUTOS (V.Unit): TOTAL")
                 products = {}
+                prynter.set(font="b", custom_size=True, width=1, height=1)
+                prynter.ln()
                 for i in productstemp:
                     try:
                         product = products[i[1]]
@@ -2859,6 +2877,23 @@ class printer():
                     totalpay = totalpay + "0"
                 qtdword = len("Total:" + totalpay)
                 prynter.textln("Total:" + " " * (31 - qtdword) + totalpay)
+                prynter.set(font="b", custom_size=True, width=2, height=2)
+                prynter.ln()
+                now = datetime.datetime.now()
+                date = datetime.datetime(int(date[0:4]), int(date[5:7]), int(date[8:10]), int(date[11:13]), int(date[14:16]), int(date[17:19]))
+                delta = now - date
+                total_sec = delta.total_seconds()
+                total_min, sec = divmod(int(total_sec), 60)
+                total_hour, minute = divmod(total_min, 60)
+                total_days, hour = divmod(total_hour, 24)
+                text = ""
+                if total_days != 0:
+                    text = text + str(total_days) + "D " + str(hour) + "H "
+                elif total_hour != 0:
+                    text = text + str(hour) + "H "
+            
+                text = text + str(minute) + "M " + str(sec) + "S"
+                prynter.textln("TEMPO: " + text)
                 if fone != "":
                     prynter.ln()
                     prynter.textln(f"TELEFONE: {fone}")
