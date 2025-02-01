@@ -2795,9 +2795,8 @@ class printer():
                     
                 self.desconnectconfig()
                 productstemp = []
-                temp = self.cursor.execute("SELECT * FROM ProductsClosed WHERE id = ?", (i[0], ))
+                temp = self.cursor.execute("SELECT * FROM ProductsClosed WHERE id = ?", (tmp[0][0], ))
                 for i in temp:
-                    print(i)
                     productstemp.append(i)
                 prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
                 prynter.textln(housename.replace("ã", "a").replace("Ã", "A"))
@@ -2812,41 +2811,55 @@ class printer():
                 prynter.textln("COMANDA: " + str(command))
                 prynter.set(bold=False, align='center', width=2, height=2, custom_size=True)
                 prynter.textln("PRODUTOS (V.Unit): TOTAL")
-                print(len("PRODUTOS (V.Unit): TOTAL"))
                 products = {}
                 for i in productstemp:
-                    print(i)
                     try:
-                        products[i[1]][3] = products[i[1]][3] + i[3]
+                        product = products[i[1]]
+                        product[3] = product[3] + i[3]
+                        products[i[1]] = product
                     except:
-                        products[i[1]] = i
-                print(products)
-                totalprice = 0.0
+                        products[i[1]] = [i[0], i[1], i[2], i[3], i[4]]
+                totalpay = 0.0
                 for i in products:
-                    text = f"{products[i]} ({i})"
+                    text = f"{products[i][3]} {products[i][1].replace("ã", "a").replace("Ã", "A")} ({products[i][4]})"
                     num = len(text)
-                    times = num/24
-                    print(times)
+                    times = num//24
                     if num%24 != 0:
                         times += 1
                     a = 0
-                    price = products[i][4].replace(".", ",")
-                    totalprice = totalprice + float(price)
-                    if not "," in price:
-                        price = price + ",00"
-                    elif ",00" in price:
+                    totalprice = str(float(products[i][3]) * float(products[i][4])).replace(".", ",")
+                    if not "," in totalprice:
+                        totalprice = totalprice + ",00"
+                    elif ",00" in totalprice:
                         pass
-                    elif ",0" in price:
-                        price = price + "0"
-                    while len(price) < 7:
-                        price = " " + price
+                    elif ",0" in totalprice:
+                        totalprice = totalprice + "0"
+                    while len(totalprice) < 7:
+                        totalprice = " " + totalprice
+                    totalpay = totalpay + float(totalprice.replace(",", "."))
                     while a < times:
                         prynter.set(font="b", custom_size=True, width=2, height=2)
                         if a == 0:
-                            prynter.textln(f"{text[0:24]} {price}")
+                            print(times)
+                            if times == 1:
+                                qtdword = len(text + " " + str(totalprice))
+                                textprice = text + " " * (32 - qtdword) + totalprice
+                                prynter.textln(f"{textprice}")
+                            else:    
+                                prynter.textln(f"{text[0:24]} {totalprice}")
                         else:
                             prynter.textln(f"{text[a*24:(a+1)*24]}")
                         a = a + 1
+                prynter.textln("-" * 32)
+                totalpay = str(totalpay).replace(".", ",")
+                if not "," in totalpay:
+                    totalpay = totalpay + ",00"
+                elif ",00" in totalpay:
+                    pass
+                elif ",0" in totalpay:
+                    totalpay = totalpay + "0"
+                qtdword = len("Total:" + totalpay)
+                prynter.textln("Total:" + " " * (31 - qtdword) + totalpay)
                 prynter.cut()
                 #print products
                 
