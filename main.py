@@ -60,6 +60,10 @@ class application():
     def loginwindow(self):
         self.currentwindow = "LOGIN"
         self.root.attributes("-fullscreen", True)
+        self.root.update()
+        self.width = self.root.winfo_width()
+        self.height = self.root.winfo_height()
+
         self.entry_name = ctk.CTkEntry(self.root, bg_color=self.colors[9], placeholder_text="NOME", font=("Arial", 20))
         self.entry_name.place(relx=0.4, rely=0.45, relwidth=0.2, relheight=0.05)
 
@@ -70,7 +74,7 @@ class application():
         self.button_login.place(relx=0.4, rely=0.65, relwidth=0.2, relheight=0.05)
         
 
-        self.personimg = ctk.CTkImage(Image.open("./imgs/person.png"), size=(300,300))
+        self.personimg = ctk.CTkImage(Image.open("./imgs/person.png"), size=(self.height//3.6,self.height//3.6))
         self.label_person = ctk.CTkLabel(self.root, image = self.personimg, bg_color="#242424", text="")
         self.label_person.place(relx=0.423, rely=0.15)
         temp = ""
@@ -1705,6 +1709,8 @@ class application():
         self.connectcommands()
         currentcommands = self.commandscursor.execute("""SELECT number, initdate, hour, nameclient FROM CommandsActive""")
         self.currentcommands = []
+        framewidth = self.width - self.width * 0.02
+        qtdrow = int(framewidth//280)
         for i, command in enumerate(currentcommands):
             number, initdate, inithour, nameclient  = command
             now = datetime.datetime.now()
@@ -1725,7 +1731,7 @@ class application():
                 nameclient = nameclient[0:15]
             self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color=self.colors[3], command=lambda m = i:self.windowcommand(self.currentcommands[m]), hover=False, width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + text, font=("Arial", 20)))
             
-            self.currentcommands[i].grid(row=int(i/6), column=i%6, padx=10, pady=5)
+            self.currentcommands[i].grid(row=i//qtdrow, column=i%qtdrow, padx=10, pady=5)
             self.number.append(number)
         
         self.desconnectcommands()
@@ -2838,7 +2844,7 @@ class printer():
                         products[i[1]] = [i[0], i[1], i[2], i[3], i[4]]
                 totalpay = 0.0
                 for i in products:
-                    text = f"{products[i][3]} {products[i][1].replace("ã", "a").replace("Ã", "A")} ({products[i][4]})"
+                    text = f"{products[i][3]} {products[i][1].replace('ã', 'a').replace('Ã', 'A')} ({products[i][4]})"
                     num = len(text)
                     times = num//24
                     if num%24 != 0:
