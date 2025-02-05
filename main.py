@@ -1424,7 +1424,7 @@ class application():
                 self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, "", ""))           
             self.desconnectcommands()
             self.connectprinter()
-            self.printercursor.execute("INSERT INTO ProductPrint (product, printer, type, command, waiter, date, qtd) VALUES (?, ?, 'product', ?, ?, ?, ?)", (product, prynter, command, waiter, str(datetime.datetime.now())[0:19], qtd))
+            self.printercursor.execute("INSERT INTO ProductPrint (product, printer, type, command, waiter, date, qtd, text) VALUES (?, ?, 'product', ?, ?, ?, ?, ?)", (product, prynter, command, waiter, str(datetime.datetime.now())[0:19], qtd, text))
             self.desconnectprinter()
             
         self.root.after(3000, self.insertcurrentproduct)
@@ -1729,9 +1729,9 @@ class application():
             text = text + str(minute) + "M " + str(sec) + "S"
             if len(nameclient) >= 16:
                 nameclient = nameclient[0:15]
-            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color=self.colors[3], command=lambda m = i:self.windowcommand(self.currentcommands[m]), hover=False, width=250, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + text, font=("Arial", 20)))
+            self.currentcommands.append(ctk.CTkButton(self.frame_commands,fg_color=self.colors[3], command=lambda m = i:self.windowcommand(self.currentcommands[m]), hover=False, width=260, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + text, font=("Arial", 20)))
             
-            self.currentcommands[i].grid(row=i//qtdrow, column=i%qtdrow, padx=10, pady=5)
+            self.currentcommands[i].grid(row=i//qtdrow, column=i%qtdrow, padx=5, pady=5)
             self.number.append(number)
         
         self.desconnectcommands()
@@ -2515,7 +2515,8 @@ class application():
                                    command INTEGER(4),
                                    waiter VARCHAR(30),
                                    date VARCHAR(20),
-                                   qtd INTEGER(3)
+                                   qtd INTEGER(3), 
+                                   text VARCHAR(100)
                                    )""")
         self.printercursor.execute("""CREATE TABLE IF NOT EXISTS ClosedPrinter(
                                     id INTEGER PRIMARY KEY,
@@ -2742,7 +2743,7 @@ class printer():
             temp = self.cursor.execute('SELECT * FROM ProductPrint')
             listen = []
             for i in temp:
-                #product, prynter, tipe, command, waiter, date, qtd = i
+                #product, prynter, tipe, command, waiter, date, qtd, text = i
                 if listen == []:
                     listen.append(i)
                 else:
@@ -2773,8 +2774,11 @@ class printer():
                 prynter.textln(f"Atendente: {listen[0][4]}")
                 prynter.set(bold=True)
                 for i in listen:
-                    prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
+                    prynter.set(smooth=False, bold=False, align='left', width=2, height=2, custom_size=True)
                     prynter.textln(f"{i[6]} {i[0]}".replace("ã", "a").replace("Ã", "A"))
+                    if i[7] != "":
+                        prynter.set(smooth=True, align='left', width=2, height=2, custom_size=True, font='b')
+                        prynter.textln(f"*{i[7]}")
                 prynter.cut()
                 for i in listen:
                     self.cursor.execute("DELETE FROM ProductPrint WHERE product = ? AND printer = ? AND type = ? AND command = ? AND waiter = ? AND date = ? AND qtd = ?", (i[0], i[1], i[2], i[3], i[4], i[5], i[6]))
@@ -2910,6 +2914,7 @@ class printer():
                 self.cursor.execute("DELETE FROM ProductsClosed WHERE id = ?", (tmp[0][0], ))
 
             self.desconnect()
+            sleep(3)
 if __name__ ==  "__main__":
     aserver = server()
     aprinter = printer()
