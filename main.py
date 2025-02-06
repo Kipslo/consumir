@@ -87,14 +87,6 @@ class application():
             self.contscursor.execute("INSERT INTO Conts (username, name, password, permissionmaster, permissionrelease, permissionentry) VALUES (?, ?, ?, ?, ?, ?)",("ADMIN", "Admin", "ADMIN", "Y", "Y", "Y"))
         self.desconnectconts()
         self.root.bind_all("<KeyPress>", self.keypresslogin)
-    def searchnameentry(self, n = True):
-        '''if self.positionp == True:
-            try:
-                pa.moveTo(0,0)
-                self.position_namecommand = pa.locateOnScreen("./imgs/buttonname.PNG", confidence=0.7)
-                self.positionp = False
-            except:
-                self.root.after(500, self.searchnameentry)'''
     def keypresslogin(self, event):
         n = event.keysym
         if n == "Return":
@@ -174,8 +166,6 @@ class application():
 
         self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color=self.colors[7], text="JUNTAR COMANDAS", hover_color=self.colors[6])
         self.button_mergecommands.place(relx=0.135, rely=0.175, relwidth=0.15, relheight=0.65)
-
-        self.root.after(500, self.searchnameentry)
 
         self.root.bind("<Button-1>", self.clickmain)
         threading.Thread(self.reloadcommands()).start()
@@ -1021,57 +1011,58 @@ class application():
                 self.desconnectcommands()
                 reloadpay()
             def confirmpay():
-                self.connectcommands()
-                self.connecthistory()
+                if self.totalprice.cget("text") >= 0:
+                    self.connectcommands()
+                    self.connecthistory()
 
-                temp = self.commandscursor.execute("SELECT * FROM CommandsActive WHERE number = ?", (self.currentcommandwindow, ))
-                for i in temp:
-                    commandactive = i
-                temp = self.commandscursor.execute("SELECT * FROM Consumption WHERE number = ?", (commandactive[0], ))
-                totalprice = 0
-                products = []
-                for i in temp:
-                    products.append(i)
-                    totalprice = totalprice + float(i[5])
-                temp = self.commandscursor.execute("SELECT * FROM Payments WHERE number = ?", (commandactive[0], ))
-                payments = []
-                pay = 0
-                for  i in temp:
-                    payments.append(i)
-                    pay = pay + float(i[3])
-                date = str(datetime.datetime.now())[0:19]
+                    temp = self.commandscursor.execute("SELECT * FROM CommandsActive WHERE number = ?", (self.currentcommandwindow, ))
+                    for i in temp:
+                        commandactive = i
+                    temp = self.commandscursor.execute("SELECT * FROM Consumption WHERE number = ?", (commandactive[0], ))
+                    totalprice = 0
+                    products = []
+                    for i in temp:
+                        products.append(i)
+                        totalprice = totalprice + float(i[5])
+                    temp = self.commandscursor.execute("SELECT * FROM Payments WHERE number = ?", (commandactive[0], ))
+                    payments = []
+                    pay = 0
+                    for  i in temp:
+                        payments.append(i)
+                        pay = pay + float(i[3])
+                    date = str(datetime.datetime.now())[0:19]
 
-                tim = self.historycursor.execute("""SELECT id FROM Cashdesk WHERE status = ?""", ("open", ))
-                for i in tim:
-                    tim = i[0]
+                    tim = self.historycursor.execute("""SELECT id FROM Cashdesk WHERE status = ?""", ("open", ))
+                    for i in tim:
+                        tim = i[0]
 
-                self.historycursor.execute("INSERT INTO ClosedCommand (number, date, hour, nameclient, idclient, totalprice, datefinish, cashier, pay, cashdesk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandactive[0], commandactive[1], commandactive[2], commandactive[3], commandactive[4], totalprice, date, self.namelogin, pay, tim))
-                temp = self.historycursor.execute("SELECT cod FROM ClosedCommand WHERE number = ? AND nameclient = ? AND idclient = ? AND totalprice = ? AND datefinish = ?", (commandactive[0], commandactive[3], commandactive[4], totalprice, date))
-                for i in temp:
-                    cod = i[0]
-                for i in payments:
-                    self.historycursor.execute("INSERT INTO Payments (commandid, type, quantity) VALUES (?, ?, ?)", (cod, i[2], i[3]))
-                self.connectprinter()
-                self.printercursor.execute("INSERT INTO ClosedPrinter (command, date, permission, client) VALUES (?, ?, ?, ?)", (commandactive[0], commandactive[1] + " " + commandactive[2], "False", commandactive[3]))
-                printertemp = self.printercursor.execute("SELECT id FROM ClosedPrinter WHERE command = ? AND date = ?", (commandactive[0], commandactive[1] + " " + commandactive[2]))
-                for i in printertemp:
-                    idcom = i[0]
-                for i in products:
-                    print(i)
-                    self.printercursor.execute("INSERT INTO ProductsClosed (id, product, type, qtd, unitprice) VALUES (?, ?, ?, ?, ?)", (idcom, i[8], i[9], i[7], i[6]))
-                    self.historycursor.execute("INSERT INTO Products (commandid, name, type, releasedate, releasehour, waiter, price, unitprice, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (cod, i[8], i[9], i[2], i[3], i[4], i[5], i[6], i[7]))
-                self.printercursor.execute("UPDATE ClosedPrinter SET permission = ? WHERE command = ? AND date = ?", ("True", commandactive[0], commandactive[1] + " " + commandactive[2]))
-                self.desconnectprinter()
-                self.commandscursor.execute("DELETE FROM CommandsActive WHERE number = ?", (commandactive[0], ))
-                for i in products:
-                    self.commandscursor.execute("DELETE FROM Consumption WHERE cod = ?", (i[0], ))
-                for i in payments:
-                    self.commandscursor.execute("DELETE FROM Payments WHERE cod = ?", (i[0], ))
-                self.desconnectcommands()
-                self.desconnecthistory()
-                closepay()
-                self.on_closingcommandwindow()
-                self.reloadcommands()
+                    self.historycursor.execute("INSERT INTO ClosedCommand (number, date, hour, nameclient, idclient, totalprice, datefinish, cashier, pay, cashdesk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandactive[0], commandactive[1], commandactive[2], commandactive[3], commandactive[4], totalprice, date, self.namelogin, pay, tim))
+                    temp = self.historycursor.execute("SELECT cod FROM ClosedCommand WHERE number = ? AND nameclient = ? AND idclient = ? AND totalprice = ? AND datefinish = ?", (commandactive[0], commandactive[3], commandactive[4], totalprice, date))
+                    for i in temp:
+                        cod = i[0]
+                    for i in payments:
+                        self.historycursor.execute("INSERT INTO Payments (commandid, type, quantity) VALUES (?, ?, ?)", (cod, i[2], i[3]))
+                    self.connectprinter()
+                    self.printercursor.execute("INSERT INTO ClosedPrinter (command, date, permission, client) VALUES (?, ?, ?, ?)", (commandactive[0], commandactive[1] + " " + commandactive[2], "False", commandactive[3]))
+                    printertemp = self.printercursor.execute("SELECT id FROM ClosedPrinter WHERE command = ? AND date = ?", (commandactive[0], commandactive[1] + " " + commandactive[2]))
+                    for i in printertemp:
+                        idcom = i[0]
+                    for i in products:
+                        print(i)
+                        self.printercursor.execute("INSERT INTO ProductsClosed (id, product, type, qtd, unitprice) VALUES (?, ?, ?, ?, ?)", (idcom, i[8], i[9], i[7], i[6]))
+                        self.historycursor.execute("INSERT INTO Products (commandid, name, type, releasedate, releasehour, waiter, price, unitprice, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (cod, i[8], i[9], i[2], i[3], i[4], i[5], i[6], i[7]))
+                    self.printercursor.execute("UPDATE ClosedPrinter SET permission = ? WHERE command = ? AND date = ?", ("True", commandactive[0], commandactive[1] + " " + commandactive[2]))
+                    self.desconnectprinter()
+                    self.commandscursor.execute("DELETE FROM CommandsActive WHERE number = ?", (commandactive[0], ))
+                    for i in products:
+                        self.commandscursor.execute("DELETE FROM Consumption WHERE cod = ?", (i[0], ))
+                    for i in payments:
+                        self.commandscursor.execute("DELETE FROM Payments WHERE cod = ?", (i[0], ))
+                    self.desconnectcommands()
+                    self.desconnecthistory()
+                    closepay()
+                    self.on_closingcommandwindow()
+                    self.reloadcommands()
             def reloadpay():
                 try:
                     for i in self.currentpayments:
@@ -1083,12 +1074,21 @@ class application():
                 self.connectcommands()
                 temp = self.commandscursor.execute("SELECT * FROM Payments WHERE number = ?", (self.currentcommandwindow, ))
                 self.currentpayments = []
+                pay = 0.0
                 for k, i in enumerate(temp):
                     self.currentpayments.append([ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=i[2], width=300, height=50), ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=i[3], width=100, height=50), ctk.CTkButton(self.scrollframepay, text="", image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(35, 35)), fg_color=self.colors[4], hover=False, command=lambda y = i[0]:delpay(y), width=50, height=50)])
                     n = k + 2
                     self.currentpayments[k][0].grid(row=n, column=1, padx=1, pady=1)
                     self.currentpayments[k][1].grid(row=n, column=2, padx=1, pady=1)
                     self.currentpayments[k][2].grid(row=n, column=3, padx=1, pady=1)
+                    pay += float(i[3])
+                temp = self.commandscursor.execute("SELECT price FROM Consumption WHERE number =?", (self.currentcommandwindow, ))
+                for i in temp:
+                    pay -= float(i[0])
+                if pay < 0:
+                    self.totalprice.configure(text=pay, text_color="#D81315")
+                else:
+                    self.totalprice.configure(text=pay, text_color="#7CCD5C")
                 self.desconnectcommands()
             def addpay():
                 def closeadd():
@@ -1780,23 +1780,18 @@ class application():
                 self.button_newcommand[i].configure(fg_color="#6f0000", hover_color="#4f0000")
             self.button_newcommand[i].grid(row=int(i/4), column=i%4, padx=10 ,pady=10)
     def clickmain(self, event):
-        '''try:
-            if not "self.rootnewcom" in globals():
-                if "self.rootnewcom" in globals() or "self.rootnewcom" in locals():
+        """
+            position = pa.position()
+            if position.x >  and position.x < self.position_namecommand[0] + self.position_namecommand[3]:
+                if position.y > self.position_namecommand[1] and position.y < self.position_namecommand[1] + position.y[3]:
                     pass
                 else:
-                    position = pa.position()
-                    if position.x > self.position_namecommand[0] and position.x < self.position_namecommand[0] + self.position_namecommand[3]:
-                        if position.y > self.position_namecommand[1] and position.y < self.position_namecommand[1] + position.y[3]:
-                            pass
-                        else:
-                            self.entry_namecommand.delete(0, "end")
-                            event.widget.focus_set()
-                    else:
-                        self.entry_namecommand.delete(0, "end")
-                        event.widget.focus_set()
-        except:
-            pass'''
+                    self.entry_namecommand.delete(0, "end")
+                    event.widget.focus_set()
+            else:
+                self.entry_namecommand.delete(0, "end")
+                event.widget.focus_set()
+    """
     def presskey(self, event):
         key = event.keysym
         n = self.entry_namecommand.get()
@@ -2824,8 +2819,15 @@ class printer():
                 prynter.ln()
                 prynter.set(font="b", custom_size=True, width=2, height=2)
                 prynter.textln("IMPRESSO EM: " + str(datetime.datetime.now())[0:19].replace("-", "/"))
+                
+                prynter.set(font="b", custom_size=True, width=1, height=1)
+                prynter.ln()
+                prynter.set(font="b", align="center", custom_size=True, width=2, height=2)
+                prynter.text('"NAO É DOCUMENTO FISCAL"')
+                prynter.set(font="b", align="left", custom_size=True, width=1, height=1)
+                prynter.ln()
                 if client != "":
-                    prynter.set(font="b", custom_size=True, width=1, height=1)
+                    prynter.set(font="b", custom_size=True, width=2, height=2)
                     prynter.ln()
                     prynter.textln("Cliente: " + client.replace("ã", "a").replace("Ã", "A"))
                 prynter.set(font="b", custom_size=True, width=1, height=1)
