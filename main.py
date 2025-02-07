@@ -2060,7 +2060,7 @@ class application():
         self.currentwindow = "RANKINGPRODUCTS"
 
         self.frameranking = ctk.CTkScrollableFrame(self.root)
-        self.frameranking.place(relx=0.17, rely=0.01, relwidth=0.82, relheight=0.98)
+        self.frameranking.place(relx=0.17, rely=0.145, relwidth=0.82, relheight=0.98)
 
         self.initlb = ctk.CTkLabel(self.root, text="Lançado dia")
         self.initlb.place(relx=0.01, rely=0.19, relwidth=0.15, relheight=0.05)
@@ -2076,6 +2076,14 @@ class application():
 
         self.confirmdate = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Procurar", command=lambda:reload(True))
         self.confirmdate.place(relx=0.01, rely=0.43, relwidth=0.15, relheight=0.05)
+
+        self.nameproduct = ctk.CTkLabel()
+
+        self.qtdproduct = ctk.CTkLabel()
+
+        self.unitpriceproduct = ctk.CTkLabel()
+
+        self.totalpriceproduct = ctk.CTkLabel()
     def cashdeskwindow(self):
         def reload(date = False):
             try:
