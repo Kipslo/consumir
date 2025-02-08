@@ -418,51 +418,57 @@ class application():
         self.frame_config = ctk.CTkScrollableFrame(self.root)
         self.frame_config.place(relx=0.01, rely=0.2, relwidth=0.98, relheight=0.79)
 
+        self.ipserver = ctk.CTkLabel(self.frame_config, width=200, height=50, text="IP DO SERVIDOR:", bg_color=self.colors[4])
+        self.ipserver.grid(row=1, column=1, padx=1, pady=1)
+
+        self.ipserverlb = ctk.CTkLabel(self.frame_config, width=200, height=50, bg_color=self.colors[4], text=socket.gethostbyname(socket.gethostname()))
+        self.ipserverlb.grid(row=1, column=2, padx=1, pady=1)
+
         self.limitcommandslb = ctk.CTkLabel(self.frame_config, text="LIMITE DE COMANDAS:", bg_color=self.colors[4], width=200, height=40)
-        self.limitcommandslb.grid(row=1, column=1, padx=1, pady=1)
+        self.limitcommandslb.grid(row=2, column=1, padx=1, pady=1)
 
         self.limitcommands = ctk.CTkEntry(self.frame_config, width=200, height=40)
-        self.limitcommands.grid(row=1, column=2, padx=1, pady=1)
+        self.limitcommands.grid(row=2, column=2, padx=1, pady=1)
         self.limitcommands.insert(0, maxcommands)
 
         self.stylelb = ctk.CTkLabel(self.frame_config, text="MODO:", bg_color=self.colors[4], width=200, height=40)
-        self.stylelb.grid(row=2, column=1, padx=1, pady=1)
+        self.stylelb.grid(row=3, column=1, padx=1, pady=1)
 
         self.stylevar = ctk.StringVar(value=style)
         self.style = ctk.CTkComboBox(self.frame_config, values=("ESCURO", "CLARO"), variable=self.stylevar, width=200, height=40)
-        self.style.grid(row=2, column=2, padx=1, pady=1)
+        self.style.grid(row=3, column=2, padx=1, pady=1)
 
         self.lb_namehome = ctk.CTkLabel(self.frame_config, text="Nome do estabelecimento", bg_color=self.colors[4], width=200, height=40)
-        self.lb_namehome.grid(row=3, column=1, padx=1, pady=1)
+        self.lb_namehome.grid(row=4, column=1, padx=1, pady=1)
 
         self.entry_namehome = ctk.CTkEntry(self.frame_config, width=200, height=40)
-        self.entry_namehome.grid(row=3, column=2, padx=1, pady=1)
+        self.entry_namehome.grid(row=4, column=2, padx=1, pady=1)
         self.entry_namehome.insert(0, housename)
 
         self.lb_cnpj = ctk.CTkLabel(self.frame_config, text="CNPJ:", bg_color=self.colors[4], width=200, height=40)
-        self.lb_cnpj.grid(row=4, column=1, padx=1, pady=1)
+        self.lb_cnpj.grid(row=5, column=1, padx=1, pady=1)
 
         self.entry_cnpj = ctk.CTkEntry(self.frame_config, width=200, height=40)
-        self.entry_cnpj.grid(row=4, column=2, padx=1, pady=1)
+        self.entry_cnpj.grid(row=5, column=2, padx=1, pady=1)
         self.entry_cnpj.insert(0, cnpj)
 
         self.lb_adress = ctk.CTkLabel(self.frame_config, text="Endereço:", bg_color=self.colors[4], width=200, height=40)
-        self.lb_adress.grid(row=5, column=1, padx=1, pady=1)
+        self.lb_adress.grid(row=6, column=1, padx=1, pady=1)
 
         self.entry_adress = ctk.CTkEntry(self.frame_config, width=200, height=40)
-        self.entry_adress.grid(row=5, column=2, padx=1, pady=1)
+        self.entry_adress.grid(row=6, column=2, padx=1, pady=1)
         self.entry_adress.insert(0, adress)
 
         self.lb_fone = ctk.CTkLabel(self.frame_config, text="Telefone:", bg_color=self.colors[4], width=200, height=40)
-        self.lb_fone.grid(row=6, column=1, padx=1, pady=1)
+        self.lb_fone.grid(row=7, column=1, padx=1, pady=1)
 
         self.entry_fone = ctk.CTkEntry(self.frame_config, width=200, height=40)
-        self.entry_fone.grid(row=6, column=2, padx=1, pady=1)
+        self.entry_fone.grid(row=7, column=2, padx=1, pady=1)
 
         self.entry_fone.insert(0, fone)
 
         self.lb_printerclosed = ctk.CTkLabel(self.frame_config, text="Impressão padrão:", bg_color=self.colors[4], width=200, height=40)
-        self.lb_printerclosed.grid(row=7, column=1, padx=1, pady=1)
+        self.lb_printerclosed.grid(row=8, column=1, padx=1, pady=1)
 
         printers = []
         self.connectprinter()
@@ -473,7 +479,7 @@ class application():
 
         self.printerclosedvar = ctk.StringVar(value=prynter)
         self.printerclosed = ctk.CTkComboBox(self.frame_config, width=200, height=40, values=printers, variable=self.printerclosedvar)
-        self.printerclosed.grid(row=7, column=2, padx=1, pady=1)
+        self.printerclosed.grid(row=8, column=2, padx=1, pady=1)
 
         self.button_saveconfig = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="SALVAR", command=save)
         self.button_saveconfig.place(relx=0.8, rely=0.145, relwidth=0.1, relheight=0.05)
