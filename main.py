@@ -510,6 +510,10 @@ class application():
         self.desconnectproduct()
         self.reloadproductsnormal()
     def deletewindow(self):
+        try:
+            self.reloadthread.terminate()
+        except:
+            pass
         if self.currentwindow == "MAIN":
             self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy();self.button_addcommand.destroy(); self.frame_commands.place_forget()
             self.root.bind("<Button-1>", self.nonclick)
