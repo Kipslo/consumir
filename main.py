@@ -535,7 +535,7 @@ class application():
         elif self.currentwindow == "CASHDESKHISTORY":
             self.scrollframecashs.destroy(); self.scrollframecashs.place_forget(); self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy()
         elif self.currentwindow == "RANKINGPRODUCTS":
-            self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy()
+            self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy(); self.frameranking.destroy(); self.frameranking.place_forget(); self.frameinithour.destroy(); self.frameinitmin.destroy(); self.framefinishhour.destroy(); self.framefinishmin.destroy()
         elif self.currentwindow == "PRINTERS":
             self.nameprinter.destroy(); self.ipprinter.destroy(); self.addprinter.destroy(); self.frameprinters.destroy(); self.frameprinters.place_forget()
         self.root.bind_all("<KeyPress>", self.nonclick)
@@ -2061,9 +2061,30 @@ class application():
             except:
                 pass
             self.connecthistory()
-            temp = self.historycursor.execute("SELECT ")
-            self.desconnecthistory()
+            temp = self.historycursor.execute("SELECT name, quantity, unitprice, releasedate, releasehour, price FROM Products")
+            products = {}
+            self.currentranking = []
+            initdate = datetime.datetime(int(str(self.initentry.get_date())[0:4]), int(str(self.initentry.get_date())[5:7]), int(str(self.initentry.get_date())[8:10]), self.inithourvar.get(), self.initminvar.get(), 0)
+            finishdate = datetime.datetime(int(str(self.finishentry.get_date())[0:4]), int(str(self.finishentry.get_date())[5:7]), int(str(self.finishentry.get_date())[8:10]), self.finishhourvar.get(), self.finishminvar.get(), 59)
+            for i in temp:
+                name, quantity, unitprice, releasedate, releasehour, price = i
+                                    
+                productdate = datetime.datetime(int(releasedate[0:4]), int(releasedate[5:7]), int(releasedate[8:10]), int(releasehour[0:2]), int(releasehour[3:5]), int(releasehour[6:8]))
 
+                if productdate >= initdate and productdate <= finishdate:
+                    try:
+                        products[name] = [name, products[name][1] + int(quantity), unitprice, products[name][3] + float(price)]
+                    except:
+                        products[name] = [name, int(quantity), unitprice, float(price)]
+            for k, i in enumerate(products):
+                self.currentranking.append([ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=300, height=50, text=products[i][0]), ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=100, height=50, text=products[i][1]), ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=100, height=50, text=products[i][2]), ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=100, height=50, text=products[i][3])])
+
+                n = k + 1
+                self.currentranking[k][0].grid(row=n, column=1, padx=1, pady=1)
+                self.currentranking[k][1].grid(row=n, column=2, padx=1, pady=1)
+                self.currentranking[k][2].grid(row=n, column=3, padx=1, pady=1)
+                self.currentranking[k][3].grid(row=n, column=4, padx=1, pady=1)
+            self.desconnecthistory()
         self.deletewindow()
         self.currentwindow = "RANKINGPRODUCTS"
 
@@ -2117,7 +2138,7 @@ class application():
 
         self.finishminlb = ctk.CTkLabel(self.framefinishmin, text="Min:", width=70)
         self.finishminlb.pack(side= ctk.LEFT)
-
+        print(self.initentry.get_date())
         self.finishminvar = ctk.IntVar()
         self.finishmin = CTkSpinbox(self.framefinishmin, start_value=59, min_value=0, max_value=59, variable=self.finishminvar)
         self.finishmin.pack(side= ctk.RIGHT)

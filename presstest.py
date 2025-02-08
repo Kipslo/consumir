@@ -15,8 +15,6 @@ import sqlite3
 #printers.commit()
 #printers.close()
 
-a = "oi"
-
-b = "1"
-
-print(a + 21 * " " + b)
+oi = [0, 1, 2, 3, 4]
+for k, i in enumerate(oi):
+    print(k)
