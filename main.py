@@ -12,6 +12,7 @@ from escpos.printer import Network
 from multiprocessing import Process
 from tkcalendar import DateEntry
 from time import sleep
+from CTkSpinbox import CTkSpinbox
 class application():
     def __init__(self):
         def close():
@@ -2053,8 +2054,15 @@ class application():
         reload()
     def rankingproducts(self):
         def reload(date = False):
-            pass
-
+            try:
+                for i in self.currentranking:
+                    for j in i:
+                        j.destroy()
+            except:
+                pass
+            self.connecthistory()
+            temp = self.historycursor.execute("SELECT ")
+            self.desconnecthistory()
 
         self.deletewindow()
         self.currentwindow = "RANKINGPRODUCTS"
@@ -2067,23 +2075,69 @@ class application():
 
         self.initentry = DateEntry(self.root)
         self.initentry.place(relx=0.01, rely=0.25, relwidth=0.15, relheight=0.05)
+        
+        self.frameinithour = ctk.CTkFrame(self.root)
+        self.frameinithour.place(relx=0.01, rely=0.31, relwidth=0.15, relheight=0.05)
+
+        self.inithourlb = ctk.CTkLabel(self.frameinithour, text="Hora:", width=70)
+        self.inithourlb.pack(side= ctk.LEFT)
+
+        self.inithourvar = ctk.IntVar()
+        self.inithour = CTkSpinbox(self.frameinithour, start_value=0, min_value=0, max_value=23, variable=self.inithourvar)
+        self.inithour.pack(side= ctk.RIGHT)
+
+        self.frameinitmin = ctk.CTkFrame(self.root)
+        self.frameinitmin.place(relx=0.01, rely=0.37, relwidth=0.15, relheight=0.05)
+
+        self.initminlb = ctk.CTkLabel(self.frameinitmin, text="Min:", width=70)
+        self.initminlb.pack(side= ctk.LEFT)
+
+        self.initminvar = ctk.IntVar()
+        self.initmin = CTkSpinbox(self.frameinitmin, start_value=0, min_value=0, max_value=59, variable=self.initminvar)
+        self.initmin.pack(side= ctk.RIGHT)
 
         self.finishlb = ctk.CTkLabel(self.root, text="ATÉ")
-        self.finishlb.place(relx=0.01, rely=0.31, relwidth=0.15, relheight=0.05)
+        self.finishlb.place(relx=0.01, rely=0.43, relwidth=0.15, relheight=0.05)
 
         self.finishentry = DateEntry(self.root)
-        self.finishentry.place(relx=0.01, rely=0.37, relwidth=0.15, relheight=0.05)
+        self.finishentry.place(relx=0.01, rely=0.49, relwidth=0.15, relheight=0.05)
+
+        self.framefinishhour = ctk.CTkFrame(self.root)
+        self.framefinishhour.place(relx=0.01, rely=0.55, relwidth=0.15, relheight=0.05)
+
+        self.finishhourlb = ctk.CTkLabel(self.framefinishhour, text="Hora:", width=70)
+        self.finishhourlb.pack(side= ctk.LEFT)
+
+        self.finishhourvar = ctk.IntVar()
+        self.finishhour = CTkSpinbox(self.framefinishhour, start_value=23, min_value=0, max_value=23, variable=self.finishhourvar)
+        self.finishhour.pack(side= ctk.RIGHT)
+
+        self.framefinishmin = ctk.CTkFrame(self.root)
+        self.framefinishmin.place(relx=0.01, rely=0.61, relwidth=0.15, relheight=0.05)
+
+        self.finishminlb = ctk.CTkLabel(self.framefinishmin, text="Min:", width=70)
+        self.finishminlb.pack(side= ctk.LEFT)
+
+        self.finishminvar = ctk.IntVar()
+        self.finishmin = CTkSpinbox(self.framefinishmin, start_value=59, min_value=0, max_value=59, variable=self.finishminvar)
+        self.finishmin.pack(side= ctk.RIGHT)
 
         self.confirmdate = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Procurar", command=lambda:reload(True))
-        self.confirmdate.place(relx=0.01, rely=0.43, relwidth=0.15, relheight=0.05)
+        self.confirmdate.place(relx=0.01, rely=0.67, relwidth=0.15, relheight=0.05)
 
-        self.nameproduct = ctk.CTkLabel()
+        self.nameproduct = ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=300, height=50, text="PRODUTO")
+        self.nameproduct.grid(row=0, column=1, padx=1, pady=1)
 
-        self.qtdproduct = ctk.CTkLabel()
+        self.qtdproduct = ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=100, height=50, text="QTD.")
+        self.qtdproduct.grid(row=0, column=2, padx=1, pady=1)
 
-        self.unitpriceproduct = ctk.CTkLabel()
+        self.unitpriceproduct = ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=100, height=50, text="PREÇO UNIT")
+        self.unitpriceproduct.grid(row=0, column=3, padx=1, pady=1)
 
-        self.totalpriceproduct = ctk.CTkLabel()
+        self.totalpriceproduct = ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=100, height=50, text="TOTAL")
+        self.totalpriceproduct.grid(row=0, column=4, padx=1, pady=1)
+
+        reload()
     def cashdeskwindow(self):
         def reload(date = False):
             try:
