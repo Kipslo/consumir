@@ -2209,7 +2209,6 @@ class application():
             if date:
                 dateinit = str(self.initentry.get_date())
                 datefinish = str(self.finishentry.get_date())
-                print(dateinit)
                 dateinit = datetime.date(int(dateinit[0:4]), int(dateinit[5:7]), int(dateinit[8:]))
                 datefinish = datetime.date(int(datefinish[0:4]), int(datefinish[5:7]), int(datefinish[8:]))
                 listen = []
