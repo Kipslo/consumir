@@ -1172,6 +1172,25 @@ class application():
             self.totalprice.place(relx=0.2, rely=0.01, relwidth=0.79, relheight=0.3)
 
             reloadpay()
+        def reprint(cod):
+            self.connecthistory()
+            self.connectprinter()
+            temp = self.historycursor.execute("SELECT number, date, hour, nameclient, datefinish FROM ClosedCommand WHERE cod = ?",(str(cod), ))
+            products = []
+            for i in temp:
+                print(i)
+                command = i
+                self.printercursor.execute("INSERT INTO ClosedPrinter (command, date, permission, client) VALUES (?, ?, ?, ?)", (command[0], command[1] + " " + command[2], "False", command[3]))
+                printertemp = self.printercursor.execute("SELECT id FROM ClosedPrinter WHERE command = ? AND date = ?", (command[0], command[1] + " " + command[2]))
+            for i in printertemp:
+                idcom = i[0]
+            temp = self.historycursor.execute("SELECT name, type, quantity, unitprice FROM Products WHERE commandid = ?", (str(cod), ))
+            for i in temp:
+                products.append(i)
+                self.printercursor.execute("INSERT INTO ProductsClosed (id, product, type, qtd, unitprice) VALUES (?, ?, ?, ?, ?)", (idcom, i[0], i[1], i[2], i[3]))
+            self.desconnecthistory()
+            self.printercursor.execute("UPDATE ClosedPrinter SET permission = ? WHERE command = ? AND date = ?", ("True", command[0], command[1] + " " + command[2]))
+            self.desconnectprinter()
         try:
             if int(command) > 0:
                 num = command
@@ -1183,7 +1202,6 @@ class application():
                     break
                 num = num + i
 
-        
         self.rootcommand = ctk.CTkToplevel()
 
         
@@ -1246,6 +1264,8 @@ class application():
             self.desconnecthistory()
             self.time_heading = ctk.CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=150, height=30)
             self.time_heading.grid(row=1, column=6, padx=1, pady=50)
+            self.button_finishcommand = ctk.CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="Reimprimir", hover_color=self.colors[5], command=lambda x = closed:reprint(x))
+            self.button_finishcommand.place(relx=0.7, rely=0.15, relwidth=0.29, relheight=0.7)
             self.root.bind_all("<KeyPress>", onpresskey)
             self.rootcommand.protocol("WM_DELETE_WINDOW", ondelete)
         self.rootcommand.title("COMANDA " + num)
@@ -2560,7 +2580,7 @@ class application():
                                     quantity VARCHAR(8)
                                     )""")
         self.historycursor.execute("""CREATE TABLE IF NOT EXISTS Products(
-                                    commandid INTEGER(4),
+                                    commandid INTEGER(6),
                                     name VARCHAR(30),
                                     type VARCHAR(10),
                                     quantity VARCHAR(4),
