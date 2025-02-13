@@ -16,5 +16,6 @@ import sqlite3
 #printers.close()
 
 oi = [0, 1, 2, 3, 4]
-for k, i in enumerate(oi):
-    print(k)
+
+oi.reverse()
+print(oi)

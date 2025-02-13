@@ -548,6 +548,10 @@ class application():
             self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy(); self.frameranking.destroy(); self.frameranking.place_forget(); self.frameinithour.destroy(); self.frameinitmin.destroy(); self.framefinishhour.destroy(); self.framefinishmin.destroy()
         elif self.currentwindow == "PRINTERS":
             self.nameprinter.destroy(); self.ipprinter.destroy(); self.addprinter.destroy(); self.frameprinters.destroy(); self.frameprinters.place_forget()
+        elif self.currentwindow == "RANKINGSERVICE":
+            pass
+        elif self.currentwindow == "HISTORYPRODUCTS":
+            self.frame_hisproducts.destroy(); self.frame_hisproducts.place_forget()
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     def clientswindow(self):
@@ -1697,7 +1701,7 @@ class application():
         self.currentproductsaddlist = []
         for k, i in enumerate(listen):
             print(i)
-            name, tipe, category, price = i
+            name, tipe, category, price, printer = i
             self.currentproductsaddlist.append([ctk.CTkLabel(self.scroolframe_addproduct, text=category, width=200, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=name, width=200, height=40, fg_color=self.colors[5]),
                                                 ctk.CTkLabel(self.scroolframe_addproduct, text=price, width=90, height=40, fg_color=self.colors[5]),
@@ -2339,6 +2343,73 @@ class application():
         self.delprinter.grid(row=1, column=3, padx=1, pady=1)
 
         reload()
+    def rankingservice(self):
+        self.deletewindow()
+        self.currentwindow = "RANKINGSERVICE"
+    def historyproducts(self):
+        def reload():
+            try:
+                for i in self.currenthisproducts:
+                    for j in i:
+                        j.destroy()
+            except:
+                pass
+            self.connectcommands()
+            temp = self.commandscursor.execute("SELECT number, date, hour, waiter, price, unitprice, quantity, product FROM Consumption")
+            self.currenthisproducts = []
+            products = []
+            for i in temp:
+                products.append(i)
+            products.reverse()
+            for k, i in enumerate(products):
+                self.currenthisproducts.append([
+                    ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=80, height=50, text=i[0]), 
+                    ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=200, height=50, text=i[7]), 
+                    ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=60, height=50, text=i[6]), 
+                    ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=100, height=50, text=i[5]), 
+                    ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=100, height=50, text=i[4]), 
+                    ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=100, height=50, text=f"{i[1]} {i[2]}".replace("-", "/")), 
+                    ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=200, height=50, text=i[3])])
+                n = k + 1
+
+                self.currenthisproducts[k][0].grid(row=n, column=0, padx=1, pady=1)
+                self.currenthisproducts[k][1].grid(row=n, column=1, padx=1, pady=1)
+                self.currenthisproducts[k][2].grid(row=n, column=2, padx=1, pady=1)
+                self.currenthisproducts[k][3].grid(row=n, column=3, padx=1, pady=1)
+                self.currenthisproducts[k][4].grid(row=n, column=4, padx=1, pady=1)
+                self.currenthisproducts[k][5].grid(row=n, column=5, padx=1, pady=1)
+                self.currenthisproducts[k][6].grid(row=n, column=6, padx=1, pady=1)
+            
+            
+            self.desconnectcommands()
+        self.deletewindow()
+        self.currentwindow = "HISTORYPRODUCTS"
+
+        self.frame_hisproducts = ctk.CTkScrollableFrame(self.root)
+        self.frame_hisproducts.place(relx=0.01, rely=0.145, relwidth=0.98, relheight=0.845)
+
+        self.productcomhis = ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=80, height=50, text="COMANDA")
+        self.productcomhis.grid(row=0, column=0, padx=1, pady=1)
+
+        self.producthis = ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=200, height=50, text="PRODUTO")
+        self.producthis.grid(row=0, column=1, padx=1, pady=1)
+
+        self.productqtdhis = ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=60, height=50, text="QTD")
+        self.productqtdhis.grid(row=0, column=2, padx=1, pady=1)
+
+        self.productunitpricehis = ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=100, height=50, text="PREÇO UNIT.")
+        self.productunitpricehis.grid(row=0, column=3, padx=1, pady=1)
+
+        self.productpricehis = ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=100, height=50, text="TOTAL")
+        self.productpricehis.grid(row=0, column=4, padx=1, pady=1)
+
+        self.productdatehis = ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=100, height=50, text="LANÇADO EM")
+        self.productdatehis.grid(row=0, column=5, padx=1, pady=1)
+
+        self.productwaiterhis = ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=200, height=50, text="LANÇADO POR")
+        self.productwaiterhis.grid(row=0, column=6, padx=1, pady=1)
+
+        reload()
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
@@ -2357,7 +2428,7 @@ class application():
 
             mainimgs = [ctk.CTkImage(Image.open("./imgs/caixa.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/tables.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/clientes.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/trofeu.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60))]
             
-            mainbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.cash), "ABRIR CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.cashdeskwindow), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, command=self.clientswindow), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab, command=self.rankingproducts), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab), "RANKING DE ATENDIMENTOS"]]
+            mainbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.cash), "ABRIR CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.cashdeskwindow), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, command=self.clientswindow), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab, command=self.rankingproducts), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab, command=self.historyproducts), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab, command=self.rankingservice), "RANKING DE ATENDIMENTOS"]]
             
             self.currentmain = mainbuttons
             self.currentimgs = mainimgs
