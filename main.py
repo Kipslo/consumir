@@ -2343,8 +2343,21 @@ class application():
 
         reload()
     def rankingservice(self):
+        def reload(table):
+            try:
+                for i in self.currenttable:
+                    for j in i:
+                        j.destroy()
+            except:
+                pass
+
         self.deletewindow()
         self.currentwindow = "RANKINGSERVICE"
+
+        self.buttoninvoicing = ctk.CTkButton()
+
+        self.buttonqtdsell = ctk.CTkButton()
+
     def historyproducts(self):
         def reload():
             try:
