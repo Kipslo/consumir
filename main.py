@@ -39,7 +39,7 @@ class application():
             self.maxcommands = 400
             up = True
         if mod:
-            self.configcursor.execute("""INSERT INTO Config (stylemode, maxcommands, cnpj, housename, adress, fone) VALUES (?, ?, '', '', '', '')""", (self.stylemode, self.maxcommands))
+            self.configcursor.execute("""INSERT INTO Config (stylemode, maxcommands, cnpj, housename, adress, fone, male, female) VALUES (?, ?, '', '', '', '', '', '')""", (self.stylemode, self.maxcommands))
         elif mod == False and up == True:
             self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ? WHERE cod = 1""", (self.stylemode, self.maxcommands))
         if self.stylemode == "ESCURO":
@@ -403,16 +403,16 @@ class application():
     def configwindow(self):
         def save():
             self.connectconfig()
-            self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ?, cnpj = ?, housename = ?, adress = ?, fone = ?, printer = ? WHERE cod = 1""", (self.stylevar.get(), self.limitcommands.get(), self.entry_cnpj.get(), self.entry_namehome.get(), self.entry_adress.get(), self.entry_fone.get(), self.printerclosedvar.get()))
+            self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ?, cnpj = ?, housename = ?, adress = ?, fone = ?, printer = ?, male = ?, female = ? WHERE cod = 1""", (self.stylevar.get(), self.limitcommands.get(), self.entry_cnpj.get(), self.entry_namehome.get(), self.entry_adress.get(), self.entry_fone.get(), self.printerclosedvar.get(), self.male.get(), self.female.get()))
             self.desconnectconfig()
         self.deletewindow()
         self.currentwindow = "CONFIG"
 
         self.connectconfig()
-        temp = self.configcursor.execute("SELECT stylemode, maxcommands, cnpj, housename, adress, fone, printer FROM Config WHERE cod = '1'")
+        temp = self.configcursor.execute("SELECT stylemode, maxcommands, cnpj, housename, adress, fone, printer, female, male FROM Config WHERE cod = '1'")
 
         for i in temp:
-            style, maxcommands, cnpj, housename, adress, fone, prynter = i
+            style, maxcommands, cnpj, housename, adress, fone, prynter, male, female = i
         self.desconnectconfig()
 
         self.frame_config = ctk.CTkScrollableFrame(self.root)
@@ -480,6 +480,20 @@ class application():
         self.printerclosedvar = ctk.StringVar(value=prynter)
         self.printerclosed = ctk.CTkComboBox(self.frame_config, width=200, height=40, values=printers, variable=self.printerclosedvar)
         self.printerclosed.grid(row=8, column=2, padx=1, pady=1)
+
+        self.malelb = ctk.CTkLabel(self.frame_config, width=200, height=40, text="ENTRADA MASCULINO:", bg_color=self.colors[4])
+        self.malelb.grid(row=9, column=1, padx=1, pady=1)
+
+        self.male = ctk.CTkEntry(self.frame_config, width=200, height=40)
+        self.male.grid(row=9, column=2, padx=1, pady=1)
+        self.male.insert(0, male)
+
+        self.femalelb = ctk.CTkLabel(self.frame_config, text="ENTRADA FEMININO:", width=200, height=40, bg_color=self.colors[4])
+        self.femalelb.grid(row=10, column=1, padx=1, pady=1)
+
+        self.female = ctk.CTkEntry(self.frame_config, width=200, height=40)
+        self.female.grid(row=10, column=2, padx=1, pady=1)
+        self.female.insert(0, female)
 
         self.button_saveconfig = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="SALVAR", command=save)
         self.button_saveconfig.place(relx=0.8, rely=0.145, relwidth=0.1, relheight=0.05)
@@ -598,24 +612,24 @@ class application():
                 if event.keysym == "Escape":
                     close()
             def addclient(cod = 0):
-                iid, name, fone, email, year = self.entryid.get(), self.entryname.get(), self.entryfone.get(), self.entryemail.get(), self.entryidade.get()
+                iid, name, fone, email, year, gender = self.entryid.get(), self.entryname.get(), self.entryfone.get(), self.entryemail.get(), self.entryidade.get(), self.entrygender.get()
                 self.connectclients()
                 tp = ""
                 temp = []
                 if iid == "":
-                    self.clientscursor.execute("INSERT INTO Clients (name, fone, email, idade) VALUES (?, ?, ?, ?)", (name, fone, email, year))
+                    self.clientscursor.execute("INSERT INTO Clients (name, fone, email, idade, genero) VALUES (?, ?, ?, ?, ?)", (name, fone, email, year, gender))
                 else:
                     try:
-                        temp = self.clientscursor.execute("SELECT name, fone, email, idade FROM Clients WHERE id = ?", (iid, ))
+                        temp = self.clientscursor.execute("SELECT name, fone, email, idade, genero FROM Clients WHERE id = ?", (iid, ))
                         for i in temp:
                             tp = i
                     except:
                         pass
                     if tp != "":
-                        self.clientscursor.execute("INSERT INTO Clients (name, fone, email, idade) VALUES (?, ?, ?, ?)", (tp[0], tp[1], tp[2], tp[3]))
-                        self.clientscursor.execute("UPDATE Clients SET name = ?, fone = ?, email = ?, idade = ? WHERE id = ?", (name, fone, email, year, iid))
+                        self.clientscursor.execute("INSERT INTO Clients (name, fone, email, idade, genero) VALUES (?, ?, ?, ?, ?)", (tp[0], tp[1], tp[2], tp[3], tp[4]))
+                        self.clientscursor.execute("UPDATE Clients SET name = ?, fone = ?, email = ?, idade = ?, genero = ? WHERE id = ?", (name, fone, email, year, gender, iid))
                     else:
-                        self.clientscursor.execute("INSERT INTO Clients (id, name, fone, email, idade) VALUES (?, ?, ?, ?, ?)", (iid, name, fone, email, year))
+                        self.clientscursor.execute("INSERT INTO Clients (id, name, fone, email, idade, genero) VALUES (?, ?, ?, ?, ?, ?)", (iid, name, fone, email, year, gender))
                 tp = ""
                 temp = self.clientscursor.execute("select name, fone, email, idade FROM Clients Where id = ?", (iid, ))
                 self.desconnectclients()
@@ -642,8 +656,11 @@ class application():
             self.entryidade = ctk.CTkEntry(self.rootaddclient, placeholder_text="Idade")
             self.entryidade.place(relx=0.01, rely=0.62, relwidth=0.2, relheight=0.3)
 
+            self.entrygender = ctk.CTkComboBox(self.rootaddclient, values=["Masculino", "Feminino"], width=500*0.47, height=150*0.3)
+            self.entrygender.place(relx=0.22, rely=0.62)
+
             self.buttonconclient = ctk.CTkButton(self.rootaddclient, text="CONFIRMAR", fg_color=self.colors[4], hover_color=self.colors[3], command=addclient)
-            self.buttonconclient.place(relx=0.22, rely=0.62, relwidth=0.77, relheight=0.3)
+            self.buttonconclient.place(relx=0.70, rely=0.62, relwidth=0.29, relheight=0.3)
 
 
             self.root.bind_all("<KeyPress>", press)
@@ -1457,10 +1474,11 @@ class application():
                 date = str(datetime.datetime.now())[0:19]
                 date, hour = date[0:10], date[11:20]
                 self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, "", ""))           
-            self.desconnectcommands()
-            self.connectprinter()
-            self.printercursor.execute("INSERT INTO ProductPrint (product, printer, type, command, waiter, date, qtd, text) VALUES (?, ?, 'product', ?, ?, ?, ?, ?)", (product, prynter, command, waiter, str(datetime.datetime.now())[0:19], qtd, text))
-            self.desconnectprinter()
+            self.desconnectcommands()        
+            if prynter != "":
+                self.connectprinter()
+                self.printercursor.execute("INSERT INTO ProductPrint (product, printer, type, command, waiter, date, qtd, text) VALUES (?, ?, 'product', ?, ?, ?, ?, ?)", (product, prynter, command, waiter, str(datetime.datetime.now())[0:19], qtd, text))
+                self.desconnectprinter()
             
         self.root.after(3000, self.insertcurrentproduct)
     def addproductincommandwindow(self, product = "", category = "", tipe = "", price = "", cod = ""):
@@ -1713,7 +1731,6 @@ class application():
             self.currentproductsaddlist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
             self.currentproductsaddlist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
         self.desconnectproduct()
-    
     def insertcommandactive(self, number):
         self.connectcommands()
         temp = self.commandscursor.execute("SELECT number FROM CommandsActive WHERE number = ?", (number, ))
@@ -2667,7 +2684,9 @@ class application():
                                   housename VARCHAR(30),
                                   adress VARCHAR(30),
                                   fone VARCHAR(10),
-                                  printer VARCHAR(30)
+                                  printer VARCHAR(30),
+                                  male VARCHAR(30),
+                                  female VARCHAR(30)
                                   )""")
         self.desconnectconfig()
         self.connectconts()
