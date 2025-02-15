@@ -549,7 +549,7 @@ class application():
         elif self.currentwindow == "PRINTERS":
             self.nameprinter.destroy(); self.ipprinter.destroy(); self.addprinter.destroy(); self.frameprinters.destroy(); self.frameprinters.place_forget()
         elif self.currentwindow == "RANKINGSERVICE":
-            pass
+            self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy(); self.frame_ranking.destroy(); self.frame_ranking.place_forget(); self.frameinithour.destroy(); self.frameinitmin.destroy(); self.framefinishhour.destroy(); self.framefinishmin.destroy()
         elif self.currentwindow == "HISTORYPRODUCTS":
             self.frame_hisproducts.destroy(); self.frame_hisproducts.place_forget()
         self.root.bind_all("<KeyPress>", self.nonclick)
@@ -2343,7 +2343,7 @@ class application():
 
         reload()
     def rankingservice(self):
-        def reload(table):
+        def reload(table = 1):
             try:
                 for i in self.currenttable:
                     for j in i:
@@ -2351,13 +2351,127 @@ class application():
             except:
                 pass
 
+            self.connecthistory()
+            temp = self.historycursor.execute("SELECT quantity, releasedate, releasehour, waiter, price FROM Products")
+            listen = {}
+            initdate = datetime.datetime(int(str(self.initentry.get_date())[0:4]), int(str(self.initentry.get_date())[5:7]), int(str(self.initentry.get_date())[8:10]), self.inithourvar.get(), self.initminvar.get(), 0)
+            finishdate = datetime.datetime(int(str(self.finishentry.get_date())[0:4]), int(str(self.finishentry.get_date())[5:7]), int(str(self.finishentry.get_date())[8:10]), self.finishhourvar.get(), self.finishminvar.get(), 59)
+            for i in temp:
+                date = datetime.datetime(int(i[1][0:4]), int(i[1][5:7]), int(i[1][8:10]), int(i[2][0:2]), int(i[2][3:5]), int(i[2][6:8]))
+                if date >= initdate and date <= finishdate:
+                    try:
+                        listen[i[3]] = [listen[i[3]][0] + int(i[0]), listen[i[3]][1] + float(i[4])]
+                    except:
+                        listen[i[3]] = [int(i[0]), float(i[4])]
+            self.desconnecthistory()
+            tablelist = []
+            if table == 1:
+                for i in listen:
+                    if tablelist == []:
+                        tablelist.append([i, listen[i][0], listen[i][1]])
+                    else:
+                        for k, j in enumerate(tablelist):
+                            if listen[i][1] > j[2]:
+                                tablelist.insert(k, [i, listen[i][0], listen[i][1]])
+                                break
+                            if len(tablelist) - 1 == k:
+                                tablelist.append([i, listen[i][0], listen[i][1]])
+                                break
+            elif table == 2:
+                for i in listen:
+                    if tablelist == []:
+                        tablelist.append([i, listen[i][0], listen[i][1]])
+                    else:
+                        for k, j in enumerate(tablelist):
+                            if listen[i][0] > j[1]:
+                                tablelist.insert(k, [i, listen[i][0], listen[i][1]])
+                                break
+                            if len(tablelist) - 1 == k:
+                                tablelist.append([i, listen[i][0], listen[i][1]])
+                                break
+            print(listen)
+            print(tablelist)
+            self.currenttable = []
+            for k, i in enumerate(tablelist):
+                self.currenttable.append([
+                    ctk.CTkLabel(self.frame_ranking, width=300, height=50, bg_color=self.colors[4], text=i[0]), 
+                    ctk.CTkLabel(self.frame_ranking, width=150, height=50, bg_color=self.colors[4], text=i[2]), 
+                    ctk.CTkLabel(self.frame_ranking, width=150, height=50, bg_color=self.colors[4], text=i[1])])
+                n = k + 1
+
+                self.currenttable[k][0].grid(row=n, column=0, padx=1, pady=1)
+                self.currenttable[k][1].grid(row=n, column=1, padx=1, pady=1)
+                self.currenttable[k][2].grid(row=n, column=2, padx=1, pady=1)
         self.deletewindow()
         self.currentwindow = "RANKINGSERVICE"
 
-        self.buttoninvoicing = ctk.CTkButton()
+        self.frame_ranking = ctk.CTkScrollableFrame(self.root)
+        self.frame_ranking.place(relx=0.17, rely=0.145, relwidth=0.82, relheight=0.845)
 
-        self.buttonqtdsell = ctk.CTkButton()
+        self.namewaiter = ctk.CTkLabel(self.frame_ranking, bg_color=self.colors[4], text="Colaborador", width=300, height=50)
+        self.namewaiter.grid(row=0, column=0, padx=1, pady=1)
 
+        self.buttoninvoicing = ctk.CTkButton(self.frame_ranking, fg_color=self.colors[4], hover_color=self.colors[3], text="Faturamento", width=150, height=50, command=lambda x = 1:reload(x))
+        self.buttoninvoicing.grid(row=0, column=1, padx=1, pady=1)
+
+        self.buttonqtdsell = ctk.CTkButton(self.frame_ranking, fg_color=self.colors[4], hover_color=self.colors[3], text="QTD de vendas", width=150, height=50, command=lambda x = 2:reload(x))
+        self.buttonqtdsell.grid(row=0, column=2, padx=1, pady=1)
+
+        self.initlb = ctk.CTkLabel(self.root, text="Lançado dia")
+        self.initlb.place(relx=0.01, rely=0.19, relwidth=0.15, relheight=0.05)
+
+        self.initentry = DateEntry(self.root)
+        self.initentry.place(relx=0.01, rely=0.25, relwidth=0.15, relheight=0.05)
+        
+        self.frameinithour = ctk.CTkFrame(self.root)
+        self.frameinithour.place(relx=0.01, rely=0.31, relwidth=0.15, relheight=0.05)
+
+        self.inithourlb = ctk.CTkLabel(self.frameinithour, text="Hora:", width=70)
+        self.inithourlb.pack(side= ctk.LEFT)
+
+        self.inithourvar = ctk.IntVar()
+        self.inithour = CTkSpinbox(self.frameinithour, start_value=0, min_value=0, max_value=23, variable=self.inithourvar)
+        self.inithour.pack(side= ctk.RIGHT)
+
+        self.frameinitmin = ctk.CTkFrame(self.root)
+        self.frameinitmin.place(relx=0.01, rely=0.37, relwidth=0.15, relheight=0.05)
+
+        self.initminlb = ctk.CTkLabel(self.frameinitmin, text="Min:", width=70)
+        self.initminlb.pack(side= ctk.LEFT)
+
+        self.initminvar = ctk.IntVar()
+        self.initmin = CTkSpinbox(self.frameinitmin, start_value=0, min_value=0, max_value=59, variable=self.initminvar)
+        self.initmin.pack(side= ctk.RIGHT)
+
+        self.finishlb = ctk.CTkLabel(self.root, text="ATÉ")
+        self.finishlb.place(relx=0.01, rely=0.43, relwidth=0.15, relheight=0.05)
+
+        self.finishentry = DateEntry(self.root)
+        self.finishentry.place(relx=0.01, rely=0.49, relwidth=0.15, relheight=0.05)
+
+        self.framefinishhour = ctk.CTkFrame(self.root)
+        self.framefinishhour.place(relx=0.01, rely=0.55, relwidth=0.15, relheight=0.05)
+
+        self.finishhourlb = ctk.CTkLabel(self.framefinishhour, text="Hora:", width=70)
+        self.finishhourlb.pack(side= ctk.LEFT)
+
+        self.finishhourvar = ctk.IntVar()
+        self.finishhour = CTkSpinbox(self.framefinishhour, start_value=23, min_value=0, max_value=23, variable=self.finishhourvar)
+        self.finishhour.pack(side= ctk.RIGHT)
+
+        self.framefinishmin = ctk.CTkFrame(self.root)
+        self.framefinishmin.place(relx=0.01, rely=0.61, relwidth=0.15, relheight=0.05)
+
+        self.finishminlb = ctk.CTkLabel(self.framefinishmin, text="Min:", width=70)
+        self.finishminlb.pack(side= ctk.LEFT)
+        print(self.initentry.get_date())
+        self.finishminvar = ctk.IntVar()
+        self.finishmin = CTkSpinbox(self.framefinishmin, start_value=59, min_value=0, max_value=59, variable=self.finishminvar)
+        self.finishmin.pack(side= ctk.RIGHT)
+
+        self.confirmdate = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Procurar", command=lambda x = 1:reload(x))
+        self.confirmdate.place(relx=0.01, rely=0.67, relwidth=0.15, relheight=0.05)
+        reload(1)
     def historyproducts(self):
         def reload():
             try:
