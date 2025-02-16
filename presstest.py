@@ -14,8 +14,5 @@ import sqlite3
 #    print(i)
 #printers.commit()
 #printers.close()
-
-oi = [0, 1, 2, 3, 4]
-
-oi.reverse()
-print(oi)
+oi = 1
+print(type(oi))

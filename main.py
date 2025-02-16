@@ -589,7 +589,7 @@ class application():
                 listen.append(i)
             self.desconnectclients()
             for k, i in enumerate(listen):
-                id, name, fone, email, idade = i
+                id, name, fone, email, idade, gender = i
                 self.clientstable.append([ctk.CTkLabel(self.frameclients, text=id, bg_color=self.colors[4], width=50, height=40), 
                 ctk.CTkLabel(self.frameclients, text=name, bg_color=self.colors[4], width=300, height=40), 
                 ctk.CTkLabel(self.frameclients, text=fone, bg_color=self.colors[4], width=150, height=40), 
@@ -2894,6 +2894,12 @@ class server():
         self.tempdb.close()
     def close(self):
         self.servervar.terminate()
+    def connectclients(self):
+        self.clients = sql.connect("clients.db")
+        self.clientscursor = self.clients.cursor()
+    def desconnectclients(self):
+        self.clients.commit()
+        self.clients.close()
     def __init__(self):
         self.servervar =  Process(target=self.server)
         self.permission = True
@@ -3027,6 +3033,35 @@ class server():
                             text = text + ".=" + i[0]
                     self.desconnectproduct()
                     conn.sendall(str.encode(text))
+                elif listen[0] == "INSERTCLIENT":
+                    self.connectcommands()
+                    del listen[0]
+                    waiter, passw, command, idclient, client, male, female = listen
+                    temp = self.commandscursor.execute("SELECT number FROM CommandsActive WHERE number = ?", (command, ))
+                    tmp = ""
+                    for i in temp:
+                        temp = i[0]
+                    date = str(datetime.datetime.now())[0:19]
+                    date, hour = date[0:10], date[11:20]
+                    try:
+                        idclient = int(idclient)
+                    except:
+                        idclient = ""
+                    if idclient != "":
+                        self.connectclients()
+                        tempclient = self.clientscursor.execute("SELECT name FROM Clients WHERE id = ?", (idclient, ))
+                        for i in tempclient:
+                            client = i[0]
+                        self.desconnectclients()
+                    if tmp == "":
+                        self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, client, idclient))
+                    else:
+                        self.commandscursor.execute("UPDATE CommandsActive SET nameclient = ?, idclient = ? WHERE number = ?", (client, idclient, command))
+                    self.connectconfig()
+
+
+                    self.desconnectconfig()
+                    self.desconnectcommands()
                 else:
                     conn.sendall(data)
                 conn.close()
