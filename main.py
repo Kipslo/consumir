@@ -3057,11 +3057,30 @@ class server():
                         self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, client, idclient))
                     else:
                         self.commandscursor.execute("UPDATE CommandsActive SET nameclient = ?, idclient = ? WHERE number = ?", (client, idclient, command))
+                    self.connecttemp()
                     self.connectconfig()
-
-
+                    self.connectproduct()
+                    if int(male) > 0:
+                        temp = self.configcursor.execute("SELECT male FROM Config WHERE cod = '1'")
+                        for i in temp:
+                            temp = i[0]
+                        temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ?", (temp, ))
+                        for i in temp:
+                            product, tipe, category, price, prynter = i
+                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, male, "", waiter, tipe, prynter))
+                    if int(female) > 0:
+                        temp = self.configcursor.execute("SELECT female FROM Config WHERE cod = '1'")
+                        for i in temp:
+                            temp = i[0]
+                        temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ?", (temp, ))
+                        for i in temp:
+                            product, tipe, category, price, prynter = i
+                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, female, "", waiter, tipe, prynter))
+                    self.desconnectproduct()
+                    self.desconnecttemp()
                     self.desconnectconfig()
                     self.desconnectcommands()
+                    conn.sendall(str.encode("OK"))
                 else:
                     conn.sendall(data)
                 conn.close()

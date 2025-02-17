@@ -14,5 +14,5 @@ import sqlite3
 #    print(i)
 #printers.commit()
 #printers.close()
-oi = 1
-print(type(oi))
+oi = ["oi", "kop", 'kocho']
+print('oi' in oi and 'kocho' in oi)
