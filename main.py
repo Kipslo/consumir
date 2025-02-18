@@ -3086,6 +3086,10 @@ class server():
                                     product, tipe, category, price, prynter = i
                                 self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, female, "", waiter, tipe, prynter))
                             conn.sendall(str.encode("OK"))
+                        else:
+                            conn.sendall(str.encode("NO PERMISSION"))
+                    else:
+                        conn.sendall(str.encode("LOGIN INVÁLIDO1"))
                     self.desconnectconts()
                     self.desconnectproduct()
                     self.desconnecttemp()
