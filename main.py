@@ -2511,7 +2511,7 @@ class application():
                     ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=60, height=50, text=i[6]), 
                     ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=100, height=50, text=i[5]), 
                     ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=100, height=50, text=i[4]), 
-                    ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=100, height=50, text=f"{i[1]} {i[2]}".replace("-", "/")), 
+                    ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=150, height=50, text=f"{i[1]} {i[2]}".replace("-", "/")), 
                     ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=200, height=50, text=i[3])])
                 n = k + 1
 
@@ -2546,7 +2546,7 @@ class application():
         self.productpricehis = ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=100, height=50, text="TOTAL")
         self.productpricehis.grid(row=0, column=4, padx=1, pady=1)
 
-        self.productdatehis = ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=100, height=50, text="LANÇADO EM")
+        self.productdatehis = ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=150, height=50, text="LANÇADO EM")
         self.productdatehis.grid(row=0, column=5, padx=1, pady=1)
 
         self.productwaiterhis = ctk.CTkLabel(self.frame_hisproducts, bg_color=self.colors[4], width=200, height=50, text="LANÇADO POR")
@@ -3037,10 +3037,7 @@ class server():
                     self.connectcommands()
                     del listen[0]
                     waiter, passw, command, idclient, client, male, female = listen
-                    temp = self.commandscursor.execute("SELECT number FROM CommandsActive WHERE number = ?", (command, ))
-                    tmp = ""
-                    for i in temp:
-                        temp = i[0]
+                    
                     date = str(datetime.datetime.now())[0:19]
                     date, hour = date[0:10], date[11:20]
                     try:
@@ -3053,34 +3050,47 @@ class server():
                         for i in tempclient:
                             client = i[0]
                         self.desconnectclients()
-                    if tmp == "":
-                        self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, client, idclient))
-                    else:
-                        self.commandscursor.execute("UPDATE CommandsActive SET nameclient = ?, idclient = ? WHERE number = ?", (client, idclient, command))
+                    
                     self.connecttemp()
                     self.connectconfig()
                     self.connectproduct()
-                    if int(male) > 0:
-                        temp = self.configcursor.execute("SELECT male FROM Config WHERE cod = '1'")
-                        for i in temp:
-                            temp = i[0]
-                        temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ?", (temp, ))
-                        for i in temp:
-                            product, tipe, category, price, prynter = i
-                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, male, "", waiter, tipe, prynter))
-                    if int(female) > 0:
-                        temp = self.configcursor.execute("SELECT female FROM Config WHERE cod = '1'")
-                        for i in temp:
-                            temp = i[0]
-                        temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ?", (temp, ))
-                        for i in temp:
-                            product, tipe, category, price, prynter = i
-                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, female, "", waiter, tipe, prynter))
+                    self.connectconts()
+                    temp = self.contscursor.execute("SELECT name, password, permissionmaster, permissionentry FROM Conts WHERE name = ?", (waiter, ))
+                    name, password, permissionmaster, permissionentry = "", "", "", ""
+                    for i in temp:
+                        name, password, permissionmaster, permissionentry = i
+                    if name == waiter and passw == password:
+                        if permissionmaster == "Y" or permissionentry == "Y":
+                            temp = self.commandscursor.execute("SELECT number FROM CommandsActive WHERE number = ?", (command, ))
+                            tmp = ""
+                            for i in temp:
+                                tmp = i[0]
+                            if tmp == "":
+                                self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, client, idclient))
+                            else:
+                                self.commandscursor.execute("UPDATE CommandsActive SET nameclient = ?, idclient = ? WHERE number = ?", (client, idclient, command))
+                            if int(male) > 0:
+                                temp = self.configcursor.execute("SELECT male FROM Config WHERE cod = '1'")
+                                for i in temp:
+                                    temp = i[0]
+                                temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ?", (temp, ))
+                                for i in temp:
+                                    product, tipe, category, price, prynter = i
+                                self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, male, "", waiter, tipe, prynter))
+                            if int(female) > 0:
+                                temp = self.configcursor.execute("SELECT female FROM Config WHERE cod = '1'")
+                                for i in temp:
+                                    temp = i[0]
+                                temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ?", (temp, ))
+                                for i in temp:
+                                    product, tipe, category, price, prynter = i
+                                self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, female, "", waiter, tipe, prynter))
+                            conn.sendall(str.encode("OK"))
+                    self.desconnectconts()
                     self.desconnectproduct()
                     self.desconnecttemp()
                     self.desconnectconfig()
                     self.desconnectcommands()
-                    conn.sendall(str.encode("OK"))
                 else:
                     conn.sendall(data)
                 conn.close()
