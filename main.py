@@ -2910,8 +2910,6 @@ class server():
             self.PORT = 55261
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.bind((self.HOST, self.PORT))
-            name = socket.gethostname()
-            print(socket.gethostbyname(name))
             self.s.listen()
             while self.permission:
                 conn, ender = self.s.accept()
@@ -3087,9 +3085,9 @@ class server():
                                 self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, female, "", waiter, tipe, prynter))
                             conn.sendall(str.encode("OK"))
                         else:
-                            conn.sendall(str.encode("NO PERMISSION"))
+                            conn.sendall(str.encode("SEM PERMISSÃO"))
                     else:
-                        conn.sendall(str.encode("LOGIN INVÁLIDO1"))
+                        conn.sendall(str.encode("LOGIN INVÁLIDO"))
                     self.desconnectconts()
                     self.desconnectproduct()
                     self.desconnecttemp()
