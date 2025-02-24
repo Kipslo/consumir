@@ -2906,6 +2906,7 @@ class server():
         self.servervar.start()
     def server(self):
         if self.permission:
+            #'192.168.0.85'
             self.HOST = socket.gethostbyname(socket.gethostname())
             self.PORT = 55261
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
