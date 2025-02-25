@@ -57,7 +57,7 @@ class application():
         self.root.after(3000, self.printerexecute)
         self.root.mainloop()
     def printerexecute(self):
-        aprinter.init()
+        pass#aprinter.init()
     def loginwindow(self):
         self.currentwindow = "LOGIN"
         self.root.attributes("-fullscreen", True)
@@ -2998,27 +2998,37 @@ class server():
                     self.desconnectproduct()
                     conn.sendall(str.encode(temp))
                 elif listen[0] == "INSERT":
-                    number, username, password = listen[1], listen[2], listen[3]
+                    number, username, passw = listen[1], listen[2], listen[3]
                     del listen[0]; del listen[0]; del listen[0]; del listen[0]
                     listen = listen[0].split(".-")
                     self.connectconts()
-                    TEMp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ? AND password = ?", (username, password))
+                    TEMp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ? AND password = ?", (username, passw))
                     temp = ""
                     for i in TEMp:
                         temp = i
-                    self.desconnectconts()
+                    self.connecttemp()
                     if temp != "":
-                        self.connecttemp()
-                        if len(listen) == 6:
-                            product, category, unitprice, qtd, tipe, prynter = listen
-                            description = ""
+                        temp = self.contscursor.execute("SELECT name, password, permissionmaster, permissionrelease FROM Conts WHERE name = ?", (username, ))
+                        name, password, permissionmaster, permissionentry = "", "", "", ""
+                        for i in temp:
+                            name, password, permissionmaster, permissionrelease = i
+                        if username == name and passw == password:
+                            if permissionrelease == "Y" or permissionmaster == "Y":
+                                if len(listen) == 6:
+                                    product, category, unitprice, qtd, tipe, prynter = listen
+                                    description = ""
+                                else:
+                                    product, category, unitprice, qtd, description, tipe, prynter = listen
+                                self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe, prynter))
+                                conn.sendall(str.encode("Y"))
+                            else:
+                                conn.sendall(str.encode("VOCÊ NÃO TEM PERMISSÃO PARA LANÇAR PRODUTOS"))
                         else:
-                            product, category, unitprice, qtd, description, tipe, prynter = listen
-                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe, prynter))
-                        self.desconnecttemp()
-                        conn.sendall(str.encode("Y"))
+                            conn.sendall(str.encode("LOGIN INVÁLIDO"))
                     else:
                         conn.sendall(str.encode("N"))
+                    self.desconnectconts()
+                    self.desconnecttemp()
                 elif listen[0] == "GETNOTES":
                     self.connectproduct()
                     temp = self.productcursor.execute("SELECT text FROM Notes WHERE category = ?", (listen[1],  ))
