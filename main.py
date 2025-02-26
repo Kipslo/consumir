@@ -1832,21 +1832,7 @@ class application():
                 self.button_newcommand[i].configure(fg_color="#6f0000", hover_color="#4f0000")
             self.button_newcommand[i].grid(row=int(i/4), column=i%4, padx=10 ,pady=10)
     def clickmain(self, event):
-        position = pa.position()
-        x = self.width * 0.3
-        y = self.height * (0.93 + (0.175 * 0.07))
-        x2 = self.width * 0.45
-        y2 = self.height * (0.93 + (0.07 * 0.825)) 
-        if position.x > x and position.x < x2:
-            if position.y > y and position.y < y2 + position.y[3]:
-                pass
-            else:
-                self.entry_namecommand.delete(0, "end")
-                event.widget.focus_set()
-        else:
-            self.entry_namecommand.delete(0, "end")
-            event.widget.focus_set()
-    
+        event.widget.focus_set()
     def presskey(self, event):
         key = event.keysym
         n = self.entry_namecommand.get()
