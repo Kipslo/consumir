@@ -2047,7 +2047,7 @@ class application():
         self.currentwindow = "CASH"
 
         self.scrollframehis = ctk.CTkScrollableFrame(self.root)
-        self.scrollframehis.place(relx=0.01, rely=0.20, relwidth=0.98, relheight=0.78)
+        self.scrollframehis.place(relx=0.01, rely=0.20, relwidth=0.78, relheight=0.78)
 
         self.entrysearchhis = ctk.CTkEntry(self.root, placeholder_text="Cliente ou comanda")
         self.entrysearchhis.place(relx=0.01, rely=0.145, relwidth=0.2, relheight=0.05)
