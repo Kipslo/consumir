@@ -16,9 +16,12 @@ from CTkSpinbox import CTkSpinbox
 class application():
     def __init__(self):
         def close():
+            try:
+                aserver.close()
+                aprinter.printervar.terminate()
+            except:
+                pass
             self.root.destroy()
-            aserver.close()
-            aprinter.printervar.terminate()
         self.insertproductlist = []
         self.createtables()
         self.desconnecthistory()
@@ -57,7 +60,10 @@ class application():
         self.root.after(3000, self.printerexecute)
         self.root.mainloop()
     def printerexecute(self):
-        aprinter.init()
+        try:
+            aprinter.__init__()
+        except:
+            pass
     def loginwindow(self):
         self.currentwindow = "LOGIN"
         self.root.attributes("-fullscreen", True)
@@ -549,7 +555,7 @@ class application():
         elif self.currentwindow == "CLIENTES":
             self.frameclients.destroy(); self.frameclients.place_forget(); self.buttonaddclient.destroy(); self.searchclients.destroy()
         elif self.currentwindow == "CASH":
-            self.scrollframehis.destroy(); self.scrollframehis.place_forget(); self.entrysearchhis.destroy(); 
+            self.scrollframehis.destroy(); self.scrollframehis.place_forget(); self.entrysearchhis.destroy(); self.totalhisalllb.destroy(); self.totalhisvalue.destroy()
             try:
                 self.buttonopencash.destroy()
             except:
@@ -2031,10 +2037,11 @@ class application():
             except:
                 pass
             self.currenthistory = []
+            total = 0
             for k, i in enumerate(temp):
                 self.currenthistory.append([ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[1]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[2]} às {i[3]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=f"{i[7][0:10]} às {i[7][11:20]}"), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[6]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=100, height=50, text=i[9]), ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], width=200, height=50, text=i[4]), ctk.CTkButton(self.scrollframehis, command=lambda x = i[0]: self.windowcommand(closed=x), width=150, height=50, fg_color=self.colors[4], hover=False, text="", image=ctk.CTkImage(Image.open("./imgs/info.png"), size=(43, 43)))])
                 n = k + 2
-                
+                total += float(i[9])
                 self.currenthistory[k][0].grid(row=n, column=1, padx=1, pady=1)
                 self.currenthistory[k][1].grid(row=n, column=2, padx=1, pady=1)
                 self.currenthistory[k][2].grid(row=n, column=3, padx=1, pady=1)
@@ -2043,15 +2050,24 @@ class application():
                 self.currenthistory[k][5].grid(row=n, column=6, padx=1, pady=1)
                 self.currenthistory[k][6].grid(row=n, column=7, padx=1, pady=1)
             self.desconnecthistory()
+            self.totalhisvalue.configure(text=str(total))
         self.deletewindow()
         self.currentwindow = "CASH"
 
-        self.scrollframehis = ctk.CTkScrollableFrame(self.root)
-        self.scrollframehis.place(relx=0.01, rely=0.20, relwidth=0.78, relheight=0.78)
+        self.scrollframehis = ctk.CTkScrollableFrame(self.root, height=self.height * 0.8 - 80)
+        self.scrollframehis.place(relx=0.01, rely=0.20, relwidth=0.98)
+
+        self.totalhisall = ctk.CTkFrame(self.root, height=60, bg_color=self.colors[3])
+        self.totalhisall.place(relx=0.01, y=self.height - 69, relwidth=0.98,)
+
+        self.totalhisalllb = ctk.CTkLabel(self.totalhisall, width=200, height=50, text= "Renda total:", bg_color=self.colors[4])
+        self.totalhisalllb.grid(row= 1, column=1, padx=1, pady=1)
+
+        self.totalhisvalue = ctk.CTkLabel(self.totalhisall, width=100, height=50, text="0", bg_color=self.colors[4])
+        self.totalhisvalue.grid(row=1, column=2, padx=1, pady=1)
 
         self.entrysearchhis = ctk.CTkEntry(self.root, placeholder_text="Cliente ou comanda")
         self.entrysearchhis.place(relx=0.01, rely=0.145, relwidth=0.2, relheight=0.05)
-
 
         self.numberhis = ctk.CTkLabel(self.scrollframehis, bg_color=self.colors[4], text="COMANDA", width=100, height=50)
         self.numberhis.grid(row=1, column=1, padx=1, pady=1)
@@ -2542,6 +2558,12 @@ class application():
         self.productwaiterhis.grid(row=0, column=6, padx=1, pady=1)
 
         reload()
+    def reloadserverandprinter(self):
+        aserver.close()
+        aprinter.printervar.terminate()
+
+        aprinter.__init__()
+        aserver.__init__()
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
@@ -2572,8 +2594,8 @@ class application():
             self.currentmain = productbuttons
             self.currentimgs = productimgs
         elif text == "CONFIGURAÇÕES":  
-            configimgs = [ctk.CTkImage(Image.open("./imgs/config.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/caixa.png"), size=(60, 60))]
-            configbuttons = [[ctk.CTkButton(master=self.frame_tab, command=self.configwindow), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab, command=self.functionarywindow), "FUNCIONÁRIOS"], [ctk.CTkButton(self.frame_tab, command=self.windowprinters), "IMPRESSORAS"]]
+            configimgs = [ctk.CTkImage(Image.open("./imgs/config.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/caixa.png"), size=(60, 60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60))]
+            configbuttons = [[ctk.CTkButton(master=self.frame_tab, command=self.configwindow), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab, command=self.functionarywindow), "FUNCIONÁRIOS"], [ctk.CTkButton(self.frame_tab, command=self.windowprinters), "IMPRESSORAS"], [ctk.CTkButton(self.frame_tab, command=self.reloadserverandprinter), "RELOAD"]]
 
             self.currentmain = configbuttons
             self.currentimgs = configimgs
@@ -3114,7 +3136,7 @@ class printer():
     def desconnect(self):
         self.database.commit()
         self.database.close()
-    def init(self):
+    def __init__(self):
         self.printervar = Process(target=self.processprinter)  
         self.printervar.start()  
     def pause(self):
