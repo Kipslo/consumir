@@ -2962,6 +2962,14 @@ class server():
                             commands = commands + ",=" + str(i[0]) 
                     self.desconnectcommands()
                     conn.sendall(str.encode(commands))
+                elif listen[0] == "CLIENTNAME":
+                    self.connectcommands()
+                
+                    temp = self.commandscursor.execute("SELECT nameclient FROM CommandsActive WHERE number = ?", (listen[1], ))
+                    for i in temp:
+                        temp = i[0]
+                    self.desconnectcommands()
+                    conn.sendall(str.encode(temp))
                 elif listen[0] == "PRODUCTSON":
                     self.connectcommands()
                     TEMp = self.commandscursor.execute("SELECT product, quantity, price, type, size FROM Consumption WHERE number = ?", (listen[1], ))
