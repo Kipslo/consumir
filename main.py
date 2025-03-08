@@ -244,7 +244,7 @@ class application():
             self.productedit_heading = ctk.CTkLabel(self.frame_productreeviews, text="EDITAR", width=100, height=50, fg_color=self.colors[4])
             self.productedit_heading.grid(row=1, column=4, padx=1, pady=1)
 
-            self.productdel_heading = ctk.CTkLabel(self.frame_productreeviews, text="EXCLUIR", width=100, height=50, fg_color=self.colors[4])
+            self.productdel_heading = ctk.CTkLabel(self.frame_productreeviews, text="DEL", width=100, height=50, fg_color=self.colors[4])
             self.productdel_heading.grid(row=1, column=5, padx=1, pady=1)
 
             self.reloadproductsnormal()
