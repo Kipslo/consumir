@@ -1467,6 +1467,7 @@ class application():
             cod, command, product, category, unitprice, qtd, text, waiter, tipe, prynter = temp[0]
             date = str(datetime.datetime.now())[0:19]
             date, hour = date[0:10], date[11:20]
+            print(command)
             self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size, text, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, date, hour, waiter, float(unitprice)*qtd, unitprice, qtd, product, tipe, "", text, category))
             del temp[0]
             self.connecttemp()
@@ -3021,7 +3022,7 @@ class server():
                     self.desconnectproduct()
                     conn.sendall(str.encode(temp))
                 elif listen[0] == "INSERT":
-                    number, username, passw = listen[1], listen[2], listen[3]
+                    number, username, passw = listen[1].split('.='), listen[2], listen[3]
                     del listen[0]; del listen[0]; del listen[0]; del listen[0]
                     listen = listen[0].split(".-")
                     self.connectconts()
@@ -3042,7 +3043,21 @@ class server():
                                     description = ""
                                 else:
                                     product, category, unitprice, qtd, description, tipe, prynter = listen
-                                self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe, prynter))
+                                try:
+                                    number = int(number)
+                                    self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe, prynter))
+                                except Exception as error:
+                                    n = 0
+                                    print(error)
+                                    qtdcommand = len(number)
+                                    print(qtdcommand)
+                                        
+                                    for commandnow in number:
+                                        if n != 0:
+                                            prynter = ""
+                                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandnow, product + " (Dividido)", category, float(unitprice)/qtdcommand, qtd, description, username, tipe, prynter))
+                                        n = 1
+
                                 conn.sendall(str.encode("Y"))
                             else:
                                 conn.sendall(str.encode("VOCÊ NÃO TEM PERMISSÃO PARA LANÇAR PRODUTOS"))
