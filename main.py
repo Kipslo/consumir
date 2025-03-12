@@ -299,8 +299,7 @@ class application():
             prices = [9999, -1]
             for n in temp:
                 price = n[0]
-                price.replace(",", ".")
-                price = float(price)
+                price = float(price.replace(",", "."))
                 if prices[0] > price:
                     prices[0] = price
                 if prices[1] < price:
@@ -551,7 +550,7 @@ class application():
         elif self.currentwindow == "CONFIG":
             self.button_saveconfig.destroy(); self.frame_config.destroy(); self.frame_config.place_forget()
         elif self.currentwindow == "FUNCIONÁRIOS":
-            self.scroolframe_functionary.destroy; self.scroolframe_functionary.place_forget(); self.button_addfunctionary.destroy(); self.entry_name.destroy(); self.entry_passwordcont.destroy()
+            self.scroolframe_functionary.destroy; self.scroolframe_functionary.place_forget(); self.button_addfunctionary.destroy(); self.entry_name.destroy(); self.entry_passwordcont.destroy(); self.entry_username.destroy()
         elif self.currentwindow == "CLIENTES":
             self.frameclients.destroy(); self.frameclients.place_forget(); self.buttonaddclient.destroy(); self.searchclients.destroy()
         elif self.currentwindow == "CASH":
@@ -1410,7 +1409,7 @@ class application():
                 self.current_productsincommands[k][3].grid(row= k + 1, column=4, padx=1, pady=1)
                 self.current_productsincommands[k][4].grid(row= k + 1, column=5, padx=1, pady=1)
                 self.current_productsincommands[k][5].grid(row= k + 1, column=6, padx=1, pady=1)
-            totalprice = totalprice + float(price)
+            totalprice = totalprice + float(price.replace("," , "."))
         self.label_totalprice = ctk.CTkLabel(self.frame_infocommand, text=totalprice, fg_color=self.colors[4])
         self.label_totalprice.place(relx=0.37, rely=0.15, relwidth=0.32, relheight=0.3)
         self.desconnecthistory()
@@ -1895,7 +1894,7 @@ class application():
                 if permissionentry == "Y":
                     self.currentfunctionaryvar[k][2].set("Y")
                 self.currentfunctionarylabel.append([ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=200, height=40, text=username),
-                                                     ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=50, height=40, text=name), 
+                                                     ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=150, height=40, text=name), 
                                                     ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][0], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionmaster", y = k,z = name:update(x, y, z)),
                                                     ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][1], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionrelease", y = k,z = name:update(x, y, z)),
                                                     ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][2], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionentry", y = k,z = name:update(x, y, z)),
@@ -1980,7 +1979,7 @@ class application():
         self.username_headingfunctionary = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=200, height=50, text="FUNCIONÁRIO")
         self.username_headingfunctionary.grid(row=1, column=1, padx=1, pady=1)
 
-        self.name_headingfunctionery = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=50, height=50, text="LOGIN")
+        self.name_headingfunctionery = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=150, height=50, text="LOGIN")
         self.name_headingfunctionery.grid(row=1, column=2, padx=1, pady=1)
 
         self.permissionmaster_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=70, height=50, text="ADMIN")
@@ -3044,20 +3043,19 @@ class server():
                                 else:
                                     product, category, unitprice, qtd, description, tipe, prynter = listen
                                 try:
-                                    number = int(number)
-                                    self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe, prynter))
-                                except Exception as error:
                                     n = 0
-                                    print(error)
+
                                     qtdcommand = len(number)
-                                    print(qtdcommand)
-                                        
+                                    if qtdcommand == 1:
+                                        raise    
                                     for commandnow in number:
                                         if n != 0:
                                             prynter = ""
                                         self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandnow, product + " (Dividido)", category, float(unitprice)/qtdcommand, qtd, description, username, tipe, prynter))
                                         n = 1
-
+                                except Exception as error:
+                                    number = int(number[0])
+                                    self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe, prynter))
                                 conn.sendall(str.encode("Y"))
                             else:
                                 conn.sendall(str.encode("VOCÊ NÃO TEM PERMISSÃO PARA LANÇAR PRODUTOS"))
