@@ -14,5 +14,5 @@ import sqlite3
 #    print(i)
 #printers.commit()
 #printers.close()
-oi = ["oi", "kop", 'kocho']
-print('oi' in oi and 'kocho' in oi)
+oi = "oi"
+print(oi.split(","))
