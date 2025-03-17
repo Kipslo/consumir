@@ -1466,8 +1466,7 @@ class application():
             cod, command, product, category, unitprice, qtd, text, waiter, tipe, prynter = temp[0]
             date = str(datetime.datetime.now())[0:19]
             date, hour = date[0:10], date[11:20]
-            print(command)
-            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size, text, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, date, hour, waiter, float(unitprice)*qtd, unitprice, qtd, product, tipe, "", text, category))
+            self.commandscursor.execute("INSERT INTO Consumption (number, date, hour, waiter, price, unitprice, quantity, product, type, size, text, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, date, hour, waiter, float(unitprice.replace(",", "."))*qtd, unitprice, qtd, product, tipe, "", text, category))
             del temp[0]
             self.connecttemp()
             self.tempdbcursor.execute("DELETE FROM TempProducts Where cod = ?", (cod, ))
@@ -2957,9 +2956,9 @@ class server():
                     for i in TEMp:
                         if temp == "":
                             temp = "a"
-                            commands = str(i[0])
+                            commands = str(int(i[0]) - 1)
                         else:
-                            commands = commands + ",=" + str(i[0]) 
+                            commands = commands + ",=" + str(int(i[0]) - 1) 
                     self.desconnectcommands()
                     conn.sendall(str.encode(commands))
                 elif listen[0] == "CLIENTNAME":
@@ -3042,6 +3041,7 @@ class server():
                                     description = ""
                                 else:
                                     product, category, unitprice, qtd, description, tipe, prynter = listen
+                                unitprice = unitprice.replace(",", ".")
                                 try:
                                     n = 0
 
@@ -3054,6 +3054,7 @@ class server():
                                         self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandnow, product + " (Dividido)", category, float(unitprice)/qtdcommand, qtd, description, username, tipe, prynter))
                                         n = 1
                                 except Exception as error:
+                                    print(error)
                                     number = int(number[0])
                                     self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe, prynter))
                                 conn.sendall(str.encode("Y"))
