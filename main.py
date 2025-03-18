@@ -18,7 +18,7 @@ class application():
         def close():
             try:
                 aserver.close()
-                aprinter.printervar.terminate()
+                aprinter.close()
             except:
                 pass
             self.root.destroy()
@@ -61,7 +61,7 @@ class application():
         self.root.mainloop()
     def printerexecute(self):
         try:
-            aprinter.__init__()
+            aprinter.initializate()
         except:
             pass
     def loginwindow(self):
@@ -2559,10 +2559,10 @@ class application():
         reload()
     def reloadserverandprinter(self):
         aserver.close()
-        aprinter.printervar.terminate()
+        aprinter.close()
 
-        aprinter.__init__()
-        aserver.__init__()
+        aprinter.initializate()
+        aserver.initializate()
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
@@ -2910,19 +2910,24 @@ class server():
     def desconnectclients(self):
         self.clients.commit()
         self.clients.close()
-    def __init__(self):
+    def initializate(self):
+        try:
+            self.close()
+        except:
+            pass
         self.servervar =  Process(target=self.server)
-        self.permission = True
         self.servervar.start()
+    def __init__(self):
+        self.initializate()
     def server(self):
-        if self.permission:
+        if True:
             #'192.168.0.85'
             self.HOST = socket.gethostbyname(socket.gethostname())
             self.PORT = 55261
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.bind((self.HOST, self.PORT))
             self.s.listen()
-            while self.permission:
+            while True:
                 conn, ender = self.s.accept()
                 data = None
                 while not data:
@@ -3150,6 +3155,8 @@ class printer():
     active = False
     paused = False
     printers = {}
+    def close(self):
+        self.printervar.terminate()
     def connectconfig(self):
         self.config = sql.connect("config.db")
         self.configcursor = self.config.cursor()
@@ -3162,9 +3169,15 @@ class printer():
     def desconnect(self):
         self.database.commit()
         self.database.close()
-    def __init__(self):
+    def initializate(self):
+        try:
+            self.close
+        except:
+            pass
         self.printervar = Process(target=self.processprinter)  
         self.printervar.start()  
+    def __init__(self):
+        self.initializate()
     def pause(self):
         self.paused = True
     def retome(self):
