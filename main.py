@@ -2910,6 +2910,9 @@ class server():
     def desconnectclients(self):
         self.clients.commit()
         self.clients.close()
+    def decimal(self, number):
+        integer, decimal = str(number).split(".")
+        return float(integer + "." + decimal[0:2])
     def initializate(self):
         try:
             self.close()
@@ -3056,7 +3059,7 @@ class server():
                                     for commandnow in number:
                                         if n != 0:
                                             prynter = ""
-                                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandnow, product + " (Dividido)", category, float(unitprice)/qtdcommand, qtd, description, username, tipe, prynter))
+                                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandnow, product + " (Dividido)", category, self.decimal(float(unitprice)/qtdcommand), qtd, description, username, tipe, prynter))
                                         n = 1
                                 except Exception as error:
                                     print(error)
