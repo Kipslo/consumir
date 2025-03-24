@@ -2552,8 +2552,11 @@ class application():
         aprinter.initializate()
         aserver.initializate()
     def standartentries(self):
-        def delete():
-            pass
+        def delete(cod):
+            self.connectconfig()
+            self.configcursor.execute("DELETE FROM Entries WHERE cod = ?", (cod, ))
+            self.desconnectconfig()
+            reload()
         def save():
             self.connectconfig()
             for i in self.currententry:
@@ -2580,7 +2583,10 @@ class application():
                     ide, namee, sinc = tmp 
                     raise
                 except:
-                    self.configcursor.execute("INSERT INTO Entries (name, entry) VALUES (?, ?)", (namee, sinc))
+                    if ide == "":
+                        self.configcursor.execute("INSERT INTO Entries (name, entry) VALUES (?, ?)", (namee, sinc))
+                    else:
+                        self.configcursor.execute("INSERT INTO Entries (cod, name, entry) VALUES (?, ?, ?)", (ide, namee, sinc))
             self.desconnectconfig()
             reload()
         def reload():
@@ -2595,7 +2601,7 @@ class application():
             self.currententry = []
             for k, i in enumerate(temp):
                 n = k + 1
-                self.currententry.append([ctk.CTkLabel(self.frameentries, text=i[0], bg_color=self.colors[4], width=80, height=40), ctk.CTkLabel(self.frameentries, text=i[1], bg_color=self.colors[4], width=300, height=40), ctk.CTkEntry(self.frameentries, bg_color=self.colors[4], width=200, height=40), ctk.CTkButton(self.frameentries, fg_color=self.colors[4], hover=False, width=80, height=40, text="", image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(35, 35)))])
+                self.currententry.append([ctk.CTkLabel(self.frameentries, text=i[0], bg_color=self.colors[4], width=80, height=40), ctk.CTkLabel(self.frameentries, text=i[1], bg_color=self.colors[4], width=300, height=40), ctk.CTkEntry(self.frameentries, bg_color=self.colors[4], width=200, height=40), ctk.CTkButton(self.frameentries, fg_color=self.colors[4], hover=False, width=80, height=40, text="", image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(35, 35)), command=lambda x = i[0]:delete(x))])
                 self.currententry[k][0].grid(row=n, column=1, padx=1, pady=1)
                 self.currententry[k][1].grid(row=n, column=2, padx=1, pady=1)
                 
@@ -2781,9 +2787,7 @@ class application():
                                   housename VARCHAR(30),
                                   adress VARCHAR(30),
                                   fone VARCHAR(10),
-                                  printer VARCHAR(30),
-                                  male VARCHAR(30),
-                                  female VARCHAR(30)
+                                  printer VARCHAR(30)
                                   )""")
         self.configcursor.execute("""CREATE TABLE IF NOT EXISTS Entries(
                                   cod INTEGER PRIMARY KEY, 
@@ -3178,11 +3182,27 @@ class server():
                             text = text + ".=" + i[0]
                     self.desconnectproduct()
                     conn.sendall(str.encode(text))
+                elif listen[0] == "ENTRIES":
+                    self.connectconfig()
+                    temp = self.configcursor.execute("SELECT cod, name FROM Entries")
+                    text = ''
+
+                    for i in temp:
+                        if text == "":
+                            text = f"{i[0]},={i[1]}"
+                        else:
+                            text = text + f".={i[0]},={i[1]}"
+                    self.desconnectconfig()
+                    conn.sendall(text.encode())
                 elif listen[0] == "INSERTCLIENT":
                     self.connectcommands()
                     del listen[0]
-                    waiter, passw, command, idclient, client, male, female = listen
-                    
+                    try:
+                        waiter, passw, command, idclient, client = listen
+                        entries = ""
+                    except:
+                        waiter, passw, command, idclient, client, entries = listen
+                        entries = entries.split(";=")
                     date = str(datetime.datetime.now())[0:19]
                     date, hour = date[0:10], date[11:20]
                     try:
@@ -3214,22 +3234,17 @@ class server():
                                 self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, client, idclient))
                             else:
                                 self.commandscursor.execute("UPDATE CommandsActive SET nameclient = ?, idclient = ? WHERE number = ?", (client, idclient, command))
-                            if int(male) > 0:
-                                temp = self.configcursor.execute("SELECT male FROM Config WHERE cod = '1'")
-                                for i in temp:
-                                    temp = i[0]
-                                temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ?", (temp, ))
-                                for i in temp:
-                                    product, tipe, category, price, prynter = i
-                                self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, male, "", waiter, tipe, prynter))
-                            if int(female) > 0:
-                                temp = self.configcursor.execute("SELECT female FROM Config WHERE cod = '1'")
-                                for i in temp:
-                                    temp = i[0]
-                                temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ?", (temp, ))
-                                for i in temp:
-                                    product, tipe, category, price, prynter = i
-                                self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, female, "", waiter, tipe, prynter))
+                            if entries != "":
+                                for j in entries:
+                                    entry = j.split(".=")
+                                    temp = self.configcursor.execute("SELECT entry FROM Entries WHERE name = ?", (entry[0], ))
+                                    for i in temp:
+                                        temp = i[0]
+                                    temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ?", (temp, ))
+                                    for i in temp:
+                                        product, tipe, category, price, prynter = i
+                                    self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, entry[1], "", waiter, tipe, prynter))
+                            
                             conn.sendall(str.encode("OK"))
                         else:
                             conn.sendall(str.encode("SEM PERMISSÃO"))
