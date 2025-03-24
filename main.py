@@ -408,16 +408,16 @@ class application():
     def configwindow(self):
         def save():
             self.connectconfig()
-            self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ?, cnpj = ?, housename = ?, adress = ?, fone = ?, printer = ?, male = ?, female = ? WHERE cod = 1""", (self.stylevar.get(), self.limitcommands.get(), self.entry_cnpj.get(), self.entry_namehome.get(), self.entry_adress.get(), self.entry_fone.get(), self.printerclosedvar.get(), self.male.get(), self.female.get()))
+            self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ?, cnpj = ?, housename = ?, adress = ?, fone = ?, printer = ? WHERE cod = 1""", (self.stylevar.get(), self.limitcommands.get(), self.entry_cnpj.get(), self.entry_namehome.get(), self.entry_adress.get(), self.entry_fone.get(), self.printerclosedvar.get()))
             self.desconnectconfig()
         self.deletewindow()
         self.currentwindow = "CONFIG"
 
         self.connectconfig()
-        temp = self.configcursor.execute("SELECT stylemode, maxcommands, cnpj, housename, adress, fone, printer, female, male FROM Config WHERE cod = '1'")
+        temp = self.configcursor.execute("SELECT stylemode, maxcommands, cnpj, housename, adress, fone, printer FROM Config WHERE cod = '1'")
 
         for i in temp:
-            style, maxcommands, cnpj, housename, adress, fone, prynter, male, female = i
+            style, maxcommands, cnpj, housename, adress, fone, prynter = i
         self.desconnectconfig()
 
         self.frame_config = ctk.CTkScrollableFrame(self.root)
@@ -485,20 +485,6 @@ class application():
         self.printerclosedvar = ctk.StringVar(value=prynter)
         self.printerclosed = ctk.CTkComboBox(self.frame_config, width=200, height=40, values=printers, variable=self.printerclosedvar)
         self.printerclosed.grid(row=8, column=2, padx=1, pady=1)
-
-        self.malelb = ctk.CTkLabel(self.frame_config, width=200, height=40, text="ENTRADA MASCULINO:", bg_color=self.colors[4])
-        self.malelb.grid(row=9, column=1, padx=1, pady=1)
-
-        self.male = ctk.CTkEntry(self.frame_config, width=200, height=40)
-        self.male.grid(row=9, column=2, padx=1, pady=1)
-        self.male.insert(0, male)
-
-        self.femalelb = ctk.CTkLabel(self.frame_config, text="ENTRADA FEMININO:", width=200, height=40, bg_color=self.colors[4])
-        self.femalelb.grid(row=10, column=1, padx=1, pady=1)
-
-        self.female = ctk.CTkEntry(self.frame_config, width=200, height=40)
-        self.female.grid(row=10, column=2, padx=1, pady=1)
-        self.female.insert(0, female)
 
         self.button_saveconfig = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="SALVAR", command=save)
         self.button_saveconfig.place(relx=0.8, rely=0.145, relwidth=0.1, relheight=0.05)
@@ -571,6 +557,8 @@ class application():
             self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy(); self.frame_ranking.destroy(); self.frame_ranking.place_forget(); self.frameinithour.destroy(); self.frameinitmin.destroy(); self.framefinishhour.destroy(); self.framefinishmin.destroy()
         elif self.currentwindow == "HISTORYPRODUCTS":
             self.frame_hisproducts.destroy(); self.frame_hisproducts.place_forget()
+        elif self.currentwindow == "STANDARTENTRIES":
+            pass
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     def clientswindow(self):
@@ -2563,6 +2551,70 @@ class application():
 
         aprinter.initializate()
         aserver.initializate()
+    def standartentries(self):
+        def save():
+            pass
+        def add():
+            pass
+        def reload():
+            try:
+                for i in self.currententry:
+                    for j in i:
+                        j.destroy()
+            except:
+                pass
+            self.connectconfig()
+            temp = self.configcursor.execute("SELECT * FROM Entries")
+            self.currententry = []
+            for k, i in enumerate(temp):
+                self.currententry.append([ctk.CTkLabel(self.frameentries, text=i[0]), ctk.CTkEntry(self.frameentries, )])
+                self.currententry[k][0].grid()
+                self.currententry[k][1].insert(i[1]).grid()
+            self.desconnectconfig()
+        self.deletewindow()
+
+        self.currentwindow = "STANDARTENTRIES"
+
+        self.frameentries = ctk.CTkScrollableFrame(self.root)
+        self.frameentries.place(relx=0.01, rely=0.2, relwidth=0.98, relheight=0.79)
+
+        self.entryid = ctk.CTkEntry(self.root, placeholder_text="ID")
+        self.entryid.place(relx=0.01, rely=0.145, relwidth=0.09, relheight=0.05)
+
+        self.entryname = ctk.CTkEntry(self.root, placeholder_text="Tipo de entrada")
+        self.entryname.place(relx=0.11, rely=0.145, relwidth=0.19, relheight=0.05)
+
+        self.addentrybutton = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3])
+        self.addentrybutton.place(relx=0.8, rely=0.145, relwidth=0.09, relheight=0.05)
+
+        self.savebutton = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3])
+        self.savebutton.place(relx=0.9, rely=0.145, relwidth=0.09, relheight=0.05)
+
+        #self.malelb = ctk.CTkLabel(self.frame_config, width=200, height=40, text="ENTRADA MASCULINO:", bg_color=self.colors[4])
+        #self.malelb.grid(row=9, column=1, padx=1, pady=1)
+
+        self.idhead = ctk.CTkLabel(self.root, bg_color=self.colors[4], text="ID")
+        self.idhead.grid(row=0, column=1, padx=1, pady=1)
+
+        self.namehead = ctk.CTkLabel(self.root, bg_color=self.colors[4], text="TIPO DE ENTRADA")
+        self.namehead.grid(row=0, column=2, padx=1, pady=1)
+        
+        self.entryhead = ctk.CTkLabel(self.root, bg_color=self.colors[4], text="VINCULAR A")
+        self.entryhead.grid(row=0, column=3, padx=1, pady=1)
+
+     #   self.male = ctk.CTkEntry(self.frame_config, width=200, height=40)
+    #    self.male.grid(row=9, column=2, padx=1, pady=1)
+   #     self.male.insert(0, male)
+
+        #self.femalelb = ctk.CTkLabel(self.frame_config, text="ENTRADA FEMININO:", width=200, height=40, bg_color=self.colors[4])
+        #self.femalelb.grid(row=10, column=1, padx=1, pady=1)
+
+#        self.female = ctk.CTkEntry(self.frame_config, width=200, height=40)
+ #       self.female.grid(row=10, column=2, padx=1, pady=1)
+  #      self.female.insert(0, female)
+
+        reload()
+
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
@@ -2593,8 +2645,8 @@ class application():
             self.currentmain = productbuttons
             self.currentimgs = productimgs
         elif text == "CONFIGURAÇÕES":  
-            configimgs = [ctk.CTkImage(Image.open("./imgs/config.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/caixa.png"), size=(60, 60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60))]
-            configbuttons = [[ctk.CTkButton(master=self.frame_tab, command=self.configwindow), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab, command=self.functionarywindow), "FUNCIONÁRIOS"], [ctk.CTkButton(self.frame_tab, command=self.windowprinters), "IMPRESSORAS"], [ctk.CTkButton(self.frame_tab, command=self.reloadserverandprinter), "RELOAD"]]
+            configimgs = [ctk.CTkImage(Image.open("./imgs/config.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/caixa.png"), size=(60, 60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/info.png"), size=(60, 60))]
+            configbuttons = [[ctk.CTkButton(master=self.frame_tab, command=self.configwindow), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab, command=self.functionarywindow), "FUNCIONÁRIOS"], [ctk.CTkButton(self.frame_tab, command=self.windowprinters), "IMPRESSORAS"], [ctk.CTkButton(self.frame_tab, command=self.reloadserverandprinter), "RELOAD"], [ctk.CTkButton(self.frame_tab, command=self.standartentries), "ENTRADAS"]]
 
             self.currentmain = configbuttons
             self.currentimgs = configimgs
@@ -2698,6 +2750,10 @@ class application():
                                   male VARCHAR(30),
                                   female VARCHAR(30)
                                   )""")
+        self.configcursor.execute("""CREATE TABLE IF NOT EXISTS Entries(
+                                  cod INTEGER PRIMARY KEY, 
+                                  name VARCHAR(30),
+                                  entry VARCHAR(30))""")
         self.desconnectconfig()
         self.connectconts()
         self.contscursor.execute("""CREATE TABLE IF NOT EXISTS Conts(
@@ -3207,7 +3263,7 @@ class printer():
                 temp = self.cursor.execute("SELECT ip FROM Printers WHERE name = ?", (listen[0][1], ))
                 for i in temp:
                     prynter = i[0]
-                prynter = Network(prynter)
+                prynter = Network(prynter, timeout=5)
                 prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
                 prynter.textln(listen[0][1].replace("ã", "a").replace("Ã", "A"))
                 prynter.ln()
