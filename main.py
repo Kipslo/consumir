@@ -558,7 +558,7 @@ class application():
         elif self.currentwindow == "HISTORYPRODUCTS":
             self.frame_hisproducts.destroy(); self.frame_hisproducts.place_forget()
         elif self.currentwindow == "STANDARTENTRIES":
-            pass
+            self.frameentries.destroy(); self.frameentries.place_forget(); self.entryid.destroy(); self.entryname.destroy(); self.addentrybutton.destroy(); self.savebutton.destroy()
         self.root.bind_all("<KeyPress>", self.nonclick)
         self.root.bind("<Button-1>", self.nonclick)
     def clientswindow(self):
@@ -2552,33 +2552,35 @@ class application():
         aprinter.initializate()
         aserver.initializate()
     def standartentries(self):
-        def save():
+        def delete():
             pass
+        def save():
+            self.connectconfig()
+            for i in self.currententry:
+                self.configcursor.execute("UPDATE Entries SET entry = ? WHERE name = ?", (i[2].get(), i[1].cget("text")))
+            self.desconnectconfig()
         def add():
             self.connectconfig()
             ide, namee, sinc = self.entryid.get(), self.entryname.get(), ""
-            try:
-                if ide == "":
-                    raise "oi"
-                temp = self.configcursor.execute("SELECT * FROM Entries WHERE cod = ?", (int(ide), ))
-                tmp = ''
-                for i in temp:
-                    tmp = i
-                if tmp == '':
-                    raise 'oii'
-                self.configcursor.execute("DELETE INTO Entries WHERE cod = ?", (ide, ))
-                self.configcursor.execute("INSERT INTO Entries (cod, name) VALUES (?, ?)", (ide, namee))
-                ide, namee, sinc = tmp 
-                raise "oiii"
-            except Exception as error:
-                print(error)
-                print(ide)
-                print(namee)
-                print(sinc)
-                if ide == "":
+            tmp = ""
+            temp = self.configcursor.execute("SELECT cod FROM Entries WHERE name = ?", (namee, ))
+            for i in temp:
+                tmp = i
+            if tmp == "":
+                try:
+                    if ide == "":
+                        raise
+                    temp = self.configcursor.execute("SELECT * FROM Entries WHERE cod = ?", (int(ide), ))
+                    tmp = ''
+                    for i in temp:
+                        tmp = i
+                    if tmp == '':
+                        raise
+                    self.configcursor.execute("UPDATE Entries SET name = ?, entry = ? WHERE cod = ?", (namee, sinc, ide))
+                    ide, namee, sinc = tmp 
+                    raise
+                except:
                     self.configcursor.execute("INSERT INTO Entries (name, entry) VALUES (?, ?)", (namee, sinc))
-                else:
-                    self.configcursor.execute("INSERT INTO Entries (cod, name, entry) VALUES (?, ?, ?)", (ide, namee, sinc))
             self.desconnectconfig()
             reload()
         def reload():
@@ -2593,16 +2595,18 @@ class application():
             self.currententry = []
             for k, i in enumerate(temp):
                 n = k + 1
-                self.currententry.append([ctk.CTkLabel(self.frameentries, text=i[0], bg_color=self.colors[4]), ctk.CTkLabel(self.frameentries, text=i[1], bg_color=self.colors[4]), ctk.CTkEntry(self.frameentries, bg_color=self.colors[4]), ctk.CTkButton(self.frameentries, bg_color=self.colors[4], hover=False)])
+                self.currententry.append([ctk.CTkLabel(self.frameentries, text=i[0], bg_color=self.colors[4], width=80, height=40), ctk.CTkLabel(self.frameentries, text=i[1], bg_color=self.colors[4], width=300, height=40), ctk.CTkEntry(self.frameentries, bg_color=self.colors[4], width=200, height=40), ctk.CTkButton(self.frameentries, fg_color=self.colors[4], hover=False, width=80, height=40, text="", image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(35, 35)))])
                 self.currententry[k][0].grid(row=n, column=1, padx=1, pady=1)
                 self.currententry[k][1].grid(row=n, column=2, padx=1, pady=1)
-                self.currententry[k][2].insert(0, i[2]).grid(row=n, column=3, padx=1, pady=1)
-                self.currententry[k][3]
+                
+                self.currententry[k][2].insert(0, i[2])
+                self.currententry[k][2].grid(row=n, column=3, padx=1, pady=1)
+                self.currententry[k][3].grid(row=n, column=4, padx=1, pady=1)
             self.desconnectconfig()
         self.deletewindow()
 
         self.currentwindow = "STANDARTENTRIES"
-
+        
         self.frameentries = ctk.CTkScrollableFrame(self.root)
         self.frameentries.place(relx=0.01, rely=0.2, relwidth=0.98, relheight=0.79)
 
@@ -2621,16 +2625,16 @@ class application():
         #self.malelb = ctk.CTkLabel(self.frame_config, width=200, height=40, text="ENTRADA MASCULINO:", bg_color=self.colors[4])
         #self.malelb.grid(row=9, column=1, padx=1, pady=1)
 
-        self.idhead = ctk.CTkLabel(self.root, bg_color=self.colors[4], text="ID")
+        self.idhead = ctk.CTkLabel(self.frameentries, bg_color=self.colors[4], text="ID", width=80, height=40)
         self.idhead.grid(row=0, column=1, padx=1, pady=1)
 
-        self.namehead = ctk.CTkLabel(self.root, bg_color=self.colors[4], text="TIPO DE ENTRADA")
+        self.namehead = ctk.CTkLabel(self.frameentries, bg_color=self.colors[4], text="TIPO DE ENTRADA", width=300, height=40)
         self.namehead.grid(row=0, column=2, padx=1, pady=1)
         
-        self.entryhead = ctk.CTkLabel(self.root, bg_color=self.colors[4], text="VINCULAR A")
+        self.entryhead = ctk.CTkLabel(self.frameentries, bg_color=self.colors[4], text="VINCULAR A", width=200, height=40)
         self.entryhead.grid(row=0, column=3, padx=1, pady=1)
         
-        self.delhead = ctk.CTkLabel(self.root, bg_color=self.colors[4], text="DELETAR")
+        self.delhead = ctk.CTkLabel(self.frameentries, bg_color=self.colors[4], text="DELETAR", width=80, height=40)
         self.delhead.grid(row=0, column=4, padx=1, pady=1)
 
      #   self.male = ctk.CTkEntry(self.frame_config, width=200, height=40)
