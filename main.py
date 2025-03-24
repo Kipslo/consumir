@@ -2555,7 +2555,32 @@ class application():
         def save():
             pass
         def add():
-            pass
+            self.connectconfig()
+            ide, namee, sinc = self.entryid.get(), self.entryname.get(), ""
+            try:
+                if ide == "":
+                    raise "oi"
+                temp = self.configcursor.execute("SELECT * FROM Entries WHERE cod = ?", (int(ide), ))
+                tmp = ''
+                for i in temp:
+                    tmp = i
+                if tmp == '':
+                    raise 'oii'
+                self.configcursor.execute("DELETE INTO Entries WHERE cod = ?", (ide, ))
+                self.configcursor.execute("INSERT INTO Entries (cod, name) VALUES (?, ?)", (ide, namee))
+                ide, namee, sinc = tmp 
+                raise "oiii"
+            except Exception as error:
+                print(error)
+                print(ide)
+                print(namee)
+                print(sinc)
+                if ide == "":
+                    self.configcursor.execute("INSERT INTO Entries (name, entry) VALUES (?, ?)", (namee, sinc))
+                else:
+                    self.configcursor.execute("INSERT INTO Entries (cod, name, entry) VALUES (?, ?, ?)", (ide, namee, sinc))
+            self.desconnectconfig()
+            reload()
         def reload():
             try:
                 for i in self.currententry:
@@ -2567,9 +2592,12 @@ class application():
             temp = self.configcursor.execute("SELECT * FROM Entries")
             self.currententry = []
             for k, i in enumerate(temp):
-                self.currententry.append([ctk.CTkLabel(self.frameentries, text=i[0]), ctk.CTkEntry(self.frameentries, )])
-                self.currententry[k][0].grid()
-                self.currententry[k][1].insert(i[1]).grid()
+                n = k + 1
+                self.currententry.append([ctk.CTkLabel(self.frameentries, text=i[0], bg_color=self.colors[4]), ctk.CTkLabel(self.frameentries, text=i[1], bg_color=self.colors[4]), ctk.CTkEntry(self.frameentries, bg_color=self.colors[4]), ctk.CTkButton(self.frameentries, bg_color=self.colors[4], hover=False)])
+                self.currententry[k][0].grid(row=n, column=1, padx=1, pady=1)
+                self.currententry[k][1].grid(row=n, column=2, padx=1, pady=1)
+                self.currententry[k][2].insert(0, i[2]).grid(row=n, column=3, padx=1, pady=1)
+                self.currententry[k][3]
             self.desconnectconfig()
         self.deletewindow()
 
@@ -2584,10 +2612,10 @@ class application():
         self.entryname = ctk.CTkEntry(self.root, placeholder_text="Tipo de entrada")
         self.entryname.place(relx=0.11, rely=0.145, relwidth=0.19, relheight=0.05)
 
-        self.addentrybutton = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3])
+        self.addentrybutton = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Adicionar", command=add)
         self.addentrybutton.place(relx=0.8, rely=0.145, relwidth=0.09, relheight=0.05)
 
-        self.savebutton = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3])
+        self.savebutton = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Salvar vinculo", command=save)
         self.savebutton.place(relx=0.9, rely=0.145, relwidth=0.09, relheight=0.05)
 
         #self.malelb = ctk.CTkLabel(self.frame_config, width=200, height=40, text="ENTRADA MASCULINO:", bg_color=self.colors[4])
@@ -2601,6 +2629,9 @@ class application():
         
         self.entryhead = ctk.CTkLabel(self.root, bg_color=self.colors[4], text="VINCULAR A")
         self.entryhead.grid(row=0, column=3, padx=1, pady=1)
+        
+        self.delhead = ctk.CTkLabel(self.root, bg_color=self.colors[4], text="DELETAR")
+        self.delhead.grid(row=0, column=4, padx=1, pady=1)
 
      #   self.male = ctk.CTkEntry(self.frame_config, width=200, height=40)
     #    self.male.grid(row=9, column=2, padx=1, pady=1)
