@@ -173,6 +173,10 @@ class application():
 
         self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color=self.colors[7], text="JUNTAR COMANDAS", hover_color=self.colors[6])
         self.button_mergecommands.place(relx=0.135, rely=0.175, relwidth=0.15, relheight=0.65)
+        
+        txt = self.entry_namecommand.get()
+        self.aplyname = ctk.CTkButton(self.frame_down, fg_color=self.colors[7], text="PROCURAR", hover_color=self.colors[6], command=lambda x = True:self.reloadcommands(x))
+        self.aplyname.place(relx=0.89, rely=0.175, relwidth=0.1, relheight=0.65)
 
         self.root.bind("<Button-1>", self.clickmain)
         threading.Thread(self.reloadcommands()).start()
@@ -1744,7 +1748,7 @@ class application():
             self.closewindowaddproduct()
     def nonclick(self, event):
         pass
-    def reloadcommands(self):
+    def reloadcommands(self, x = False ):
         self.number =[]
         try:
             for i in self.currentcommands:
@@ -1752,10 +1756,22 @@ class application():
         except:
             pass
         self.connectcommands()
-        currentcommands = self.commandscursor.execute("""SELECT number, initdate, hour, nameclient FROM CommandsActive""")
+        commands = self.commandscursor.execute("""SELECT number, initdate, hour, nameclient FROM CommandsActive""")
         self.currentcommands = []
         framewidth = self.width - self.width * 0.02
         qtdrow = int(framewidth//280)
+        currentcommands = []
+        print(x)
+        if x:
+            x = self.entry_namecommand.get()
+            print(x)
+            for i in commands:
+                print(i)
+                if x.upper() in i[3].upper():
+                    print("s")
+                    currentcommands.append(i)
+        else:
+            currentcommands = commands
         for i, command in enumerate(currentcommands):
             number, initdate, inithour, nameclient  = command
             now = datetime.datetime.now()
