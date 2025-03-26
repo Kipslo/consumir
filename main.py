@@ -168,7 +168,7 @@ class application():
         self.entry_namecommand = ctk.CTkEntry(self.frame_down, placeholder_text="PESQUISAR POR NOME", fg_color=self.colors[7], font=("Arial", 20))
         self.entry_namecommand.place(relx=0.3, rely=0.175 , relwidth=0.15, relheight=0.65)
 
-        self.button_updatecommand = ctk.CTkButton(self.frame_down, fg_color=self.colors[7], text="ATUALIZAR", hover_color=self.colors[6])
+        self.button_updatecommand = ctk.CTkButton(self.frame_down, fg_color=self.colors[7], text="ATUALIZAR", hover_color=self.colors[6], command=lambda: threading.Thread(self.reloadcommands()).start())
         self.button_updatecommand.place(relx=0.02, rely=0.175, relwidth=0.1, relheight=0.65)
 
         self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color=self.colors[7], text="JUNTAR COMANDAS", hover_color=self.colors[6])
@@ -1761,14 +1761,10 @@ class application():
         framewidth = self.width - self.width * 0.02
         qtdrow = int(framewidth//280)
         currentcommands = []
-        print(x)
         if x:
             x = self.entry_namecommand.get()
-            print(x)
             for i in commands:
-                print(i)
                 if x.upper() in i[3].upper():
-                    print("s")
                     currentcommands.append(i)
         else:
             currentcommands = commands
