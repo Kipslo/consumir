@@ -3051,6 +3051,8 @@ class server():
                     for i in TEMp:
                         temp = i
                     if temp == "":
+                        print(listen[1])
+                        print(listen[2])
                         conn.sendall(str.encode("NOT"))
                     else:
                         conn.sendall(str.encode("YES"))
