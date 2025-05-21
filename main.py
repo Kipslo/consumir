@@ -3073,9 +3073,9 @@ class server():
                     for i in TEMp:
                         if temp == "":
                             temp = "a"
-                            commands = str(int(i[0]) - 1)
+                            commands = str(int(i[0]))
                         else:
-                            commands = commands + ",=" + str(int(i[0]) - 1) 
+                            commands = commands + ",=" + str(int(i[0])) 
                     self.desconnectcommands()
                     conn.sendall(str.encode(commands))
                 elif listen[0] == "CLIENTNAME":
@@ -3104,14 +3104,14 @@ class server():
                     conn.sendall(str.encode(temp))
                 elif listen[0] == "CATEGORIES":
                     self.connectproduct()
-                    TEMp = self.productcursor.execute("SELECT name FROM Category")
+                    TEMp = self.productcursor.execute("SELECT cod, name FROM Category")
                     temp = ""
 
                     for i in TEMp:
                         if temp != "":
-                            temp = temp + f",={i[0]}"
+                            temp = temp + f",={i[0]}.={i[1]}"
                         else:
-                            temp = temp + f"{i[0]}"
+                            temp = temp + f"{i[0]}.={i[1]}"
                     self.desconnectproduct()
                     conn.sendall(str.encode(temp))
                 elif listen[0] == "PRODUCTSCATEGORY":
@@ -3495,7 +3495,6 @@ class printer():
                 self.cursor.execute("DELETE FROM ProductsClosed WHERE id = ?", (tmp[0][0], ))
 
             self.desconnect()
-            sleep(3)
 if __name__ ==  "__main__":
     aserver = server()
     aprinter = printer()
