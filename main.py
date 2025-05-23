@@ -3132,8 +3132,12 @@ class server():
                             temp = f"{i[0]}|{i[1]}|{i[2]}|{i[3]}"                    
                     self.desconnectproduct()
                     conn.sendall(str.encode(temp))
-                elif listen[0] == "SIZESCATEGORY":
+                elif listen[0] == "SIZESCATEGORY" or listen[0] == "SIZESCATEGORYID":
                     self.connectproduct()
+                    if listen[0] == "SIZESCATEGORYID":
+                        TEMp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (listen[2], ))
+                        for i in TEMp:
+                            listen[2] = i[0]
                     TEMp = self.productcursor.execute("SELECT name, price FROM SizeofProducts WHERE product = ? and category = ?", ( listen[1], listen[2]))
                     temp = ""
                     for i in TEMp:
