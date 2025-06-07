@@ -3117,7 +3117,6 @@ class server():
                 elif listen[0] == "PRODUCTSCATEGORY" or listen[0] == "PRODUCTSCATEGORYID":
                     self.connectproduct()
 
-                    print(listen[0])
                     if listen[0] == "PRODUCTSCATEGORYID":
                         TEMp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (listen[1], ))
                         for i in TEMp:
@@ -3194,8 +3193,12 @@ class server():
                         conn.sendall(str.encode("N"))
                     self.desconnectconts()
                     self.desconnecttemp()
-                elif listen[0] == "GETNOTES":
+                elif listen[0] == "GETNOTES" or listen[0] == "GETNOTESID":
                     self.connectproduct()
+                    if listen[0] == "GETNOTESID":
+                        TEMp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (listen[1], ))
+                        for i in TEMp:
+                            listen[1] = i[0]
                     temp = self.productcursor.execute("SELECT text FROM Notes WHERE category = ?", (listen[1],  ))
                     text = ""
                     num = 1
