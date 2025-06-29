@@ -3112,7 +3112,7 @@ class server():
                             temp = temp + f"{i[0]}.={i[1]}"
                     self.desconnectproduct()
                     conn.sendall(str.encode(temp))
-                elif listen[0] == "PRODUCTSCATEGORY" or listen[0] == "PRODUCTSCATEGORYID":
+                elif "PRODUCTSCATEGORY" in listen[0]:
                     self.connectproduct()
 
                     if listen[0] == "PRODUCTSCATEGORYID":
@@ -3129,7 +3129,7 @@ class server():
                             temp = f"{i[0]}|{i[1]}|{i[2]}|{i[3]}"                    
                     self.desconnectproduct()
                     conn.sendall(str.encode(temp))
-                elif listen[0] == "SIZESCATEGORY" or listen[0] == "SIZESCATEGORYID":
+                elif "SIZESCATEGORY" in listen[0]:
                     self.connectproduct()
                     if listen[0] == "SIZESCATEGORYID":
                         TEMp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (listen[2], ))
@@ -3144,22 +3144,27 @@ class server():
                             temp = f"{i[0]}|{i[1]}"
                     self.desconnectproduct()
                     conn.sendall(str.encode(temp))
-                elif listen[0] == "INSERT":
-                    number, username, passw = listen[1].split('.='), listen[2], listen[3]
-                    del listen[0]; del listen[0]; del listen[0]; del listen[0]
-                    listen = listen[0].split(".-")
-                    self.connectconts()
-                    TEMp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ? AND password = ?", (username, passw))
+                elif "INSERT" in listen[0]:
                     temp = ""
-                    for i in TEMp:
-                        temp = i
                     self.connecttemp()
+                    self.connectconts()
+                    if listen[0] == "INSERTHOST" and ender == socket.gethostbyname(socket.gethostname()):
+                        number, username = listen[1].split('.='), listen[2]
+                        temp = "HOST"
+                    else:
+                        number, username, passw = listen[1].split('.='), listen[2], listen[3]
+                        TEMp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ? AND password = ?", (username, passw))
+                        del listen[0]
+                        for i in TEMp:
+                            temp = i
+                    del listen[0]; del listen[0]; del listen[0]
+                    listen = listen[0].split(".-")
                     if temp != "":
                         temp = self.contscursor.execute("SELECT name, password, permissionmaster, permissionrelease FROM Conts WHERE name = ?", (username, ))
                         name, password, permissionmaster, permissionentry = "", "", "", ""
                         for i in temp:
                             name, password, permissionmaster, permissionrelease = i
-                        if username == name and passw == password:
+                        if username == name and (passw == password or temp == "HOST"):
                             if permissionrelease == "Y" or permissionmaster == "Y":
                                 if len(listen) == 6:
                                     product, category, unitprice, qtd, tipe, prynter = listen
