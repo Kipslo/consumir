@@ -3146,31 +3146,38 @@ class server():
                     conn.sendall(str.encode(temp))
                 elif "INSERT" in listen[0]:
                     temp = ""
+                    inserttemp = ""
                     self.connecttemp()
                     self.connectconts()
-                    if listen[0] == "INSERTHOST" and ender == socket.gethostbyname(socket.gethostname()):
+                    if listen[0] == "INSERTHOST" and ender[0] == socket.gethostbyname(socket.gethostname()):
                         number, username = listen[1].split('.='), listen[2]
+                        inserttemp = "HOST"
                         temp = "HOST"
+                        passw = ""
+                        print(listen)
+                        listen = listen[3].split('.-')
+                        print(listen)
+                        print("------")
                     else:
                         number, username, passw = listen[1].split('.='), listen[2], listen[3]
                         TEMp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ? AND password = ?", (username, passw))
-                        del listen[0]
+                        del listen[0]; del listen[0]; del listen[0]; del listen[0]
                         for i in TEMp:
                             temp = i
-                    del listen[0]; del listen[0]; del listen[0]
-                    listen = listen[0].split(".-")
+                        listen = listen[0].split(".-")
                     if temp != "":
                         temp = self.contscursor.execute("SELECT name, password, permissionmaster, permissionrelease FROM Conts WHERE name = ?", (username, ))
                         name, password, permissionmaster, permissionentry = "", "", "", ""
                         for i in temp:
                             name, password, permissionmaster, permissionrelease = i
-                        if username == name and (passw == password or temp == "HOST"):
+                        if username == name and (passw == password or inserttemp == "HOST"):
                             if permissionrelease == "Y" or permissionmaster == "Y":
                                 if len(listen) == 6:
                                     product, category, unitprice, qtd, tipe, prynter = listen
                                     description = ""
                                 else:
                                     product, category, unitprice, qtd, description, tipe, prynter = listen
+                                print(listen)
                                 unitprice = unitprice.replace(",", ".")
                                 try:
                                     n = 0
