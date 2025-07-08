@@ -1861,11 +1861,11 @@ class application():
         def update(up, new, name):
             self.connectconts()
             if up == "permissionmaster":
-                self.contscursor.execute("UPDATE Conts SET permissionmaster = ? WHERE name = ?", (self.currentfunctionaryvar[new][0].get(), name))
+                self.contscursor.execute("UPDATE Conts SET permissionmaster = ?, lastmodification = ? WHERE name = ?", (self.currentfunctionaryvar[new][0].get(), str(datetime.datetime.now())[0:19], name))
             elif up == "permissionrelease":
-                self.contscursor.execute("UPDATE Conts SET permissionrelease = ? WHERE name = ?", (self.currentfunctionaryvar[new][1].get(), name))
+                self.contscursor.execute("UPDATE Conts SET permissionrelease = ?, lastmodification = ? WHERE name = ?", (self.currentfunctionaryvar[new][1].get(), str(datetime.datetime.now())[0:19], name))
             elif up == "permissionentry":
-                self.contscursor.execute("UPDATE Conts SET permissionentry = ? WHERE name = ?", (self.currentfunctionaryvar[new][2].get(), name))
+                self.contscursor.execute("UPDATE Conts SET permissionentry = ?, lastmodification = ? WHERE name = ?", (self.currentfunctionaryvar[new][2].get(), str(datetime.datetime.now())[0:19], name))
             self.desconnectconts()
         def reload():
             try:
@@ -1943,10 +1943,10 @@ class application():
                     temp = "A"
             if temp == "" and oldname == "" and self.entry_username.get() != "" and self.entry_name.get() != "":
                 username, name, password, permissionmaster, permissionrelease, permissionentry = self.entry_username.get(), self.entry_name.get(), self.entry_passwordcont.get(), "F", "F", "F"
-                self.contscursor.execute("INSERT INTO Conts (username, name, password, permissionmaster, permissionrelease, permissionentry) VALUES (?, ?, ?, ?, ?, ?)",(username, name, password, permissionmaster, permissionrelease, permissionentry))
+                self.contscursor.execute("INSERT INTO Conts (username, name, password, permissionmaster, permissionrelease, permissionentry, lastmodification) VALUES (?, ?, ?, ?, ?, ?, ?)",(username, name, password, permissionmaster, permissionrelease, permissionentry, str(datetime.datetime.now())[0:19]))
             elif temp == "" and self.entry_username.get() != "" and self.entry_name.get() != "":
                 username, name, password = self.entry_username.get(), self.entry_name.get(), self.entry_passwordcont.get()
-                self.contscursor.execute("UPDATE Conts SET username = ?, name = ?, password = ? WHERE name = ?", (username, name, password, oldname))
+                self.contscursor.execute("UPDATE Conts SET username = ?, name = ?, password = ?, lastmodification = ? WHERE name = ?", (username, name, password, str(datetime.datetime.now())[0:19], oldname))
                 self.entry_username.delete(0, "end")
                 self.entry_passwordcont.delete(0, "end")
                 self.entry_name.delete(0, "end")
@@ -2813,7 +2813,9 @@ class application():
                                  password VARCHAR(30) NOT NULL,
                                  permissionmaster CHAR(1) NOT NULL, 
                                  permissionrelease CHAR(1),
-                                 permissionentry CHAR(1)
+                                 permissionentry CHAR(1),
+                                 lastlogin CHAR(19),
+                                 lastmodification CHAR(19)
                                  )""")
         self.desconnectconts()
         self.connectcommands()
@@ -3048,13 +3050,34 @@ class server():
                     self.connectconts()
                     temp = ""
                     TEMp = self.contscursor.execute("SELECT * FROM Conts WHERE name = ? AND password = ?", (listen[1], listen[2]))
+                    self.contscursor.execute("UPDATE Conts SET lastlogin = ? WHERE name = ?", (str(datetime.datetime.now())[0:19], ))
                     for i in TEMp:
                         temp = i
+                    self.desconnectconts()
                     if temp == "":
                         conn.sendall(str.encode("NOT"))
                     else:
                         conn.sendall(str.encode("YES"))
-                    self.desconnectconts()
+                elif listen[0] == "CHECKLOGIN":
+                    try:
+                        self.connectconts()
+                        TEMp = self.contscursor.execute("SELECT lastmodification, lastlogin FROM Conts WHERE name = ?", (listen[1], ))
+                        for i in TEMp:
+                            lastmodification, lastlogin = i
+                        self.desconnectconts()
+
+                        modificationdate = datetime.datetime(int(lastmodification[0:4]), int(lastmodification[5:7]), int(lastmodification[8:10]), int(lastmodification[11:13]), int(lastmodification[14:16]), int(lastmodification[17:19]))
+                        logindate = datetime.datetime(int(lastlogin[0:4]), int(lastlogin[5:7]), int(lastlogin[8:10]), int(lastlogin[11:13]), int(lastlogin[14:16]), int(lastlogin[17:19]))
+                        if logindate < modificationdate:
+                            conn.sendall(str.encode("Y"))
+                        else:
+                            raise
+                    except:
+                        try:
+                            self.desconnectconts()
+                        except:
+                            pass
+                        conn.sendall(str.encode("N"))
                 elif listen[0] == "LIMITCOMMANDS":
                     self.connectconfig()
                     TEMp = self.configcursor.execute("SELECT maxcommands FROM Config")
