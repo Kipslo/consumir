@@ -3144,7 +3144,7 @@ class server():
                             temp = f"{i[0]}|{i[1]}"
                     self.desconnectproduct()
                     conn.sendall(str.encode(temp))
-                elif "INSERT" in listen[0]:
+                elif listen[0] == "INSERT" or listen[0] == "INSERTID":
                     temp = ""
                     inserttemp = ""
                     self.connecttemp()
@@ -3232,9 +3232,13 @@ class server():
                             text = text + f".={i[0]},={i[1]}"
                     self.desconnectconfig()
                     conn.sendall(text.encode())
-                elif listen[0] == "INSERTCLIENT":
+                elif "INSERTCLIENT" in listen[0]:
                     self.connectcommands()
+                    inserttemp = ""
+                    if "INSERTCLIENTID" == listen[0] and ender[0] == socket.gethostbyname(socket.gethostname()):
+                        inserttemp = "HOST"
                     del listen[0]
+                    print(listen)
                     try:
                         waiter, passw, command, idclient, client = listen
                         entries = ""
@@ -3262,7 +3266,7 @@ class server():
                     name, password, permissionmaster, permissionentry = "", "", "", ""
                     for i in temp:
                         name, password, permissionmaster, permissionentry = i
-                    if name == waiter and passw == password:
+                    if name == waiter and (passw == password or inserttemp == "HOST"):
                         if permissionmaster == "Y" or permissionentry == "Y":
                             temp = self.commandscursor.execute("SELECT number FROM CommandsActive WHERE number = ?", (command, ))
                             tmp = ""
