@@ -16,3 +16,10 @@ import sqlite3
 #printers.close()
 oi = "oi"
 print(oi.split(","))
+conts = sqlite3.connect("sql.db")
+cursor = conts.cursor()
+temp = cursor.execute("SELECT * FROM Conts")
+for i in temp:
+    print(i)
+conts.commit()
+conts.close()

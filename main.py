@@ -58,7 +58,19 @@ class application():
         self.root.protocol("WM_DELETE_WINDOW", close)
         self.root.after(3000, self.insertcurrentproduct)
         self.root.after(3000, self.printerexecute)
+        self.root.after(3000, self.updatelogin)
         self.root.mainloop()
+    def updatelogin(self):
+        self.connecttemp()
+        TEMp = self.tempdbcursor.execute("SELECT * FROM TempLogin")
+        for i in TEMp:
+            name, lastlogin = i
+            self.connectconts()
+            self.contscursor.execute("UPDATE Conts SET lastlogin = ? WHERE name = ?", (lastlogin, name))
+            self.tempdbcursor.execute("DELETE FROM TempLogin WHERE lastlogin = ? AND name = ?", (lastlogin, name))
+            self.desconnectconts()
+        self.desconnecttemp()
+        self.root.after(3000, self.updatelogin)
     def printerexecute(self):
         try:
             aprinter.initializate()
@@ -1876,7 +1888,7 @@ class application():
             except:
                 pass
             self.connectconts()
-            temp = self.contscursor.execute("SELECT * FROM Conts")
+            temp = self.contscursor.execute("SELECT username, name, password, permissionmaster, permissionrelease, permissionentry From Conts")
             tempm = []
             for i in temp:
                 tempm.append(i)
@@ -1943,7 +1955,7 @@ class application():
                     temp = "A"
             if temp == "" and oldname == "" and self.entry_username.get() != "" and self.entry_name.get() != "":
                 username, name, password, permissionmaster, permissionrelease, permissionentry = self.entry_username.get(), self.entry_name.get(), self.entry_passwordcont.get(), "F", "F", "F"
-                self.contscursor.execute("INSERT INTO Conts (username, name, password, permissionmaster, permissionrelease, permissionentry, lastmodification) VALUES (?, ?, ?, ?, ?, ?, ?)",(username, name, password, permissionmaster, permissionrelease, permissionentry, str(datetime.datetime.now())[0:19]))
+                self.contscursor.execute("INSERT INTO Conts (username, name, password, permissionmaster, permissionrelease, permissionentry, lastmodification, lastlogin) VALUES (?, ?, ?, ?, ?, ?, ?)",(username, name, password, permissionmaster, permissionrelease, permissionentry, str(datetime.datetime.now())[0:19], ""))
             elif temp == "" and self.entry_username.get() != "" and self.entry_name.get() != "":
                 username, name, password = self.entry_username.get(), self.entry_name.get(), self.entry_passwordcont.get()
                 self.contscursor.execute("UPDATE Conts SET username = ?, name = ?, password = ?, lastmodification = ? WHERE name = ?", (username, name, password, str(datetime.datetime.now())[0:19], oldname))
@@ -2939,6 +2951,10 @@ class application():
                                 type VARCHAR(10),
                                 printer VARCHAR(30)
                                     )""")
+        self.tempdbcursor.execute("""CREATE TABLE IF NOT EXISTS TempLogin(
+                                  name VARCHAR(30),
+                                  lastlogin varchar(19)
+                                  )""")
         self.desconnecttemp()
         self.connectclients()
         self.clientscursor.execute("""CREATE TABLE IF NOT EXISTS Clients(
@@ -3050,14 +3066,16 @@ class server():
                     self.connectconts()
                     temp = ""
                     TEMp = self.contscursor.execute("SELECT * FROM Conts WHERE name = ? AND password = ?", (listen[1], listen[2]))
-                    self.contscursor.execute("UPDATE Conts SET lastlogin = ? WHERE name = ?", (str(datetime.datetime.now())[0:19], ))
                     for i in TEMp:
                         temp = i
-                    self.desconnectconts()
                     if temp == "":
                         conn.sendall(str.encode("NOT"))
                     else:
+                        self.connecttemp()
+                        self.tempdbcursor.execute("INSERT INTO TempLogin (name, lastlogin) VALUES (?, ?)", (listen[1], str(datetime.datetime.now())[0:19],))
                         conn.sendall(str.encode("YES"))
+                        self.desconnecttemp()
+                    self.desconnectconts()
                 elif listen[0] == "CHECKLOGIN":
                     try:
                         self.connectconts()
@@ -3065,14 +3083,20 @@ class server():
                         for i in TEMp:
                             lastmodification, lastlogin = i
                         self.desconnectconts()
-
-                        modificationdate = datetime.datetime(int(lastmodification[0:4]), int(lastmodification[5:7]), int(lastmodification[8:10]), int(lastmodification[11:13]), int(lastmodification[14:16]), int(lastmodification[17:19]))
-                        logindate = datetime.datetime(int(lastlogin[0:4]), int(lastlogin[5:7]), int(lastlogin[8:10]), int(lastlogin[11:13]), int(lastlogin[14:16]), int(lastlogin[17:19]))
-                        if logindate < modificationdate:
+                        print(listen[1])
+                        print(lastlogin)
+                        print(lastmodification)
+                        if None == lastmodification or lastlogin == None:
                             conn.sendall(str.encode("Y"))
                         else:
-                            raise
-                    except:
+                            modificationdate = datetime.datetime(int(lastmodification[0:4]), int(lastmodification[5:7]), int(lastmodification[8:10]), int(lastmodification[11:13]), int(lastmodification[14:16]), int(lastmodification[17:]))
+                            logindate = datetime.datetime(int(lastlogin[0:4]), int(lastlogin[5:7]), int(lastlogin[8:10]), int(lastlogin[11:13]), int(lastlogin[14:16]), int(lastlogin[17:]))
+                            if logindate > modificationdate:
+                                conn.sendall(str.encode("Y"))
+                            else:
+                                raise
+                    except Exception as error:
+                        print(error)
                         try:
                             self.desconnectconts()
                         except:
