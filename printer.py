@@ -11,14 +11,12 @@ class printer():
     def connectprinter(self, ip):
         self.socketvar = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socketvar.connect(("192.168.0.202", 9100))
-        mensagem = "12345678901234567890123456789"
         self.changesize(1)
-        self.setalign("right")
-        self.printtext("oi" * 25)
         self.cut()
-    def desconnectprinter(self, ip):
-        pass
+    def desconnectprinter(self):
+        self.socketvar.close()
     def cut(self):
+        self.socketvar.sendall(b"\n" + b"\n" + b"\n"+ b"\n"+ b"\n"+ b"\n")
         self.socketvar.sendall(b'\x1d\x56\x00')
     def printtext(self, text):
         limitchar = self.limitchar[self.actuallysize]
@@ -33,10 +31,8 @@ class printer():
                 self.socketvar.sendall(textforprint.encode('utf-8'))
             else:
                 self.socketvar.sendall(textforprint.encode('utf-8'))
-
-        self.socketvar.sendall(b"\n" + b"\n" + b"\n"+ b"\n"+ b"\n"+ b"\n")
     def breakline(self):
-        pass
+        self.socketvar.sendall(b"\n")
     def changesize(self, sizex = 0, sizey = -1):
         if sizey == -1:
             sizey = sizex
@@ -45,7 +41,20 @@ class printer():
         hexsize = self.fontsizes[size]
         self.socketvar.sendall(hexsize)
     def changebold(self, bold = False):
-        pass
+        if bold:
+            self.socketvar.sendall(b"\x1b\x45\x01")
+            return
+        self.socketvar.sendall(b"\x1b\x45\x00")
+    def changeitalic(self, italic = False):
+        if italic:
+            self.socketvar.sendall(b"\x1b\x34\x01")
+            return
+        self.socketvar.sendall(b"\x1b\x34\x00")
+    def changeunderline(self, underline = False):
+        if underline:
+            self.socketvar.sendall(b"\x1b\x2d\x01")
+            return
+        self.socketvar.sendall(b"\x1b\x2d\x00")
     def setalign(self, align = "left"):
         if align == "left" or align == "center" or align == "right":
             self.align = align
