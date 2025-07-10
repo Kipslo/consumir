@@ -14,12 +14,14 @@ import sqlite3
 #    print(i)
 #printers.commit()
 #printers.close()
-oi = "oi"
-print(oi.split(","))
-conts = sqlite3.connect("sql.db")
-cursor = conts.cursor()
-temp = cursor.execute("SELECT * FROM Conts")
-for i in temp:
+#oi = "oi"
+#print(oi.split(","))
+#conts = sqlite3.connect("sql.db")
+#cursor = conts.cursor()
+#temp = cursor.execute("SELECT * FROM Conts")
+#for i in temp:
+#    print(i)
+#conts.commit()
+#conts.close()
+for i in range(5):
     print(i)
-conts.commit()
-conts.close()
