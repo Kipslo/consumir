@@ -7,12 +7,10 @@ class printer():
     align = "left"
     limitchar = {"00":48, "01":48, "10":24, "11":24, "02":48, "12":24, "22":16, "20":16, "21":16}
     def __init__(self):
-        self.connectprinter('')
-    def connectprinter(self, ip):
+        pass
+    def connect(self, ip):
         self.socketvar = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socketvar.connect(("192.168.0.202", 9100))
-        self.changesize(1)
-        self.cut()
+        self.socketvar.connect((ip, 9100))
     def desconnectprinter(self):
         self.socketvar.close()
     def cut(self):
@@ -40,6 +38,11 @@ class printer():
         self.actuallysize = str(size)
         hexsize = self.fontsizes[size]
         self.socketvar.sendall(hexsize)
+    def changesmooth(self, smooth = False):
+        if smooth:
+            self.socketvar.sendall(b"")
+            return
+        self.socketvar.sendall(b"")
     def changebold(self, bold = False):
         if bold:
             self.socketvar.sendall(b"\x1b\x45\x01")
@@ -60,9 +63,5 @@ class printer():
             self.align = align
             return "Sucess"
         raise AlignNotExist("This align not exist")
-    def printsendproduct(self):
-        pass
-    def printexit(self, text):
-        pass
 if __name__ == "__main__":
     printervar = printer()

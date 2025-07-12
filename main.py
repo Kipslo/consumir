@@ -13,12 +13,13 @@ from multiprocessing import Process
 from tkcalendar import DateEntry
 from time import sleep
 from CTkSpinbox import CTkSpinbox
+from printer import printer as printerClass
 class application():
     def __init__(self):
         def close():
             try:
                 aserver.close()
-                aprinter.close()
+                aprinter.finishprinter()
             except:
                 pass
             self.root.destroy()
@@ -57,7 +58,6 @@ class application():
         self.loginwindow()
         self.root.protocol("WM_DELETE_WINDOW", close)
         self.root.after(3000, self.insertcurrentproduct)
-        self.root.after(3000, self.printerexecute)
         self.root.after(3000, self.updatelogin)
         self.root.mainloop()
     def updatelogin(self):
@@ -71,11 +71,6 @@ class application():
             self.desconnectconts()
         self.desconnecttemp()
         self.root.after(3000, self.updatelogin)
-    def printerexecute(self):
-        try:
-            aprinter.initializate()
-        except:
-            pass
     def loginwindow(self):
         self.currentwindow = "LOGIN"
         self.root.attributes("-fullscreen", True)
@@ -2333,7 +2328,6 @@ class application():
             self.printercursor.execute("DELETE FROM Printers WHERE name = ? AND ip = ?",(name, ip))
             self.desconnectprinter()
             reload()
-            aprinter.reloadprinters()
         def add():
             if self.nameprinter.get() != "" and self.ipprinter.get() != "":
                 self.connectprinter()
@@ -2348,7 +2342,6 @@ class application():
                 self.nameprinter.delete(0, ctk.END)
                 self.ipprinter.delete(0, ctk.END)
                 reload()
-            aprinter.reloadprinters()
         self.deletewindow()
 
         self.currentwindow = "PRINTERS"
@@ -2571,9 +2564,8 @@ class application():
         reload()
     def reloadserverandprinter(self):
         aserver.close()
-        aprinter.close()
-
-        aprinter.initializate()
+        aprinter.finishprinter()
+        aprinter.__init__()
         aserver.initializate()
     def standartentries(self):
         def delete(cod):
@@ -3347,14 +3339,10 @@ class server():
                 else:
                     conn.sendall(data)
                 conn.close()
-def closeprinter():
-    aprinter.active = False
-class printer():
-    active = False
-    paused = False
-    printers = {}
-    def close(self):
-        self.printervar.terminate()
+
+def close():
+    aprinter.finishprinter()
+class printerfunc():
     def connectconfig(self):
         self.config = sql.connect("config.db")
         self.configcursor = self.config.cursor()
@@ -3367,26 +3355,19 @@ class printer():
     def desconnect(self):
         self.database.commit()
         self.database.close()
-    def initializate(self):
-        try:
-            self.close
-        except:
-            pass
-        self.printervar = Process(target=self.processprinter)  
-        self.printervar.start()  
-    def __init__(self):
-        self.initializate()
-    def pause(self):
-        self.paused = True
-    def retome(self):
-        self.paused = False
     def connectcommands(self):
         self.commands = sql.connect("commands.db")
         self.commandscursor = self.commands.cursor()
     def desconnectcommands(self):
         self.commands.commit()
         self.commands.close()
-    def processprinter(self):
+    def finishprinter(self):
+        self.printerprocess.terminate()
+    def __init__(self):
+        self.printerprocess = Process(target=self.printinprinter)  
+        self.printerprocess.start()
+    def printinprinter(self):
+        self.printervar = printerClass()
         while True:
             self.connect()
             temp = self.cursor.execute('SELECT * FROM ProductPrint')
@@ -3402,16 +3383,25 @@ class printer():
                 temp = self.cursor.execute("SELECT ip FROM Printers WHERE name = ?", (listen[0][1], ))
                 for i in temp:
                     prynter = i[0]
-                prynter = Network(prynter, timeout=5)
-                prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
-                prynter.textln(listen[0][1].replace("ã", "a").replace("Ã", "A"))
-                prynter.ln()
-                prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
-                prynter.textln(listen[0][5].replace("-", "/"))
-                prynter.ln()
-                prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
-                prynter.textln(f"COMANDA: {listen[0][3]}")
-                prynter.ln()
+                self.printervar.connect(prynter)
+                self.printervar.changebold(True)
+                self.printervar.setalign('center')
+                self.printervar.changesize(2)
+                self.printervar.printtext(listen[0][1].replace("ã", "a").replace("Ã", "A"))
+                self.printervar.breakline()
+                self.printervar.changebold(False)
+                self.printervar.setalign()
+                self.printervar.changesize(2)
+                self.printervar.printtext(listen[0][5].replace("-", "/"))
+                self.printervar.breakline()
+                self.printervar.changebold(True)
+                self.printervar.setalign("center")
+                self.printervar.changesize(2)
+                self.printervar.printtext(f"COMANDA: {listen[0][3]}")
+                self.printervar.breakline()
+                self.printervar.changebold()
+                self.printervar.setalign()
+                self.printervar.changesize(2)
                 prynter.set(bold=False, align='left', width=2, height=2, custom_size=True)
                 self.connectcommands()
                 temp = self.commandscursor.execute("SELECT nameclient FROM CommandsActive WHERE number = ?", (listen[0][3], ))
@@ -3570,7 +3560,9 @@ class printer():
                 self.cursor.execute("DELETE FROM ProductsClosed WHERE id = ?", (tmp[0][0], ))
 
             self.desconnect()
+
+
 if __name__ ==  "__main__":
     aserver = server()
-    aprinter = printer()
+    aprinter = printerfunc()
     application() 
