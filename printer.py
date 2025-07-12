@@ -1,16 +1,23 @@
 import socket
 import sqlite3 as sql
 
+fonte_padrao = b'\x1b!\x00'  # Fonte padrão
+fonte_negrito = b'\x1b!\x08'  # Fonte em negrito
+fonte_dobrada = b'\x1b!\x10'  # Fonte com largura dobrada
 class printer():
     fontsizes = {"00":b'\x1D\x21\x00', "01":b'\x1D\x21\x01', "10": b'\x1D\x21\x10', "11": b'\x1D\x21\x11', "02": b'\x1D\x21\x02', "12": b'\x1D\x21\x12', "22": b'\x1D\x21\x22', "20": b'\x1D\x21\x20', "21": b'\x1D\x21\x21'}
     actuallysize = "00"
     align = "left"
     limitchar = {"00":48, "01":48, "10":24, "11":24, "02":48, "12":24, "22":16, "20":16, "21":16}
     def __init__(self):
-        pass
+        self.connect("")
     def connect(self, ip):
         self.socketvar = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socketvar.connect((ip, 9100))
+        self.socketvar.connect(('192.168.0.202', 9100))
+        self.changefont(2)
+        self.socketvar.sendall(b'\x1b!\x08')
+        self.printtext("oiiiiiiii")
+        self.cut()
     def desconnectprinter(self):
         self.socketvar.close()
     def cut(self):
@@ -40,9 +47,11 @@ class printer():
         self.socketvar.sendall(hexsize)
     def changesmooth(self, smooth = False):
         if smooth:
-            self.socketvar.sendall(b"")
+            self.socketvar.sendall(b"\x1d\x62\x01")
             return
-        self.socketvar.sendall(b"")
+        self.socketvar.sendall(b"\x1d\x62\x00")
+    def changefont(self, font):
+        pass    
     def changebold(self, bold = False):
         if bold:
             self.socketvar.sendall(b"\x1b\x45\x01")
