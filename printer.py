@@ -9,15 +9,10 @@ class printer():
     actuallysize = "00"
     align = "left"
     limitchar = {"00":48, "01":48, "10":24, "11":24, "02":48, "12":24, "22":16, "20":16, "21":16}
-    def __init__(self):
-        self.connect("")
     def connect(self, ip):
+        print(ip)
         self.socketvar = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socketvar.connect(('192.168.0.202', 9100))
-        self.changefont(2)
-        self.socketvar.sendall(b'\x1b!\x08')
-        self.printtext("oiiiiiiii")
-        self.cut()
+        self.socketvar.connect((ip, 9100))
     def desconnectprinter(self):
         self.socketvar.close()
     def cut(self):
@@ -36,6 +31,7 @@ class printer():
                 self.socketvar.sendall(textforprint.encode('utf-8'))
             else:
                 self.socketvar.sendall(textforprint.encode('utf-8'))
+        self.breakline
     def breakline(self):
         self.socketvar.sendall(b"\n")
     def changesize(self, sizex = 0, sizey = -1):

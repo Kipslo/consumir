@@ -3183,9 +3183,10 @@ class server():
                             temp = f"{i[0]}|{i[1]}"
                     self.desconnectproduct()
                     conn.sendall(str.encode(temp))
-                elif listen[0] == "INSERT" or listen[0] == "INSERTID":
+                elif listen[0] == "INSERT" or listen[0] == "INSERTHOST":
                     temp = ""
                     inserttemp = ""
+                    print(listen)
                     self.connecttemp()
                     self.connectconts()
                     if listen[0] == "INSERTHOST" and ender[0] == socket.gethostbyname(socket.gethostname()):
@@ -3364,6 +3365,7 @@ class printerfunc():
     def finishprinter(self):
         self.printerprocess.terminate()
     def __init__(self):
+        print("oi")
         self.printerprocess = Process(target=self.printinprinter)  
         self.printerprocess.start()
     def printinprinter(self):
@@ -3386,22 +3388,22 @@ class printerfunc():
                 self.printervar.connect(prynter)
                 self.printervar.changebold(True)
                 self.printervar.setalign('center')
-                self.printervar.changesize(2)
+                self.printervar.changesize(1)
                 self.printervar.printtext(listen[0][1].replace("ã", "a").replace("Ã", "A"))
                 self.printervar.breakline()
                 self.printervar.changebold(False)
                 self.printervar.setalign()
-                self.printervar.changesize(2)
+                self.printervar.changesize(1)
                 self.printervar.printtext(listen[0][5].replace("-", "/"))
                 self.printervar.breakline()
                 self.printervar.changebold(True)
                 self.printervar.setalign("center")
-                self.printervar.changesize(2)
+                self.printervar.changesize(1)
                 self.printervar.printtext(f"COMANDA: {listen[0][3]}")
                 self.printervar.breakline()
                 self.printervar.changebold()
                 self.printervar.setalign()
-                self.printervar.changesize(2)
+                self.printervar.changesize(1)
                 self.connectcommands()
                 temp = self.commandscursor.execute("SELECT nameclient FROM CommandsActive WHERE number = ?", (listen[0][3], ))
                 for i in temp:
@@ -3415,19 +3417,20 @@ class printerfunc():
                     self.printervar.changesmooth()
                     self.printervar.changebold()
                     self.printervar.setalign()
-                    self.printervar.changesize(2)
-                    self.printervar.printtext(f"{i[6]} {i[0]}".replace("ã", "a").replace("Ã", "A"))
+                    self.printervar.changesize(1)
+                    self.printervar.breakline()
+                    self.printervar.printtext(f"  {i[6]} {i[0]}".replace("ã", "a").replace("Ã", "A"))
                     if i[7] != "":
                         self.printervar.changesmooth(True)
                         self.printervar.setalign()
-                        self.printervar.changesize(2)
-                        prynter.set(smooth=True, align='left', width=2, height=2, custom_size=True, font='b')
-                        prynter.textln(f"*{i[7]}")
-                prynter.cut()
+                        self.printervar.changesize(1)
+                        self.printervar.changesmooth(True)
+                        #prynter.set(smooth=True, align='left', width=2, height=2, custom_size=True, font='b')
+                        self.printervar.printtext(f"*{i[7]}")
+                self.printervar.cut()
                 for i in listen:
                     self.cursor.execute("DELETE FROM ProductPrint WHERE product = ? AND printer = ? AND type = ? AND command = ? AND waiter = ? AND date = ? AND qtd = ?", (i[0], i[1], i[2], i[3], i[4], i[5], i[6]))
-                prynter.close()
-            
+                self.printervar.desconnectprinter()
             tmp = []
             temp = self.cursor.execute("SELECT * FROM ClosedPrinter")
             for i in temp:
