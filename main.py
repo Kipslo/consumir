@@ -3449,22 +3449,30 @@ class printerfunc():
                 listen = []
                 for i in temp:
                     listen.append(i)
-                prynter = Network(ip)
+                self.printervar.connect(ip)
                     
                 self.desconnectconfig()
                 productstemp = []
                 temp = self.cursor.execute("SELECT * FROM ProductsClosed WHERE id = ?", (tmp[0][0], ))
                 for i in temp:
                     productstemp.append(i)
-                prynter.set(bold=True, align='center', width=2, height=2, custom_size=True)
-                prynter.textln(housename.replace("ã", "a").replace("Ã", "A"))
-                prynter.set(font="b", custom_size=True, width=1, height=1)
-                prynter.ln()
+                self.printervar.changebold(True)
+                self.printervar.setalign("center")
+                self.printervar.changesize(2)
+                self.printervar.printtext(housename.replace("ã", "a").replace("Ã", "A"))
+                self.printervar.changesize(1)
+                #prynter.set(font="b", custom_size=True, width=1, height=1)
+                self.printervar.breakline()
                 if adress != "":
-                    prynter.set(bold=True, font='b', align='center', width=2, height=2, custom_size=True)
-                    prynter.textln(adress.replace("ã", "a").replace("Ã", "A"))
-                    prynter.set(font="b", custom_size=True, width=1, height=1)
-                    prynter.ln()
+                    self.printervar.changebold(True)
+                    self.printervar.setalign("center")
+                    self.printervar.changesize(2)
+
+                    #prynter.set(bold=True, font='b', align='center', width=2, height=2, custom_size=True)
+                    self.printervar.printtext(adress.replace("ã", "a").replace("Ã", "A"))
+                    self.printervar.changesize(1)
+                    self.printervar.breakline()
+                    #prynter.set(font="b", custom_size=True, width=1, height=1)
                 prynter.set(font="b", custom_size=True, width=2, height=2, align="left")
                 prynter.textln("CNPJ: " + str(cnpj))
                 prynter.set(font="b", custom_size=True, width=1, height=1)
