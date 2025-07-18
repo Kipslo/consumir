@@ -3458,49 +3458,66 @@ class printerfunc():
                     productstemp.append(i)
                 self.printervar.changebold(True)
                 self.printervar.setalign("center")
-                self.printervar.changesize(2)
-                self.printervar.printtext(housename.replace("ã", "a").replace("Ã", "A"))
                 self.printervar.changesize(1)
+                self.printervar.printtext(housename.replace("ã", "a").replace("Ã", "A"))
+                self.printervar.changesize(0)
                 #prynter.set(font="b", custom_size=True, width=1, height=1)
                 self.printervar.breakline()
                 if adress != "":
                     self.printervar.changebold(True)
                     self.printervar.setalign("center")
-                    self.printervar.changesize(2)
+                    self.printervar.changesize(1)
 
                     #prynter.set(bold=True, font='b', align='center', width=2, height=2, custom_size=True)
                     self.printervar.printtext(adress.replace("ã", "a").replace("Ã", "A"))
-                    self.printervar.changesize(1)
+                    self.printervar.changesize(0)
                     self.printervar.breakline()
                     #prynter.set(font="b", custom_size=True, width=1, height=1)
-                prynter.set(font="b", custom_size=True, width=2, height=2, align="left")
-                prynter.textln("CNPJ: " + str(cnpj))
-                prynter.set(font="b", custom_size=True, width=1, height=1)
-                prynter.ln()
-                prynter.set(font="b", custom_size=True, width=2, height=2)
-                prynter.textln("IMPRESSO EM: " + str(datetime.datetime.now())[0:19].replace("-", "/"))
-                
-                prynter.set(font="b", custom_size=True, width=1, height=1)
-                prynter.ln()
-                prynter.set(font="b", align="center", custom_size=True, width=2, height=2)
-                prynter.text('"NAO É DOCUMENTO FISCAL"')
-                prynter.set(font="b", align="left", custom_size=True, width=1, height=1)
-                prynter.ln()
+                self.printervar.changesize(1)
+                self.printervar.setalign()
+                #prynter.set(font="b", custom_size=True, width=2, height=2, align="left")
+                self.printervar.printtext("CNPJ: " + str(cnpj))
+                self.printervar.changesize(0)
+                self.printervar.breakline()
+                #prynter.set(font="b", custom_size=True, width=1, height=1)
+                self.printervar.changesize(1)
+                #prynter.set(font="b", custom_size=True, width=2, height=2)
+                self.printervar.printtext("IMPRESSO EM: " + str(datetime.datetime.now())[0:19].replace("-", "/"))
+                self.printervar.changesize(0)
+                self.printervar.breakline()
+                #prynter.set(font="b", custom_size=True, width=1, height=1)
+                self.printervar.changesize(1)
+                self.printervar.setalign("center")
+                #prynter.set(font="b", align="center", custom_size=True, width=2, height=2)
+                self.printervar.printtext('"NAO É DOCUMENTO FISCAL"')
+                self.printervar.setalign('left')
+                self.printervar.changesize(0)
+                #prynter.set(font="b", align="left", custom_size=True, width=1, height=1)
+                self.printervar.breakline()
                 if client != "":
-                    prynter.set(font="b", custom_size=True, width=2, height=2)
-                    prynter.ln()
-                    prynter.textln("Cliente: " + client.replace("ã", "a").replace("Ã", "A"))
-                prynter.set(font="b", custom_size=True, width=1, height=1)
-                prynter.ln()
-                prynter.set(bold=False, align='center', width=2, height=2, custom_size=True)
-                prynter.textln("COMANDA: " + str(command))
-                prynter.set(font="b", custom_size=True, width=1, height=1)
-                prynter.ln()
-                prynter.set(bold=False, align='center', width=2, height=2, custom_size=True)
-                prynter.textln("PRODUTOS (V.Unit): TOTAL")
+                    self.printervar.changesize(1)
+                    #prynter.set(font="b", custom_size=True, width=2, height=2)
+                    self.printervar.breakline()
+                    self.printervar.printtext("Cliente: " + client.replace("ã", "a").replace("Ã", "A"))
+                self.printervar.changesize(0)
+                #prynter.set(font="b", custom_size=True, width=1, height=1)
+                self.printervar.breakline()
+                self.printervar.changesize(1)
+                self.printervar.setalign("center")
+                self.printervar.printtext("COMANDA: " + str(command))
+                self.printervar.changesize(0)
+                
+                #prynter.set(font="b", custom_size=True, width=1, height=1)
+                self.printervar.breakline()
+                self.printervar.changesize(1)
+                self.printervar.setalign("center")
+                self.printervar.printtext("PRODUTOS (V.Unit): TOTAL")
+                
                 products = {}
-                prynter.set(font="b", custom_size=True, width=1, height=1)
-                prynter.ln()
+                self.printervar.changesize(0)
+                
+                #prynter.set(font="b", custom_size=True, width=1, height=1)
+                self.printervar.breakline()
                 for i in productstemp:
                     try:
                         product = products[i[1]]
@@ -3527,19 +3544,21 @@ class printerfunc():
                         totalprice = " " + totalprice
                     totalpay = totalpay + float(totalprice.replace(",", "."))
                     while a < times:
-                        prynter.set(font="b", custom_size=True, width=2, height=2)
+                        self.printervar.changesize(1)
+                        
+                        #prynter.set(font="b", custom_size=True, width=2, height=2)
                         if a == 0:
                             print(times)
                             if times == 1:
                                 qtdword = len(text + " " + str(totalprice))
                                 textprice = text + " " * (32 - qtdword) + totalprice
-                                prynter.textln(f"{textprice}")
+                                self.printervar.printtext(f"{textprice}")
                             else:    
-                                prynter.textln(f"{text[0:24]} {totalprice}")
+                                self.printervar.printtext(f"{text[0:24]} {totalprice}")
                         else:
-                            prynter.textln(f"{text[a*24:(a+1)*24]}")
+                            self.printervar.printtext(f"{text[a*24:(a+1)*24]}")
                         a = a + 1
-                prynter.textln("-" * 32)
+                self.printervar.printtext("-" * 32)
                 totalpay = str(totalpay).replace(".", ",")
                 if not "," in totalpay:
                     totalpay = totalpay + ",00"
@@ -3548,9 +3567,10 @@ class printerfunc():
                 elif ",0" in totalpay:
                     totalpay = totalpay + "0"
                 qtdword = len("Total:" + totalpay)
-                prynter.textln("Total:" + " " * (31 - qtdword) + totalpay)
-                prynter.set(font="b", custom_size=True, width=2, height=2)
-                prynter.ln()
+                self.printervar.printtext("Total:" + " " * (31 - qtdword) + totalpay)
+                self.printervar.changesize(1)
+                #prynter.set(font="b", custom_size=True, width=2, height=2)
+                self.printervar.breakline()
                 now = datetime.datetime.now()
                 date = datetime.datetime(int(date[0:4]), int(date[5:7]), int(date[8:10]), int(date[11:13]), int(date[14:16]), int(date[17:19]))
                 delta = now - date
@@ -3565,13 +3585,13 @@ class printerfunc():
                     text = text + str(hour) + "H "
             
                 text = text + str(minute) + "M " + str(sec) + "S"
-                prynter.textln("TEMPO: " + text)
+                self.printervar.printtext("TEMPO: " + text)
                 if fone != "":
-                    prynter.ln()
-                    prynter.textln(f"TELEFONE: {fone}")
-                prynter.cut()
+                    self.printervar.breakline()
+                    self.printervar.printtext(f"TELEFONE: {fone}")
+                self.printervar.cut()
                 
-                prynter.close()
+                self.printervar.desconnectprinter()
                 self.cursor.execute("DELETE FROM ClosedPrinter WHERE id = ?", (tmp[0][0], ))
                 self.cursor.execute("DELETE FROM ProductsClosed WHERE id = ?", (tmp[0][0], ))
 
