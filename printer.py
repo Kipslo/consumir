@@ -46,8 +46,11 @@ class printer():
             self.socketvar.sendall(b"\x1d\x62\x01")
             return
         self.socketvar.sendall(b"\x1d\x62\x00")
-    def changefont(self, font):
-        pass    
+    def changefont(self, font = "a"):
+        if font.upper() == "B":
+            self.socketvar.sendall(b'\x1B\x4D\x01')
+        else:
+            self.socketvar.sendall(b'\x1B\x4D\x00')
     def changebold(self, bold = False):
         if bold:
             self.socketvar.sendall(b"\x1b\x45\x01")

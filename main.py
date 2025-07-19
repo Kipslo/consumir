@@ -8,7 +8,6 @@ import threading
 import pyautogui as pa
 import datetime
 from unidecode import unidecode
-from escpos.printer import Network
 from multiprocessing import Process
 from tkcalendar import DateEntry
 from time import sleep
@@ -1059,7 +1058,7 @@ class application():
                     products = []
                     for i in temp:
                         products.append(i)
-                        totalprice = totalprice + float(i[5])
+                        totalprice = totalprice + float(i[5].replace(",", "."))
                     temp = self.commandscursor.execute("SELECT * FROM Payments WHERE number = ?", (commandactive[0], ))
                     payments = []
                     pay = 0
@@ -1120,7 +1119,7 @@ class application():
                     pay += float(i[3])
                 temp = self.commandscursor.execute("SELECT price FROM Consumption WHERE number =?", (self.currentcommandwindow, ))
                 for i in temp:
-                    pay -= float(i[0])
+                    pay -= float(i[0].replace(",", "."))
                 if pay < 0:
                     self.totalprice.configure(text=pay, text_color="#D81315")
                 else:
@@ -3489,7 +3488,7 @@ class printerfunc():
                 self.printervar.changesize(1)
                 self.printervar.setalign("center")
                 #prynter.set(font="b", align="center", custom_size=True, width=2, height=2)
-                self.printervar.printtext('"NAO É DOCUMENTO FISCAL"')
+                self.printervar.printtext('"NAO E DOCUMENTO FISCAL"')
                 self.printervar.setalign('left')
                 self.printervar.changesize(0)
                 #prynter.set(font="b", align="left", custom_size=True, width=1, height=1)
@@ -3504,7 +3503,9 @@ class printerfunc():
                 self.printervar.breakline()
                 self.printervar.changesize(1)
                 self.printervar.setalign("center")
+                self.printervar.breakline()
                 self.printervar.printtext("COMANDA: " + str(command))
+                self.printervar.breakline()
                 self.printervar.changesize(0)
                 
                 #prynter.set(font="b", custom_size=True, width=1, height=1)
@@ -3533,13 +3534,12 @@ class printerfunc():
                     if num%24 != 0:
                         times += 1
                     a = 0
-                    totalprice = str(float(products[i][3]) * float(products[i][4])).replace(".", ",")
+                    totalprice = str(float(products[i][3]) * float(products[i][4].replace(",", "."))).replace(".", ",")
                     if not "," in totalprice:
                         totalprice = totalprice + ",00"
-                    elif ",00" in totalprice:
-                        pass
-                    elif ",0" in totalprice:
-                        totalprice = totalprice + "0"
+                    else:
+                        _t, decimals = totalprice.split(",")
+                        totalprice = totalprice + (2 - len(decimals)) * "0"
                     while len(totalprice) < 7:
                         totalprice = " " + totalprice
                     totalpay = totalpay + float(totalprice.replace(",", "."))
@@ -3551,14 +3551,17 @@ class printerfunc():
                             print(times)
                             if times == 1:
                                 qtdword = len(text + " " + str(totalprice))
-                                textprice = text + " " * (32 - qtdword) + totalprice
+                                textprice = text + " " * (24 - qtdword) + totalprice
                                 self.printervar.printtext(f"{textprice}")
                             else:    
-                                self.printervar.printtext(f"{text[0:24]} {totalprice}")
+                                self.printervar.printtext(f"{text[0:24 - (len(totalprice) + 1)]} {totalprice}")
                         else:
-                            self.printervar.printtext(f"{text[a*24:(a+1)*24]}")
-                        a = a + 1
-                self.printervar.printtext("-" * 32)
+                            self.printervar.setalign("left")
+                            self.printervar.printtext(f"{text[a*24 - (len(totalprice) + 1):(a+1)*24 - ((len(totalprice) + 1) * 2)]}")
+                        a += 1
+                    self.printervar.breakline()
+                self.printervar.printtext("-" * 24)
+                self.printervar.breakline()
                 totalpay = str(totalpay).replace(".", ",")
                 if not "," in totalpay:
                     totalpay = totalpay + ",00"
@@ -3567,7 +3570,7 @@ class printerfunc():
                 elif ",0" in totalpay:
                     totalpay = totalpay + "0"
                 qtdword = len("Total:" + totalpay)
-                self.printervar.printtext("Total:" + " " * (31 - qtdword) + totalpay)
+                self.printervar.printtext("Total:" + " " * (24 - qtdword) + totalpay)
                 self.printervar.changesize(1)
                 #prynter.set(font="b", custom_size=True, width=2, height=2)
                 self.printervar.breakline()
