@@ -19,6 +19,7 @@ class printer():
         self.socketvar.sendall(b"\n" + b"\n" + b"\n"+ b"\n"+ b"\n"+ b"\n")
         self.socketvar.sendall(b'\x1d\x56\x00')
     def printtext(self, text):
+        text = text.strip()
         limitchar = self.limitchar[self.actuallysize]
         for i in range(len(text) // limitchar + 1):
             textforprint = text[i * limitchar : (i+1) * limitchar]

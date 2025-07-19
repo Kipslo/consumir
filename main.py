@@ -3528,10 +3528,10 @@ class printerfunc():
                         products[i[1]] = [i[0], i[1], i[2], i[3], i[4]]
                 totalpay = 0.0
                 for i in products:
-                    text = f"{products[i][3]} {products[i][1].replace('ã', 'a').replace('Ã', 'A')} ({products[i][4]})"
+                    text = f"{products[i][3]} {products[i][1].replace('ã', 'a').replace('Ã', 'A').replace('é', 'e').replace('É', 'E').replace('á', 'a').replace('Á', 'A').replace('Í', 'I').replace('í', 'i')} ({products[i][4]})"
                     num = len(text)
-                    times = num//24
-                    if num%24 != 0:
+                    times = num//32
+                    if num%32 != 0:
                         times += 1
                     a = 0
                     totalprice = str(float(products[i][3]) * float(products[i][4].replace(",", "."))).replace(".", ",")
@@ -3545,19 +3545,20 @@ class printerfunc():
                     totalpay = totalpay + float(totalprice.replace(",", "."))
                     while a < times:
                         self.printervar.changesize(1)
+                        self.printervar.changefont("b")
                         
                         #prynter.set(font="b", custom_size=True, width=2, height=2)
                         if a == 0:
                             print(times)
                             if times == 1:
                                 qtdword = len(text + " " + str(totalprice))
-                                textprice = text + " " * (24 - qtdword) + totalprice
+                                textprice = text + " " * (32 - qtdword) + totalprice
                                 self.printervar.printtext(f"{textprice}")
                             else:    
-                                self.printervar.printtext(f"{text[0:24 - (len(totalprice) + 1)]} {totalprice}")
+                                self.printervar.printtext(f"{text[0:32 - (len(totalprice) + 1)]} {totalprice}")
                         else:
                             self.printervar.setalign("left")
-                            self.printervar.printtext(f"{text[a*24 - (len(totalprice) + 1):(a+1)*24 - ((len(totalprice) + 1) * 2)]}")
+                            self.printervar.printtext(f"{text[a*32 - (len(totalprice) + 1):(a+1)*32 - (len(totalprice) + 1)]}")
                         a += 1
                     self.printervar.breakline()
                 self.printervar.printtext("-" * 24)
