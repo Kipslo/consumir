@@ -8,7 +8,9 @@ class printer():
     fontsizes = {"00":b'\x1D\x21\x00', "01":b'\x1D\x21\x01', "10": b'\x1D\x21\x10', "11": b'\x1D\x21\x11', "02": b'\x1D\x21\x02', "12": b'\x1D\x21\x12', "22": b'\x1D\x21\x22', "20": b'\x1D\x21\x20', "21": b'\x1D\x21\x21'}
     actuallysize = "00"
     align = "left"
-    limitchar = {"00":48, "01":48, "10":24, "11":24, "02":48, "12":24, "22":16, "20":16, "21":16}
+    actuallyfont = "A"
+    limitchar = {"A00":48, "A01":48, "A10":24, "A11":24, "A02":48, "A12":24, "A22":16, "A20":16, "A21":16, 
+                 "B00":48, "B01":48, "B10":32, "B11":32, "B02":48, "B12":32, "B22":16, "B20":16, "B21":16}
     def connect(self, ip):
         print(ip)
         self.socketvar = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -39,7 +41,7 @@ class printer():
         if sizey == -1:
             sizey = sizex
         size = f"{sizex}{sizey}"
-        self.actuallysize = str(size)
+        self.actuallysize = self.actuallyfont + str(size)
         hexsize = self.fontsizes[size]
         self.socketvar.sendall(hexsize)
     def changesmooth(self, smooth = False):
@@ -48,10 +50,12 @@ class printer():
             return
         self.socketvar.sendall(b"\x1d\x62\x00")
     def changefont(self, font = "a"):
-        if font.upper() == "B":
+        self.actuallyfont = font.upper()
+        if self.actuallyfont == "B":
             self.socketvar.sendall(b'\x1B\x4D\x01')
-        else:
+        elif self.actuallyfont == "A":
             self.socketvar.sendall(b'\x1B\x4D\x00')
+        self.changesize(self.actuallysize[1], self.actuallysize[2])
     def changebold(self, bold = False):
         if bold:
             self.socketvar.sendall(b"\x1b\x45\x01")
