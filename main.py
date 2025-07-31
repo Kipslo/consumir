@@ -3388,7 +3388,7 @@ class printerfunc():
                 self.printervar.changebold(True)
                 self.printervar.setalign('center')
                 self.printervar.changesize(1)
-                self.printervar.printtext(listen[0][1].replace("ã", "a").replace("Ã", "A"))
+                self.printervar.printtext(listen[0][1].replace('ã', 'a').replace('Ã', 'A').replace('é', 'e').replace('É', 'E').replace('á', 'a').replace('Á', 'A').replace('Í', 'I').replace('í', 'i').replace('Â', 'A').replace('â', 'a'))
                 self.printervar.breakline()
                 self.printervar.changebold(False)
                 self.printervar.setalign()
@@ -3407,8 +3407,8 @@ class printerfunc():
                 temp = self.commandscursor.execute("SELECT nameclient FROM CommandsActive WHERE number = ?", (listen[0][3], ))
                 for i in temp:
                     if i[0] != "":
-                        print(i[0])
-                        self.printervar.printtext(i[0].replace("ã", "a").replace("Ã", "A"))
+                        self.printervar.breakline()
+                        self.printervar.printtext(i[0].replace('ã', 'a').replace('Ã', 'A').replace('é', 'e').replace('É', 'E').replace('á', 'a').replace('Á', 'A').replace('Í', 'I').replace('í', 'i').replace('Â', 'A').replace('â', 'a'))
                 self.desconnectcommands()
                 self.printervar.printtext(f"Atendente: {listen[0][4]}")
                 self.printervar.changebold(True)
@@ -3418,14 +3418,17 @@ class printerfunc():
                     self.printervar.setalign()
                     self.printervar.changesize(1)
                     self.printervar.breakline()
-                    self.printervar.printtext(f"  {i[6]} {i[0]}".replace("ã", "a").replace("Ã", "A"))
+                    self.printervar.printtext(f"  {i[6]} {i[0]}".replace('ã', 'a').replace('Ã', 'A').replace('é', 'e').replace('É', 'E').replace('á', 'a').replace('Á', 'A').replace('Í', 'I').replace('í', 'i').replace('Â', 'A').replace('â', 'a'))
                     if i[7] != "":
-                        self.printervar.changesmooth(True)
-                        self.printervar.setalign()
-                        self.printervar.changesize(1)
-                        self.printervar.changesmooth(True)
-                        self.printervar.changefont("b")
-                        self.printervar.printtext(f"*{i[7]}")
+                        texts = i[7].split(".=")
+                        for text in texts:
+                            self.printervar.changesmooth(True)
+                            self.printervar.setalign()
+                            self.printervar.changesize(1)
+                            self.printervar.changesmooth(True)
+                            self.printervar.changefont("b")
+                            self.printervar.breakline()
+                            self.printervar.printtext(f"    *{text}".replace('ã', 'a').replace('Ã', 'A').replace('é', 'e').replace('É', 'E').replace('á', 'a').replace('Á', 'A').replace('Í', 'I').replace('í', 'i').replace('Â', 'A').replace('â', 'a'))
                 self.printervar.cut()
                 for i in listen:
                     self.cursor.execute("DELETE FROM ProductPrint WHERE product = ? AND printer = ? AND type = ? AND command = ? AND waiter = ? AND date = ? AND qtd = ?", (i[0], i[1], i[2], i[3], i[4], i[5], i[6]))
@@ -3458,7 +3461,7 @@ class printerfunc():
                 self.printervar.changebold(True)
                 self.printervar.setalign("center")
                 self.printervar.changesize(1)
-                self.printervar.printtext(housename.replace("ã", "a").replace("Ã", "A"))
+                self.printervar.printtext(housename.replace('ã', 'a').replace('Ã', 'A').replace('é', 'e').replace('É', 'E').replace('á', 'a').replace('Á', 'A').replace('Í', 'I').replace('í', 'i').replace('Â', 'A').replace('â', 'a'))
                 self.printervar.changesize(0)
                 self.printervar.changefont("b")
                 self.printervar.breakline()
@@ -3469,7 +3472,7 @@ class printerfunc():
                     self.printervar.changesize(1)
 
                     self.printervar.changefont("b")
-                    self.printervar.printtext(adress.replace("ã", "a").replace("Ã", "A"))
+                    self.printervar.printtext(adress.replace('ã', 'a').replace('Ã', 'A').replace('é', 'e').replace('É', 'E').replace('á', 'a').replace('Á', 'A').replace('Í', 'I').replace('í', 'i').replace('Â', 'A').replace('â', 'a'))
                     self.printervar.changesize(0)
                     self.printervar.breakline()
                     self.printervar.breakline()
@@ -3501,7 +3504,7 @@ class printerfunc():
                     self.printervar.changefont("b")
                     self.printervar.breakline()
                     self.printervar.breakline()
-                    self.printervar.printtext("Cliente: " + client.replace("ã", "a").replace("Ã", "A"))
+                    self.printervar.printtext("Cliente: " + client.replace('ã', 'a').replace('Ã', 'A').replace('é', 'e').replace('É', 'E').replace('á', 'a').replace('Á', 'A').replace('Í', 'I').replace('í', 'i').replace('Â', 'A').replace('â', 'a'))
                 self.printervar.changesize(0)
                 self.printervar.changefont("A")
                 self.printervar.breakline()
@@ -3533,7 +3536,7 @@ class printerfunc():
                         products[i[1]] = [i[0], i[1], i[2], i[3], i[4]]
                 totalpay = 0.0
                 for i in products:
-                    text = f"{products[i][3]} {products[i][1].replace('ã', 'a').replace('Ã', 'A').replace('é', 'e').replace('É', 'E').replace('á', 'a').replace('Á', 'A').replace('Í', 'I').replace('í', 'i')} ({products[i][4]})"
+                    text = f"{products[i][3]} {products[i][1].replace('ã', 'a').replace('Ã', 'A').replace('é', 'e').replace('É', 'E').replace('á', 'a').replace('Á', 'A').replace('Í', 'I').replace('í', 'i').replace('Â', 'A').replace('â', 'a')} ({products[i][4]})"
                     totalprice = str(float(products[i][3]) * float(products[i][4].replace(",", "."))).replace(".", ",")
                     if not "," in totalprice:
                         totalprice = totalprice + ",00"

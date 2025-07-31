@@ -20,8 +20,9 @@ class printer():
     def cut(self):
         self.socketvar.sendall(b"\n" + b"\n" + b"\n"+ b"\n"+ b"\n"+ b"\n")
         self.socketvar.sendall(b'\x1d\x56\x00')
-    def printtext(self, text):
-        text = text.strip()
+    def printtext(self, text, isStrip = False):
+        if isStrip:
+            text = text.strip()
         limitchar = self.limitchar[self.actuallysize]
         for i in range(len(text) // limitchar + 1):
             textforprint = text[i * limitchar : (i+1) * limitchar]
@@ -78,3 +79,9 @@ class printer():
         raise AlignNotExist("This align not exist")
 if __name__ == "__main__":
     printervar = printer()
+    printervar.connect("192.168.0.202")
+    printervar.changesize(1)
+    printervar.changefont("b")
+    printervar.printtext("oioioioioioi")
+    printervar.cut()
+    printervar.desconnectprinter()
