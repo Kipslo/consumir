@@ -3385,6 +3385,7 @@ class printerfunc():
                 for i in temp:
                     prynter = i[0]
                 self.printervar.connect(prynter)
+                self.printervar.changefont("a")
                 self.printervar.changebold(True)
                 self.printervar.setalign('center')
                 self.printervar.changesize(1)
@@ -3418,6 +3419,7 @@ class printerfunc():
                     self.printervar.setalign()
                     self.printervar.changesize(1)
                     self.printervar.breakline()
+                    self.printervar.changefont()
                     self.printervar.printtext(f"  {i[6]} {i[0]}".replace('ã', 'a').replace('Ã', 'A').replace('é', 'e').replace('É', 'E').replace('á', 'a').replace('Á', 'A').replace('Í', 'I').replace('í', 'i').replace('Â', 'A').replace('â', 'a'))
                     if i[7] != "":
                         texts = i[7].split(".=")

@@ -6,7 +6,7 @@ fonte_negrito = b'\x1b!\x08'  # Fonte em negrito
 fonte_dobrada = b'\x1b!\x10'  # Fonte com largura dobrada
 class printer():
     fontsizes = {"00":b'\x1D\x21\x00', "01":b'\x1D\x21\x01', "10": b'\x1D\x21\x10', "11": b'\x1D\x21\x11', "02": b'\x1D\x21\x02', "12": b'\x1D\x21\x12', "22": b'\x1D\x21\x22', "20": b'\x1D\x21\x20', "21": b'\x1D\x21\x21'}
-    actuallysize = "00"
+    actuallysize = "A00"
     align = "left"
     actuallyfont = "A"
     limitchar = {"A00":48, "A01":48, "A10":24, "A11":24, "A02":48, "A12":24, "A22":16, "A20":16, "A21":16, 
@@ -79,7 +79,7 @@ class printer():
         raise AlignNotExist("This align not exist")
 if __name__ == "__main__":
     printervar = printer()
-    printervar.connect("192.168.0.202")
+    #printervar.connect("192.168.0.202")
     printervar.changesize(1)
     printervar.changefont("b")
     printervar.printtext("oioioioioioi")
