@@ -21,6 +21,10 @@ class application():
                 aprinter.finishprinter()
             except:
                 pass
+            try:
+                self.rootaddpdctcommand.destroy()
+            except:
+                pass
             self.root.destroy()
         self.insertproductlist = []
         self.createtables()
@@ -1416,36 +1420,45 @@ class application():
         self.rootcommand.grab_set()
         self.root.bind_all("<KeyPress>",self.presskeycommandwindow)
         self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
-        self.rootaddpdctcommand.destroy()
+        self.rootaddpdctcommand.transient()
+        self.rootaddpdctcommand.withdraw()
+        self.rootcommand.grab_set()
     def addpdctcommandwindow(self):
-        self.rootaddpdctcommand = ctk.CTkToplevel(self.rootcommand)
-        self.rootaddpdctcommand.title("ADICIONAR CONSUMO")
-        self.rootaddpdctcommand.transient(self.rootcommand)
-        self.rootaddpdctcommand.resizable(False, False)
-        self.rootaddpdctcommand.geometry("700x600")
-        self.rootaddpdctcommand.grab_set()
+        try:
+            self.rootaddpdctcommand.deiconify()
+            self.rootaddpdctcommand.transient(self.rootcommand)
+            self.rootaddpdctcommand.grab_set()
+            self.reloadproductstable(True)
+        except Exception as error:
+            print(error)
+            self.rootaddpdctcommand = ctk.CTkToplevel(self.root)
+            self.rootaddpdctcommand.title("ADICIONAR CONSUMO")
+            self.rootaddpdctcommand.transient(self.rootcommand)
+            self.rootaddpdctcommand.resizable(False, False)
+            self.rootaddpdctcommand.geometry("700x600")
+            self.rootaddpdctcommand.grab_set()
 
-        self.scroolframe_addproduct = ctk.CTkScrollableFrame(self.rootaddpdctcommand, fg_color=self.colors[3])
-        self.scroolframe_addproduct.place(relx=0, rely=0.1, relwidth=1, relheight=0.9)
+            self.scroolframe_addproduct = ctk.CTkScrollableFrame(self.rootaddpdctcommand, fg_color=self.colors[3])
+            self.scroolframe_addproduct.place(relx=0, rely=0.1, relwidth=1, relheight=0.9)
 
-        self.categoryadd_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="CATEGORIA", width=200, height=50)
-        self.categoryadd_heading.grid(row=1, column=1, padx=1, pady=1)
+            self.categoryadd_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="CATEGORIA", width=200, height=50)
+            self.categoryadd_heading.grid(row=1, column=1, padx=1, pady=1)
 
-        self.productadd_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="PRODUTO", width=200, height=50)
-        self.productadd_heading.grid(row=1, column=2, padx=1, pady=1)
+            self.productadd_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="PRODUTO", width=200, height=50)
+            self.productadd_heading.grid(row=1, column=2, padx=1, pady=1)
 
-        self.priceadd_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="PREÇO", width=90, height=50)
-        self.priceadd_heading.grid(row=1, column=3, padx=1, pady=1)
+            self.priceadd_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="PREÇO", width=90, height=50)
+            self.priceadd_heading.grid(row=1, column=3, padx=1, pady=1)
 
-        self.addproduct_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="ADICIONAR 1", width=70, height=50)
-        self.addproduct_heading.grid(row=1, column=4, padx=1, pady=1)
+            self.addproduct_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="ADICIONAR 1", width=70, height=50)
+            self.addproduct_heading.grid(row=1, column=4, padx=1, pady=1)
 
-        self.peraddproduct_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="ADICIONAR" , width=70, height=50)
-        self.peraddproduct_heading.grid(row=1, column=5, padx=1, pady=1)
+            self.peraddproduct_heading = ctk.CTkLabel(self.scroolframe_addproduct, fg_color=self.colors[4], text="ADICIONAR" , width=70, height=50)
+            self.peraddproduct_heading.grid(row=1, column=5, padx=1, pady=1)
 
-        self.rootaddpdctcommand.protocol("WM_DELETE_WINDOW", self.closewindowaddproduct)
-        self.root.bind_all("<KeyPress>",self.pressesccommand)
-        self.reloadproductstable()
+            self.rootaddpdctcommand.protocol("WM_DELETE_WINDOW", self.closewindowaddproduct)
+            self.root.bind_all("<KeyPress>",self.pressesccommand)
+            self.reloadproductstable()
     def insertproductlisten(self, i):
         self.insertproductlist.append(i)
     def pressesccommand(self, event):
@@ -1688,7 +1701,7 @@ class application():
             self.button_confirm.configure(command=lambda x=cod:confirm2(x))
             self.desconnectcommands()
         reloadnotes()
-    def reloadproductstable(self, search = ""):
+    def reloadproductstable(self, modify= False, search = ""):
         def addproductincommand(product, category, tipe, price):
             if tipe == "SIZE":
                 self.addproductincommandwindow(product, category, tipe)
@@ -1701,39 +1714,46 @@ class application():
                 self.insertcommandactive(self.currentcommandwindow)
                 self.reloadcommands()
             self.reloadproductforcommands(self.currentcommandwindow)
-        try:
-            for i in self.currentproductsaddlist:
-                for n in i:
-                    n.destroy()
-        except:
-            pass
-        self.connectproduct()
-        temp = self.productcursor.execute("SELECT * FROM Products")
-        listentemp = []
-        listen = []
-        for i in temp:
-            listentemp.append(i)
-        if search == "":
-            listen = listentemp   
+        if modify:
+            for k, i in enumerate(self.currentproductsaddlist):
+
+                self.currentproductsaddlist[k][3].configure(command=lambda x= self.currentproductsaddlistvalues[k]["name"], y = self.currentproductsaddlistvalues[k]["category"], z = self.currentproductsaddlistvalues[k]["tipe"], a= self.currentproductsaddlistvalues[k]["price"]:addproductincommand(x, y, z, a))
+                self.currentproductsaddlist[k][4].configure(command=lambda x= self.currentproductsaddlistvalues[k]["name"], y= self.currentproductsaddlistvalues[k]["category"], z= self.currentproductsaddlistvalues[k]["tipe"], a= self.currentproductsaddlistvalues[k]["price"]:self.addproductincommandwindow(x, y, z, a))
         else:
-            for i in listentemp :
-                if unidecode(search.upper()) in unidecode(i[0].upper()):
-                    listen = i
-        self.currentproductsaddlist = []
-        for k, i in enumerate(listen):
-            print(i)
-            name, tipe, category, price, printer = i
-            self.currentproductsaddlist.append([ctk.CTkLabel(self.scroolframe_addproduct, text=category, width=200, height=40, fg_color=self.colors[5]),
-                                                ctk.CTkLabel(self.scroolframe_addproduct, text=name, width=200, height=40, fg_color=self.colors[5]),
-                                                ctk.CTkLabel(self.scroolframe_addproduct, text=price, width=90, height=40, fg_color=self.colors[5]),
-                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("./imgs/add1.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y = category, z = tipe, a= price:addproductincommand(x, y, z, a)),
-                                                ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("./imgs/add.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y= category, z= tipe, a= price:self.addproductincommandwindow(x, y, z, a))])
-            self.currentproductsaddlist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
-            self.currentproductsaddlist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
-            self.currentproductsaddlist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
-            self.currentproductsaddlist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
-            self.currentproductsaddlist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
-        self.desconnectproduct()
+            try:
+                for i in self.currentproductsaddlist:
+                    for n in i:
+                        n.destroy()
+            except:
+                pass
+            self.connectproduct()
+            temp = self.productcursor.execute("SELECT * FROM Products")
+            listentemp = []
+            listen = []
+            for i in temp:
+                listentemp.append(i)
+            if search == "":
+                listen = listentemp   
+            else:
+                for i in listentemp :
+                    if unidecode(search.upper()) in unidecode(i[0].upper()):
+                        listen = i
+            self.currentproductsaddlist = []
+            self.currentproductsaddlistvalues = []
+            for k, i in enumerate(listen):
+                name, tipe, category, price, printer = i
+                self.currentproductsaddlistvalues.append({"name":name, "category":category, "tipe":tipe, "price":price})
+                self.currentproductsaddlist.append([ctk.CTkLabel(self.scroolframe_addproduct, text=category, width=200, height=40, fg_color=self.colors[5]),
+                                                    ctk.CTkLabel(self.scroolframe_addproduct, text=name, width=200, height=40, fg_color=self.colors[5]),
+                                                    ctk.CTkLabel(self.scroolframe_addproduct, text=price, width=90, height=40, fg_color=self.colors[5]),
+                                                    ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("./imgs/add1.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y = category, z = tipe, a= price:addproductincommand(x, y, z, a)),
+                                                    ctk.CTkButton(self.scroolframe_addproduct, text="", width=70, height=40, image=ctk.CTkImage(Image.open("./imgs/add.png"), size=(30, 30)), fg_color=self.colors[5], hover=False, command=lambda x= name, y= category, z= tipe, a= price:self.addproductincommandwindow(x, y, z, a))])
+                self.currentproductsaddlist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
+                self.currentproductsaddlist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
+                self.currentproductsaddlist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
+                self.currentproductsaddlist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
+                self.currentproductsaddlist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
+            self.desconnectproduct()
     def insertcommandactive(self, number):
         self.connectcommands()
         temp = self.commandscursor.execute("SELECT number FROM CommandsActive WHERE number = ?", (number, ))
@@ -2099,7 +2119,6 @@ class application():
         if idcash == "open":
             tmp = self.historycursor.execute("SELECT status FROM Cashdesk WHERE status = ?", (idcash, ))
             for i in tmp:
-                print(i[0])
                 tmp = i[0]
             if tmp == "open":
                 self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="FECHAR CAIXA", command=close)
@@ -2414,8 +2433,6 @@ class application():
                             if len(tablelist) - 1 == k:
                                 tablelist.append([i, listen[i][0], listen[i][1]])
                                 break
-            print(listen)
-            print(tablelist)
             self.currenttable = []
             for k, i in enumerate(tablelist):
                 self.currenttable.append([
