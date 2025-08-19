@@ -28,7 +28,6 @@ class application():
             self.root.destroy()
         self.insertproductlist = []
         self.createtables()
-        self.desconnecthistory()
         self.positionp = True
         self.cod, self.stylemode, self.maxcommands = "", "", ""
         mod, up = False, False
@@ -1438,6 +1437,15 @@ class application():
             self.rootaddpdctcommand.geometry("700x600")
             self.rootaddpdctcommand.grab_set()
 
+            self.searchentry = ctk.CTkEntry(self.rootaddpdctcommand, fg_color=self.colors[3], placeholder_text="PESQUISAR")
+            self.searchentry.place(relx=0.01, rely=0.01, relwidth=0.58, relheight=0.08)
+
+            self.searchbutton = ctk.CTkButton(self.rootaddpdctcommand, fg_color=self.colors[3], hover_color=self.colors[4], command=lambda:self.reloadproductstable(search=True), text="Pesquisar")
+            self.searchbutton.place(relx=0.6, rely=0.01, relwidth=0.19, relheight=0.08)
+
+            self.reloadbuttonaddpdctcommand = ctk.CTkButton(self.rootaddpdctcommand, fg_color=self.colors[3], hover_color=self.colors[4], command=self.reloadproductstable, text="Atualizar")
+            self.reloadbuttonaddpdctcommand.place(relx=0.8, rely=0.01, relwidth=0.19, relheight=0.08)
+
             self.scroolframe_addproduct = ctk.CTkScrollableFrame(self.rootaddpdctcommand, fg_color=self.colors[3])
             self.scroolframe_addproduct.place(relx=0, rely=0.1, relwidth=1, relheight=0.9)
 
@@ -1701,7 +1709,7 @@ class application():
             self.button_confirm.configure(command=lambda x=cod:confirm2(x))
             self.desconnectcommands()
         reloadnotes()
-    def reloadproductstable(self, modify= False, search = ""):
+    def reloadproductstable(self, modify= False, search = False):
         def addproductincommand(product, category, tipe, price):
             if tipe == "SIZE":
                 self.addproductincommandwindow(product, category, tipe)
@@ -1719,6 +1727,7 @@ class application():
 
                 self.currentproductsaddlist[k][3].configure(command=lambda x= self.currentproductsaddlistvalues[k]["name"], y = self.currentproductsaddlistvalues[k]["category"], z = self.currentproductsaddlistvalues[k]["tipe"], a= self.currentproductsaddlistvalues[k]["price"]:addproductincommand(x, y, z, a))
                 self.currentproductsaddlist[k][4].configure(command=lambda x= self.currentproductsaddlistvalues[k]["name"], y= self.currentproductsaddlistvalues[k]["category"], z= self.currentproductsaddlistvalues[k]["tipe"], a= self.currentproductsaddlistvalues[k]["price"]:self.addproductincommandwindow(x, y, z, a))
+        
         else:
             try:
                 for i in self.currentproductsaddlist:
@@ -1729,17 +1738,21 @@ class application():
             self.connectproduct()
             temp = self.productcursor.execute("SELECT * FROM Products")
             listentemp = []
-            listen = []
             for i in temp:
                 listentemp.append(i)
-            if search == "":
-                listen = listentemp   
-            else:
-                for i in listentemp :
-                    if unidecode(search.upper()) in unidecode(i[0].upper()):
-                        listen = i
             self.currentproductsaddlist = []
             self.currentproductsaddlistvalues = []
+            if search:
+                listen = []
+                searchtext = self.searchentry.get()
+                for i in listentemp:
+                    print(searchtext)
+                    print(i[0])
+                    if searchtext.upper() in i[0].upper():
+                        print(i)
+                        listen.append(i)
+            else:
+                listen = listentemp
             for k, i in enumerate(listen):
                 name, tipe, category, price, printer = i
                 self.currentproductsaddlistvalues.append({"name":name, "category":category, "tipe":tipe, "price":price})
