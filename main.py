@@ -503,6 +503,11 @@ class application():
         self.button_saveconfig.place(relx=0.8, rely=0.145, relwidth=0.1, relheight=0.05)
 
     def reloadproductsnormal(self):
+        def deleteproductnormal(name, category, tipe):
+            self.connectproduct()
+            self.productcursor.execute("DELETE FROM Products WHERE name = ? AND category = ? AND type = ?", (name, category, tipe))
+            self.desconnectproduct()
+            self.reloadproductsnormal()
         self.connectproduct()
         try:
             for i in self.current_productslist:
@@ -520,19 +525,15 @@ class application():
             self.current_productslist.append([ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=400, height=40), 
                                               ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=400, height=40), 
                                               ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), 
-                                              ctk.CTkLabel(image=ctk.CTkImage(Image.open("./imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40), 
-                                              ctk.CTkButton(self.frame_productreeviews, command=lambda x=name, y=category, z=ttype:self.deleteproductnormal(x, y, z), image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(30,30)), text="", fg_color=self.colors[5], width=100, hover=False)])
+                                              ctk.CTkButton(image=ctk.CTkImage(Image.open("./imgs/pencil.jpg"), size=(30, 30)), master=self.frame_productreeviews, text="", fg_color=self.colors[5], width=100, height=40, command=lambda x=name, y=category, z=prynter:self.addproductwindow(x, y, z), hover= False), 
+                                              ctk.CTkButton(self.frame_productreeviews, command=lambda x=name, y=category, z=ttype:deleteproductnormal(x, y, z), image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(30,30)), text="", fg_color=self.colors[5], width=100, hover=False)])
             self.current_productslist[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
             self.current_productslist[k][1].grid(row=k + 2, column=2, padx=1, pady=1)
             self.current_productslist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
             self.current_productslist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
             self.current_productslist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
         self.desconnectproduct()
-    def deleteproductnormal(self, name, category, tipe):
-        self.connectproduct()
-        self.productcursor.execute("DELETE FROM Products WHERE name = ? AND category = ? AND type = ?", (name, category, tipe))
-        self.desconnectproduct()
-        self.reloadproductsnormal()
+    
     def deletewindow(self):
         try:
             self.reloadthread.terminate()
@@ -703,6 +704,13 @@ class application():
 
         reloadclients()
     def addproductwindow(self, product = "", category = "", prynter = ""):
+        def editproduct():
+            newname, newcategory, newprice, newprynter= self.entry_namenewproduct.get(), self.combobox_categoryname.get(), self.entry_price.get(), self.combobox_printer.get()
+            self.connectproduct()
+            self.productcursor.execute("UPDATE Products SET name = ?, category = ?, price = ?, printer = ? WHERE name = ? AND category = ?", (newname, newcategory, newprice, newprynter, product, category))
+            self.desconnectproduct()
+            self.rootnewproduct.destroy()
+            self.reloadproductsnormal()
         self.connectprinter()
         tmp = self.printercursor.execute("SELECT name FROM Printers")
         printers = []
@@ -715,15 +723,26 @@ class application():
             self.rootnewproduct.geometry("500x300")
             self.rootnewproduct.transient(self.root)
             self.rootnewproduct.grab_set()
-
+            tipeproduct, price = "", ""
+            if product != "" and category != "":
+                self.connectproduct()
+                temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ? AND category = ?", (product, category))
+                for i in temp:
+                    product, tipeproduct, category, price, prynter = i
+                self.desconnectproduct()
             self.frame_mainnewproduct = ctk.CTkFrame(self.rootnewproduct, fg_color=self.colors[2])
             self.frame_mainnewproduct.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.49)
 
             self.entry_price = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="PREÇO", fg_color=self.colors[4])
             self.entry_price.place(relx=0.41, rely=0.11, relwidth=0.39, relheight=0.39)
+            if price != "":
+                self.entry_price.insert(0, price)
 
             self.entry_namenewproduct = ctk.CTkEntry(self.frame_mainnewproduct, placeholder_text="NOME", fg_color=self.colors[4])
             self.entry_namenewproduct.place(relx=0.01, rely=0.11, relwidth=0.29, relheight=0.39)
+            if product != "":
+                self.entry_namenewproduct.insert(0, product)
+
             categories = []
             self.connectproduct()
             temp = self.productcursor.execute("SELECT name FROM Category")
@@ -733,12 +752,20 @@ class application():
 
             self.combobox_categoryname = ctk.CTkComboBox(self.frame_mainnewproduct, fg_color=self.colors[4], values=categories, width=200,height=60)
             self.combobox_categoryname.place(relx=0.5, rely=0.6)
+            if category != "":
+                self.combobox_categoryname.set(category)
 
             self.combobox_printer = ctk.CTkComboBox(self.rootnewproduct, values=printers, width=150, height=55)
             self.combobox_printer.place(relx=0.4, rely=0.6)
+            if prynter != "":
+                self.combobox_printer.set(prynter)
 
             self.button_addproductconfirm = ctk.CTkButton(self.rootnewproduct, fg_color=self.colors[4], hover_color=self.colors[5], text="CONFIRMAR", command=self.addproductfunc)
             self.button_addproductconfirm.place(relx=0.7, rely=0.6, relwidth=0.29, relheight=0.2)
+
+            if product != "" and category != "":
+                self.button_addproductconfirm.configure(command=editproduct)
+
         elif self.current_productlisttab == "PRODUTOS POR TAMANHO":
             self.current_sizesfornewproduct = []
             self.rootaddproductsize = ctk.CTkToplevel(self.root)
