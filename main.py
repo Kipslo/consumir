@@ -2193,9 +2193,9 @@ class application():
 
                 if productdate >= initdate and productdate <= finishdate:
                     try:
-                        products[name] = [name, products[name][1] + int(quantity), unitprice, products[name][3] + float(price)]
+                        products[name] = [name, products[name][1] + int(quantity), unitprice, products[name][3] + float(price.replace(",", "."))]
                     except:
-                        products[name] = [name, int(quantity), unitprice, float(price)]
+                        products[name] = [name, int(quantity), unitprice, float(price.replace(",", "."))]
             for k, i in enumerate(products):
                 self.currentranking.append([ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=300, height=50, text=products[i][0]), ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=100, height=50, text=products[i][1]), ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=100, height=50, text=products[i][2]), ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=100, height=50, text=products[i][3])])
 
