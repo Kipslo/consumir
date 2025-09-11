@@ -953,6 +953,12 @@ class application():
                         
         self.desconnectproduct()
         self.reloadcategories()
+        self.entry_positioncategory.delete(0, "end")
+        self.entry_addcategoryname.delete(0, "end")
+        try:
+            self.button_editcategory.destroy()
+        except:
+            pass
     def editcategorybutton(self, name, id):
         self.entry_positioncategory.delete(0, "end")
         self.entry_addcategoryname.delete(0, "end")
@@ -971,7 +977,7 @@ class application():
         print(id)
         print(newid)
         if int(newid) != int(id):
-            temp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (newid))
+            temp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (newid, ))
             for i in temp:
                 nm = i[0]
             print(nm)
