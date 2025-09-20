@@ -955,10 +955,7 @@ class application():
         self.reloadcategories()
         self.entry_positioncategory.delete(0, "end")
         self.entry_addcategoryname.delete(0, "end")
-        try:
-            self.button_editcategory.destroy()
-        except:
-            pass
+        self.button_editcategory.destroy()
     def editcategorybutton(self, name, id):
         self.entry_positioncategory.delete(0, "end")
         self.entry_addcategoryname.delete(0, "end")
@@ -1106,7 +1103,6 @@ class application():
                     tim = self.historycursor.execute("""SELECT id FROM Cashdesk WHERE status = ?""", ("open", ))
                     for i in tim:
                         tim = i[0]
-
                     self.historycursor.execute("INSERT INTO ClosedCommand (number, date, hour, nameclient, idclient, totalprice, datefinish, cashier, pay, cashdesk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandactive[0], commandactive[1], commandactive[2], commandactive[3], commandactive[4], totalprice, date, self.namelogin, pay, tim))
                     temp = self.historycursor.execute("SELECT cod FROM ClosedCommand WHERE number = ? AND nameclient = ? AND idclient = ? AND totalprice = ? AND datefinish = ?", (commandactive[0], commandactive[3], commandactive[4], totalprice, date))
                     for i in temp:
@@ -2210,6 +2206,7 @@ class application():
                 self.currentranking[k][1].grid(row=n, column=2, padx=1, pady=1)
                 self.currentranking[k][2].grid(row=n, column=3, padx=1, pady=1)
                 self.currentranking[k][3].grid(row=n, column=4, padx=1, pady=1)
+         
             self.desconnecthistory()
         self.deletewindow()
         self.currentwindow = "RANKINGPRODUCTS"
