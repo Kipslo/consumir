@@ -100,7 +100,7 @@ class application():
             temp = i[0]
             break
         if temp == "":
-            self.contscursor.execute("INSERT INTO Conts (username, name, password, permissionmaster, permissionrelease, permissionentry) VALUES (?, ?, ?, ?, ?, ?)",("ADMIN", "Admin", "ADMIN", "Y", "Y", "Y"))
+            self.contscursor.execute("INSERT INTO Conts (username, name, password, permissionmaster, permissionrelease, permissionentry, permissionclose) VALUES (?, ?, ?, ?, ?, ?, ?)",("ADMIN", "Admin", "ADMIN", "Y", "Y", "Y", "Y"))
         self.desconnectconts()
         self.root.bind_all("<KeyPress>", self.keypresslogin)
     def keypresslogin(self, event):
@@ -1934,7 +1934,7 @@ class application():
                 self.contscursor.execute("UPDATE Conts SET permissionrelease = ?, lastmodification = ? WHERE name = ?", (self.currentfunctionaryvar[new][1].get(), str(datetime.datetime.now())[0:19], name))
             elif up == "permissionentry":
                 self.contscursor.execute("UPDATE Conts SET permissionentry = ?, lastmodification = ? WHERE name = ?", (self.currentfunctionaryvar[new][2].get(), str(datetime.datetime.now())[0:19], name))
-            elif up = "permissionclose":
+            elif up == "permissionclose":
                 self.contscursor.execute("UPDATE Conts SET permissionclose = ?, lastmodification = ? WHERE name = ?", (self.currentfunctionaryvar[new][3].get(), str(datetime.datetime.now())[0:19], name))
             self.desconnectconts()
         def reload():
@@ -2016,8 +2016,8 @@ class application():
                 if i[1] != self.entry_name.get():
                     temp = "A"
             if temp == "" and oldname == "" and self.entry_username.get() != "" and self.entry_name.get() != "":
-                username, name, password, permissionmaster, permissionrelease, permissionentry = self.entry_username.get(), self.entry_name.get(), self.entry_passwordcont.get(), "F", "F", "F"
-                self.contscursor.execute("INSERT INTO Conts (username, name, password, permissionmaster, permissionrelease, permissionentry, lastmodification, lastlogin) VALUES (?, ?, ?, ?, ?, ?, ?)",(username, name, password, permissionmaster, permissionrelease, permissionentry, str(datetime.datetime.now())[0:19], ""))
+                username, name, password, permissionmaster, permissionrelease, permissionentry, permissionclose = self.entry_username.get(), self.entry_name.get(), self.entry_passwordcont.get(), "F", "F", "F", "F"
+                self.contscursor.execute("INSERT INTO Conts (username, name, password, permissionmaster, permissionrelease, permissionentry, permissionclose, lastmodification, lastlogin) VALUES (?, ?, ?, ?, ?, ?, ?)",(username, name, password, permissionmaster, permissionrelease, permissionentry, permissionclose, str(datetime.datetime.now())[0:19], ""))
             elif temp == "" and self.entry_username.get() != "" and self.entry_name.get() != "":
                 username, name, password = self.entry_username.get(), self.entry_name.get(), self.entry_passwordcont.get()
                 self.contscursor.execute("UPDATE Conts SET username = ?, name = ?, password = ?, lastmodification = ? WHERE name = ?", (username, name, password, str(datetime.datetime.now())[0:19], oldname))
@@ -2064,11 +2064,14 @@ class application():
         self.permissionentry_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=70, height=50, text="PORTEIRO")
         self.permissionentry_heading.grid(row=1, column=5, padx=1, pady=1)
 
+        self.permissionclose_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=70, height=50, text="Caixa")
+        self.permissionclose_heading.grid(row=1, column=6, padx=1, pady=1)
+
         self.editfunctionary_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=50, text="EDITAR")
-        self.editfunctionary_heading.grid(row=1, column=6, padx=1, pady=1)
+        self.editfunctionary_heading.grid(row=1, column=7, padx=1, pady=1)
 
         self.deletefunctionary_heading = ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=50, text="DELETAR")
-        self.deletefunctionary_heading.grid(row=1, column=7, padx=1, pady=1)
+        self.deletefunctionary_heading.grid(row=1, column=8, padx=1, pady=1)
 
         reload()
     def cash(self, idcash = "open"):
@@ -3272,10 +3275,10 @@ class server():
                             temp = i
                         listen = listen[0].split(".-")
                     if temp != "":
-                        temp = self.contscursor.execute("SELECT name, password, permissionmaster, permissionrelease FROM Conts WHERE name = ?", (username, ))
+                        temp = self.contscursor.execute("SELECT name, username, password, permissionmaster, permissionrelease FROM Conts WHERE name = ?", (username, ))
                         name, password, permissionmaster, permissionentry = "", "", "", ""
                         for i in temp:
-                            name, password, permissionmaster, permissionrelease = i
+                            name, username, password, permissionmaster, permissionrelease = i
                         if username == name and (passw == password or inserttemp == "HOST"):
                             if permissionrelease == "Y" or permissionmaster == "Y":
                                 if len(listen) == 6:
@@ -3294,12 +3297,12 @@ class server():
                                     for commandnow in number:
                                         if n != 0:
                                             prynter = ""
-                                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandnow, product + " (Dividido)", category, self.decimal(float(unitprice)/qtdcommand), qtd, description, username, tipe, prynter))
+                                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandnow, product + " (Dividido)", category, self.decimal(float(unitprice)/qtdcommand), qtd, description, name, tipe, prynter))
                                         n = 1
                                 except Exception as error:
                                     print(error)
                                     number = int(number[0])
-                                    self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe, prynter))
+                                    self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, name, tipe, prynter))
                                 conn.sendall(str.encode("Y"))
                             else:
                                 conn.sendall(str.encode("VOCÊ NÃO TEM PERMISSÃO PARA LANÇAR PRODUTOS"))
@@ -3403,6 +3406,24 @@ class server():
                     self.desconnecttemp()
                     self.desconnectconfig()
                     self.desconnectcommands()
+                elif "CLOSECOMMAND" in listen[0]:
+                    tipe = listen[1]
+                    del listen[0:2]
+                    self.connectconts()
+                    temp = ""
+                    tmp = self.contscursor.execute("SELECT name, password, permissionmaster, permissionclose FROM Conts WHERE name = ?", (listen[1], ))
+                    for i in tmp:
+                        temp = i
+                    try:
+                        if temp != "":
+                            
+
+                            conn.sendall(str.encode("Y"))
+                        else:
+                            raise
+                    except:
+                        conn.sendall(str.encode("N"))
+                    self.desconnectconts()
                 else:
                     conn.sendall(data)
                 conn.close()
