@@ -1934,6 +1934,8 @@ class application():
                 self.contscursor.execute("UPDATE Conts SET permissionrelease = ?, lastmodification = ? WHERE name = ?", (self.currentfunctionaryvar[new][1].get(), str(datetime.datetime.now())[0:19], name))
             elif up == "permissionentry":
                 self.contscursor.execute("UPDATE Conts SET permissionentry = ?, lastmodification = ? WHERE name = ?", (self.currentfunctionaryvar[new][2].get(), str(datetime.datetime.now())[0:19], name))
+            elif up = "permissionclose":
+                self.contscursor.execute("UPDATE Conts SET permissionclose = ?, lastmodification = ? WHERE name = ?", (self.currentfunctionaryvar[new][3].get(), str(datetime.datetime.now())[0:19], name))
             self.desconnectconts()
         def reload():
             try:
@@ -1944,7 +1946,7 @@ class application():
             except:
                 pass
             self.connectconts()
-            temp = self.contscursor.execute("SELECT username, name, password, permissionmaster, permissionrelease, permissionentry From Conts")
+            temp = self.contscursor.execute("SELECT username, name, password, permissionmaster, permissionrelease, permissionentry, permissionclose From Conts")
             tempm = []
             for i in temp:
                 tempm.append(i)
@@ -1952,19 +1954,22 @@ class application():
             self.currentfunctionarylabel = []
             self.currentfunctionaryvar = []
             for k, i in enumerate(tempm):
-                username, name, password, permissionmaster, permissionrelease, permissionentry = i
-                self.currentfunctionaryvar.append([ctk.StringVar(), ctk.StringVar(), ctk.StringVar()])
+                username, name, password, permissionmaster, permissionrelease, permissionentry, permissionclose = i
+                self.currentfunctionaryvar.append([ctk.StringVar(), ctk.StringVar(), ctk.StringVar(), ctk.StringVar()])
                 if permissionmaster == "Y":
                     self.currentfunctionaryvar[k][0].set("Y")
                 if permissionrelease == "Y":
                     self.currentfunctionaryvar[k][1].set("Y")
                 if permissionentry == "Y":
                     self.currentfunctionaryvar[k][2].set("Y")
+                if permissionclose == "Y":
+                    self.currentfunctionaryvar[k][3].set("Y")
                 self.currentfunctionarylabel.append([ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=200, height=40, text=username),
                                                      ctk.CTkLabel(self.scroolframe_functionary, fg_color=self.colors[4], width=150, height=40, text=name), 
                                                     ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][0], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionmaster", y = k,z = name:update(x, y, z)),
                                                     ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][1], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionrelease", y = k,z = name:update(x, y, z)),
                                                     ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][2], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionentry", y = k,z = name:update(x, y, z)),
+                                                    ctk.CTkCheckBox(self.scroolframe_functionary, fg_color=self.colors[4], variable=self.currentfunctionaryvar[k][3], onvalue="Y", offvalue="F", width=70, height=40, text="", command=lambda x = "permissionclose", y = k,z = name:update(x, y, z)),
                                                     ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=40, text="", hover=False, image=ctk.CTkImage(Image.open("./imgs/pencil.jpg"), size=(30,30)), command=lambda x=name: edit(x)),
                                                     ctk.CTkButton(self.scroolframe_functionary, fg_color=self.colors[4], width=60, height=40, text="", hover=False, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(30,30)), command=lambda x=name: delete(x))])
                 self.currentfunctionarylabel[k][0].grid(row=k + 2, column=1, padx=1, pady=1)
@@ -1974,6 +1979,7 @@ class application():
                 self.currentfunctionarylabel[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
                 self.currentfunctionarylabel[k][5].grid(row=k + 2, column=6, padx=1, pady=1)
                 self.currentfunctionarylabel[k][6].grid(row=k + 2, column=7, padx=1, pady=1)
+                self.currentfunctionarylabel[k][7].grid(row=k + 2, column=8, padx=1, pady=1)
         def edit(name):
             try:
                 self.button_editfunctionary.destroy()
@@ -2877,6 +2883,7 @@ class application():
                                  permissionmaster CHAR(1) NOT NULL, 
                                  permissionrelease CHAR(1),
                                  permissionentry CHAR(1),
+                                 permissionclose CHAR(1),
                                  lastlogin CHAR(19),
                                  lastmodification CHAR(19)
                                  )""")
@@ -3102,7 +3109,7 @@ class server():
         if True:
             #'192.168.0.85'
             self.HOST = socket.gethostbyname(socket.gethostname())
-            self.PORT = 55261
+            self.PORT = 54162
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.bind((self.HOST, self.PORT))
             self.s.listen()
