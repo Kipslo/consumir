@@ -3259,7 +3259,7 @@ class server():
                     self.connecttemp()
                     self.connectconts()
                     if listen[0] == "INSERTHOST" and ender[0] == socket.gethostbyname(socket.gethostname()):
-                        number, username = listen[1].split('.='), listen[2]
+                        number, namesended = listen[1].split('.='), listen[2]
                         inserttemp = "HOST"
                         temp = "HOST"
                         passw = ""
@@ -3268,18 +3268,18 @@ class server():
                         print(listen)
                         print("------")
                     else:
-                        number, username, passw = listen[1].split('.='), listen[2], listen[3]
+                        number, namesended, passw = listen[1].split('.='), listen[2], listen[3]
                         TEMp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ? AND password = ?", (username, passw))
                         del listen[0]; del listen[0]; del listen[0]; del listen[0]
                         for i in TEMp:
                             temp = i
                         listen = listen[0].split(".-")
                     if temp != "":
-                        temp = self.contscursor.execute("SELECT name, username, password, permissionmaster, permissionrelease FROM Conts WHERE name = ?", (username, ))
+                        temp = self.contscursor.execute("SELECT name, username, password, permissionmaster, permissionrelease FROM Conts WHERE name = ?", (namesended, ))
                         name, password, permissionmaster, permissionentry = "", "", "", ""
                         for i in temp:
                             name, username, password, permissionmaster, permissionrelease = i
-                        if username == name and (passw == password or inserttemp == "HOST"):
+                        if namesended == name and (passw == password or inserttemp == "HOST"):
                             if permissionrelease == "Y" or permissionmaster == "Y":
                                 if len(listen) == 6:
                                     product, category, unitprice, qtd, tipe, prynter = listen
@@ -3297,12 +3297,12 @@ class server():
                                     for commandnow in number:
                                         if n != 0:
                                             prynter = ""
-                                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandnow, product + " (Dividido)", category, self.decimal(float(unitprice)/qtdcommand), qtd, description, name, tipe, prynter))
+                                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandnow, product + " (Dividido)", category, self.decimal(float(unitprice)/qtdcommand), qtd, description, username, tipe, prynter))
                                         n = 1
                                 except Exception as error:
                                     print(error)
                                     number = int(number[0])
-                                    self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, name, tipe, prynter))
+                                    self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe, prynter))
                                 conn.sendall(str.encode("Y"))
                             else:
                                 conn.sendall(str.encode("VOCÊ NÃO TEM PERMISSÃO PARA LANÇAR PRODUTOS"))
