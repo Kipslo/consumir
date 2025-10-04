@@ -3407,16 +3407,26 @@ class server():
                     self.desconnectconfig()
                     self.desconnectcommands()
                 elif "CLOSECOMMAND" in listen[0]:
-                    tipe = listen[1]
-                    del listen[0:2]
+                    user, tipe, number = listen[1:4]
+                    del listen[0:4]
+                    payments = []
+                    for i in listen:
+                        payments.append(i.split(".="))
                     self.connectconts()
                     temp = ""
-                    tmp = self.contscursor.execute("SELECT name, password, permissionmaster, permissionclose FROM Conts WHERE name = ?", (listen[1], ))
+                    tmp = self.contscursor.execute("SELECT permissionmaster, permissionclose FROM Conts WHERE name = ?", (user, ))
                     for i in tmp:
-                        temp = i
+                        permissionmaster, permissionclose = i
                     try:
-                        if temp != "":
+                        if temp != "" and ender[0] == socket.gethostbyname(socket.gethostname()) and (permissionmaster == "Y" or permissionclose == "Y"):
+                            self.connectcommands()
+                            for i in payments:
+                                tipepayment, quantity = i
+                                self.commandscursor.execute("INSERT INTO Payments (number, type, quantity) VALUES (?, ?, ?)", (number, tipepayment, quantity))
                             
+                            self.desconnectcommands()
+                            if tipe == "CLOSE":
+                                pass
 
                             conn.sendall(str.encode("Y"))
                         else:
