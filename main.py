@@ -3096,6 +3096,18 @@ class server():
     def desconnectclients(self):
         self.clients.commit()
         self.clients.close()
+    def connecthistory(self):
+        self.history = sql.connect("his.db")
+        self.historycursor = self.history.cursor()
+    def desconnecthistory(self):
+        self.history.commit()
+        self.historycursor.close()
+    def connectprinter(self):
+        self.database = sql.connect("printer.db")
+        self.printercursor = self.database.cursor()
+    def desconnectprinter(self):
+        self.database.commit()
+        self.database.close()
     def decimal(self, number):
         integer, decimal = str(number).split(".")
         return float(integer + "." + decimal[0:2])
@@ -3108,6 +3120,7 @@ class server():
         self.servervar.start()
     def __init__(self):
         self.initializate()
+    
     def server(self):
         if True:
             #'192.168.0.85'
@@ -3408,6 +3421,7 @@ class server():
                     self.desconnectcommands()
                 elif "CLOSECOMMAND" in listen[0]:
                     user, tipe, number = listen[1:4]
+                    print(listen)
                     del listen[0:4]
                     payments = []
                     for i in listen:
@@ -3417,22 +3431,80 @@ class server():
                     tmp = self.contscursor.execute("SELECT permissionmaster, permissionclose FROM Conts WHERE name = ?", (user, ))
                     for i in tmp:
                         permissionmaster, permissionclose = i
-                    try:
-                        if temp != "" and ender[0] == socket.gethostbyname(socket.gethostname()) and (permissionmaster == "Y" or permissionclose == "Y"):
+                        temp = i
+                        print(temp != "" )
+                        print( ender[0] == socket.gethostbyname(socket.gethostname()))
+                        print((permissionmaster == "Y" or permissionclose == "Y"))
+                        try:
+                            if temp == "":
+                                raise ValueError("usuario nao existe")
+                            if ender[0] != socket.gethostbyname(socket.gethostname()):
+                                raise
+                            if not (permissionmaster == "Y" or permissionclose == "Y"):
+                                raise ValueError("sem permissao")
+                                
                             self.connectcommands()
                             for i in payments:
                                 tipepayment, quantity = i
                                 self.commandscursor.execute("INSERT INTO Payments (number, type, quantity) VALUES (?, ?, ?)", (number, tipepayment, quantity))
-                            
                             self.desconnectcommands()
+                            del payments
                             if tipe == "CLOSE":
-                                pass
+                                self.connectcommands()
+                                self.connecthistory()
 
+                                temp = self.commandscursor.execute("SELECT initdate, hour, nameclient, idclient FROM CommandsActive WHERE number = ?", (number, ))
+                                for i in temp:
+                                     initdate, hour, nameclient, idclient = i
+                                temp = self.commandscursor.execute("SELECT * FROM Consumption WHERE number = ?", (number, ))
+                                totalprice = 0
+                                products = []
+                                for i in temp:
+                                    products.append(i)
+                                    totalprice = totalprice + float(i[5].replace(",", "."))
+                                
+                                temp = self.commandscursor.execute("SELECT * FROM Payments WHERE number = ?", (number, ))
+                                payments = []
+                                pay = 0
+                                for  i in temp:
+                                     print(i)
+                                     payments.append(i)
+                                     pay = pay + float(i[3])
+                                date = str(datetime.datetime.now())[0:19]
+
+                                tim = self.historycursor.execute("""SELECT id FROM Cashdesk WHERE status = ?""", ("open", ))
+                                for i in tim:
+                                    tim = i[0]
+                                self.historycursor.execute("INSERT INTO ClosedCommand (number, date, hour, nameclient, idclient, totalprice, datefinish, cashier, pay, cashdesk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, initdate, hour, nameclient, idclient, totalprice, date, user, pay, tim))
+                                        
+                                temp = self.historycursor.execute("SELECT cod FROM ClosedCommand WHERE number = ? AND nameclient = ? AND idclient = ? AND totalprice = ? AND datefinish = ?", (number, nameclient, idclient, totalprice, date))
+                                for i in temp:
+                                    cod = i[0]
+                                for i in payments:
+                                    self.historycursor.execute("INSERT INTO Payments (commandid, type, quantity) VALUES (?, ?, ?)", (cod, i[2], i[3]))
+                                self.connectprinter()
+                                self.printercursor.execute("INSERT INTO ClosedPrinter (command, date, permission, client) VALUES (?, ?, ?, ?)", (number, initdate + " " + hour, "False", nameclient))
+                                printertemp = self.printercursor.execute("SELECT id FROM ClosedPrinter WHERE command = ? AND date = ?", (number, initdate + " " + hour))
+                                for i in printertemp:
+                                    idcom = i[0]
+                                for i in products:
+                                    print(i)
+                                    self.printercursor.execute("INSERT INTO ProductsClosed (id, product, type, qtd, unitprice) VALUES (?, ?, ?, ?, ?)", (idcom, i[8], i[9], i[7], i[6]))
+                                    self.historycursor.execute("INSERT INTO Products (commandid, name, type, releasedate, releasehour, waiter, price, unitprice, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (cod, i[8], i[9], i[2], i[3], i[4], i[5], i[6], i[7]))
+                                self.printercursor.execute("UPDATE ClosedPrinter SET permission = ? WHERE command = ? AND date = ?", ("True", number, initdate + " " + hour))
+                                self.desconnectprinter()
+                                self.commandscursor.execute("DELETE FROM CommandsActive WHERE number = ?", (number, ))
+                                for i in products:
+                                    self.commandscursor.execute("DELETE FROM Consumption WHERE cod = ?", (i[0], ))
+                                for i in payments:
+                                    self.commandscursor.execute("DELETE FROM Payments WHERE cod = ?", (i[0], ))
+                                    self.desconnectcommands()
+                                    self.desconnecthistory()
+                                    print("foi")
                             conn.sendall(str.encode("Y"))
-                        else:
-                            raise
-                    except:
-                        conn.sendall(str.encode("N"))
+                        except Exception as error:
+                            print(error)
+                            conn.sendall(str.encode(error))
                     self.desconnectconts()
                 else:
                     conn.sendall(data)
