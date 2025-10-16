@@ -76,7 +76,7 @@ class printer():
         if align == "left" or align == "center" or align == "right":
             self.align = align
             return "Sucess"
-        raise AlignNotExist("This align not exist")
+        raise ValueError("This align not exist")
 if __name__ == "__main__":
     printervar = printer()
     #printervar.connect("192.168.0.202")
