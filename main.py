@@ -2290,6 +2290,8 @@ class application():
         self.totalpriceproduct = ctk.CTkLabel(self.frameranking, bg_color=self.colors[4], width=100, height=50, text="TOTAL")
         self.totalpriceproduct.grid(row=0, column=4, padx=1, pady=1)
 
+        self.printranking = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Imprimir")
+        self.printranking.place(relx=0.01, rely=0.73, relwidth=0.15, relheight=0.05)
         reload()
     def cashdeskwindow(self):
         def reload(date = False):
@@ -3130,385 +3132,388 @@ class server():
             self.s.bind((self.HOST, self.PORT))
             self.s.listen()
             while True:
-                conn, ender = self.s.accept()
-                data = None
-                while not data:
-                    data = conn.recv(1024)
-                text = data.decode()
-                listen = text.split(",=")
-                if listen[0] == "LOGIN":
-                    self.connectconts()
-                    temp = ""
-                    TEMp = self.contscursor.execute("SELECT * FROM Conts WHERE name = ? AND password = ?", (listen[1], listen[2]))
-                    for i in TEMp:
-                        temp = i
-                    if temp == "":
-                        conn.sendall(str.encode("NOT"))
-                    else:
-                        self.connecttemp()
-                        self.tempdbcursor.execute("INSERT INTO TempLogin (name, lastlogin) VALUES (?, ?)", (listen[1], str(datetime.datetime.now())[0:19],))
-                        conn.sendall(str.encode("YES"))
-                        self.desconnecttemp()
-                    self.desconnectconts()
-                elif listen[0] == "CHECKLOGIN":
-                    try:
+                try:
+                    conn, ender = self.s.accept()
+                    data = None
+                    while not data:
+                        data = conn.recv(1024)
+                    text = data.decode()
+                    listen = text.split(",=")
+                    if listen[0] == "LOGIN":
                         self.connectconts()
-                        TEMp = self.contscursor.execute("SELECT lastmodification, lastlogin FROM Conts WHERE name = ?", (listen[1], ))
-                        for i in TEMp:
-                            lastmodification, lastlogin = i
-                        self.desconnectconts()
-                        print(listen[1])
-                        print(lastlogin)
-                        print(lastmodification)
-                        if None == lastmodification or lastlogin == None:
-                            conn.sendall(str.encode("Y"))
-                        else:
-                            modificationdate = datetime.datetime(int(lastmodification[0:4]), int(lastmodification[5:7]), int(lastmodification[8:10]), int(lastmodification[11:13]), int(lastmodification[14:16]), int(lastmodification[17:]))
-                            logindate = datetime.datetime(int(lastlogin[0:4]), int(lastlogin[5:7]), int(lastlogin[8:10]), int(lastlogin[11:13]), int(lastlogin[14:16]), int(lastlogin[17:]))
-                            if logindate > modificationdate:
-                                conn.sendall(str.encode("Y"))
-                            else:
-                                raise
-                    except Exception as error:
-                        print(error)
-                        try:
-                            self.desconnectconts()
-                        except:
-                            pass
-                        conn.sendall(str.encode("N"))
-                elif listen[0] == "LIMITCOMMANDS":
-                    self.connectconfig()
-                    TEMp = self.configcursor.execute("SELECT maxcommands FROM Config")
-                    temp = ""
-                    for i in TEMp:
-                        temp = i[0]
-                    conn.sendall(str.encode(str(temp)))
-                    self.desconnectconfig()
-                elif listen[0] == "OPENCOMMANDS":
-                    self.connectcommands()
-                    TEMp = self.commandscursor.execute("SELECT number FROM CommandsActive")
-                    temp = ""
-                    commands = ""
-                    for i in TEMp:
-                        if temp == "":
-                            temp = "a"
-                            commands = str(int(i[0]))
-                        else:
-                            commands = commands + ",=" + str(int(i[0])) 
-                    self.desconnectcommands()
-                    conn.sendall(str.encode(commands))
-                elif listen[0] == "CLIENTNAME":
-                    self.connectcommands()
-                
-                    temp = self.commandscursor.execute("SELECT nameclient, idclient FROM CommandsActive WHERE number = ?", (listen[1], ))
-                    tmp = ''
-                    for i in temp:
-                        tmp = f"{i[0]},={i[1]}"
-                    self.desconnectcommands()
-                    if tmp == "":
-                        conn.sendall(str.encode("NOT NAME IN COMMAND"))
-                    else:
-                        conn.sendall(str.encode(tmp))
-                elif listen[0] == "PRODUCTSON":
-                    self.connectcommands()
-                    TEMp = self.commandscursor.execute("SELECT product, quantity, price, type, size FROM Consumption WHERE number = ?", (listen[1], ))
-                    temp = ""
-                    for i in TEMp:
-                        product, quantity, price, tipe, size = i
-                        if temp == "":
-                            temp = f"{product}|{quantity}|{price}"
-                        else:
-                            temp = temp + f",={product}|{quantity}|{price}"
-                    self.desconnectcommands()
-                    conn.sendall(str.encode(temp))
-                elif listen[0] == "CATEGORIES":
-                    self.connectproduct()
-                    TEMp = self.productcursor.execute("SELECT cod, name FROM Category")
-                    temp = ""
-
-                    for i in TEMp:
-                        if temp != "":
-                            temp = temp + f",={i[0]}.={i[1]}"
-                        else:
-                            temp = temp + f"{i[0]}.={i[1]}"
-                    self.desconnectproduct()
-                    conn.sendall(str.encode(temp))
-                elif "PRODUCTSCATEGORY" in listen[0]:
-                    self.connectproduct()
-
-                    if listen[0] == "PRODUCTSCATEGORYID":
-                        TEMp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (listen[1], ))
-                        for i in TEMp:
-                            listen[1] = i[0]
-
-                    TEMp = self.productcursor.execute("SELECT name, type, price, printer FROM Products WHERE category = ?", (listen[1], ))
-                    temp = ""
-                    for i in TEMp:
-                        if temp != "":
-                            temp = temp + f",={i[0]}|{i[1]}|{i[2]}|{i[3]}"
-                        else:
-                            temp = f"{i[0]}|{i[1]}|{i[2]}|{i[3]}"                    
-                    self.desconnectproduct()
-                    conn.sendall(str.encode(temp))
-                elif "SIZESCATEGORY" in listen[0]:
-                    self.connectproduct()
-                    if listen[0] == "SIZESCATEGORYID":
-                        TEMp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (listen[2], ))
-                        for i in TEMp:
-                            listen[2] = i[0]
-                    TEMp = self.productcursor.execute("SELECT name, price FROM SizeofProducts WHERE product = ? and category = ?", ( listen[1], listen[2]))
-                    temp = ""
-                    for i in TEMp:
-                        if temp != "":
-                            temp = temp + f",={i[0]}|{i[1]}"
-                        else:
-                            temp = f"{i[0]}|{i[1]}"
-                    self.desconnectproduct()
-                    conn.sendall(str.encode(temp))
-                elif listen[0] == "INSERT" or listen[0] == "INSERTHOST":
-                    temp = ""
-                    inserttemp = ""
-                    print(listen)
-                    self.connecttemp()
-                    self.connectconts()
-                    if listen[0] == "INSERTHOST" and ender[0] == socket.gethostbyname(socket.gethostname()):
-                        number, namesended = listen[1].split('.='), listen[2]
-                        inserttemp = "HOST"
-                        temp = "HOST"
-                        passw = ""
-                        print(listen)
-                        listen = listen[3].split('.-')
-                        print(listen)
-                        print("------")
-                    else:
-                        number, namesended, passw = listen[1].split('.='), listen[2], listen[3]
-                        TEMp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ? AND password = ?", (username, passw))
-                        del listen[0]; del listen[0]; del listen[0]; del listen[0]
+                        temp = ""
+                        TEMp = self.contscursor.execute("SELECT * FROM Conts WHERE name = ? AND password = ?", (listen[1], listen[2]))
                         for i in TEMp:
                             temp = i
-                        listen = listen[0].split(".-")
-                    if temp != "":
-                        temp = self.contscursor.execute("SELECT name, username, password, permissionmaster, permissionrelease FROM Conts WHERE name = ?", (namesended, ))
-                        name, password, permissionmaster, permissionentry = "", "", "", ""
-                        for i in temp:
-                            name, username, password, permissionmaster, permissionrelease = i
-                        if namesended == name and (passw == password or inserttemp == "HOST"):
-                            if permissionrelease == "Y" or permissionmaster == "Y":
-                                if len(listen) == 6:
-                                    product, category, unitprice, qtd, tipe, prynter = listen
-                                    description = ""
-                                else:
-                                    product, category, unitprice, qtd, description, tipe, prynter = listen
-                                print(listen)
-                                unitprice = unitprice.replace(",", ".")
-                                try:
-                                    n = 0
-
-                                    qtdcommand = len(number)
-                                    if qtdcommand == 1:
-                                        raise    
-                                    for commandnow in number:
-                                        if n != 0:
-                                            prynter = ""
-                                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandnow, product + " (Dividido)", category, self.decimal(float(unitprice)/qtdcommand), qtd, description, username, tipe, prynter))
-                                        n = 1
-                                except Exception as error:
-                                    print(error)
-                                    number = int(number[0])
-                                    self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe, prynter))
+                        if temp == "":
+                            conn.sendall(str.encode("NOT"))
+                        else:
+                            self.connecttemp()
+                            self.tempdbcursor.execute("INSERT INTO TempLogin (name, lastlogin) VALUES (?, ?)", (listen[1], str(datetime.datetime.now())[0:19],))
+                            conn.sendall(str.encode("YES"))
+                            self.desconnecttemp()
+                        self.desconnectconts()
+                    elif listen[0] == "CHECKLOGIN":
+                        try:
+                            self.connectconts()
+                            TEMp = self.contscursor.execute("SELECT lastmodification, lastlogin FROM Conts WHERE name = ?", (listen[1], ))
+                            for i in TEMp:
+                                lastmodification, lastlogin = i
+                            self.desconnectconts()
+                            print(listen[1])
+                            print(lastlogin)
+                            print(lastmodification)
+                            if None == lastmodification or lastlogin == None:
                                 conn.sendall(str.encode("Y"))
                             else:
-                                conn.sendall(str.encode("VOCÊ NÃO TEM PERMISSÃO PARA LANÇAR PRODUTOS"))
-                        else:
-                            conn.sendall(str.encode("LOGIN INVÁLIDO"))
-                    else:
-                        conn.sendall(str.encode("N"))
-                    self.desconnectconts()
-                    self.desconnecttemp()
-                elif listen[0] == "GETNOTES" or listen[0] == "GETNOTESID":
-                    self.connectproduct()
-                    if listen[0] == "GETNOTESID":
-                        TEMp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (listen[1], ))
-                        for i in TEMp:
-                            listen[1] = i[0]
-                    temp = self.productcursor.execute("SELECT text FROM Notes WHERE category = ?", (listen[1],  ))
-                    text = ""
-                    num = 1
-                    for i in temp:
-                        if num == 1:
-                            text = i[0]
-                            num = 2
-                        else:
-                            text = text + ".=" + i[0]
-                    self.desconnectproduct()
-                    conn.sendall(str.encode(text))
-                elif listen[0] == "ENTRIES":
-                    self.connectconfig()
-                    temp = self.configcursor.execute("SELECT cod, name FROM Entries")
-                    text = ''
-
-                    for i in temp:
-                        if text == "":
-                            text = f"{i[0]},={i[1]}"
-                        else:
-                            text = text + f".={i[0]},={i[1]}"
-                    self.desconnectconfig()
-                    conn.sendall(text.encode())
-                elif "INSERTCLIENT" in listen[0]:
-                    self.connectcommands()
-                    inserttemp = ""
-                    if "INSERTCLIENTID" == listen[0] and ender[0] == socket.gethostbyname(socket.gethostname()):
-                        inserttemp = "HOST"
-                    del listen[0]
-                    print(listen)
-                    try:
-                        waiter, passw, command, idclient, client = listen
-                        entries = ""
-                    except:
-                        waiter, passw, command, idclient, client, entries = listen
-                        entries = entries.split(";=")
-                    date = str(datetime.datetime.now())[0:19]
-                    date, hour = date[0:10], date[11:20]
-                    try:
-                        idclient = int(idclient)
-                    except:
-                        idclient = ""
-                    if idclient != "":
-                        self.connectclients()
-                        tempclient = self.clientscursor.execute("SELECT name FROM Clients WHERE id = ?", (idclient, ))
-                        for i in tempclient:
-                            client = i[0]
-                        self.desconnectclients()
-                    
-                    self.connecttemp()
-                    self.connectconfig()
-                    self.connectproduct()
-                    self.connectconts()
-                    temp = self.contscursor.execute("SELECT name, password, permissionmaster, permissionentry FROM Conts WHERE name = ?", (waiter, ))
-                    name, password, permissionmaster, permissionentry = "", "", "", ""
-                    for i in temp:
-                        name, password, permissionmaster, permissionentry = i
-                    if name == waiter and (passw == password or inserttemp == "HOST"):
-                        if permissionmaster == "Y" or permissionentry == "Y":
-                            temp = self.commandscursor.execute("SELECT number FROM CommandsActive WHERE number = ?", (command, ))
-                            tmp = ""
-                            for i in temp:
-                                tmp = i[0]
-                            if tmp == "":
-                                self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, client, idclient))
-                            else:
-                                self.commandscursor.execute("UPDATE CommandsActive SET nameclient = ?, idclient = ? WHERE number = ?", (client, idclient, command))
-                            if entries != "":
-                                for j in entries:
-                                    entry = j.split(".=")
-                                    temp = self.configcursor.execute("SELECT entry FROM Entries WHERE name = ?", (entry[0], ))
-                                    for i in temp:
-                                        temp = i[0]
-                                    temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ?", (temp, ))
-                                    for i in temp:
-                                        product, tipe, category, price, prynter = i
-                                    self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, entry[1], "", waiter, tipe, prynter))
-                            
-                            conn.sendall(str.encode("OK"))
-                        else:
-                            conn.sendall(str.encode("SEM PERMISSÃO"))
-                    else:
-                        conn.sendall(str.encode("LOGIN INVÁLIDO"))
-                    self.desconnectconts()
-                    self.desconnectproduct()
-                    self.desconnecttemp()
-                    self.desconnectconfig()
-                    self.desconnectcommands()
-                elif "CLOSECOMMAND" in listen[0]:
-                    user, tipe, number = listen[1:4]
-                    print(listen)
-                    del listen[0:4]
-                    payments = []
-                    for i in listen:
-                        payments.append(i.split(".="))
-                    self.connectconts()
-                    temp = ""
-                    tmp = self.contscursor.execute("SELECT permissionmaster, permissionclose FROM Conts WHERE name = ?", (user, ))
-                    for i in tmp:
-                        permissionmaster, permissionclose = i
-                        temp = i
-                        print(temp != "" )
-                        print( ender[0] == socket.gethostbyname(socket.gethostname()))
-                        print((permissionmaster == "Y" or permissionclose == "Y"))
-                        try:
-                            if temp == "":
-                                raise ValueError("usuario nao existe")
-                            if ender[0] != socket.gethostbyname(socket.gethostname()):
-                                raise
-                            if not (permissionmaster == "Y" or permissionclose == "Y"):
-                                raise ValueError("sem permissao")
-                                
-                            self.connectcommands()
-                            for i in payments:
-                                tipepayment, quantity = i
-                                self.commandscursor.execute("INSERT INTO Payments (number, type, quantity) VALUES (?, ?, ?)", (number, tipepayment, quantity))
-                            self.desconnectcommands()
-                            del payments
-                            if tipe == "CLOSE":
-                                self.connectcommands()
-                                self.connecthistory()
-
-                                temp = self.commandscursor.execute("SELECT initdate, hour, nameclient, idclient FROM CommandsActive WHERE number = ?", (number, ))
-                                for i in temp:
-                                     initdate, hour, nameclient, idclient = i
-                                temp = self.commandscursor.execute("SELECT * FROM Consumption WHERE number = ?", (number, ))
-                                totalprice = 0
-                                products = []
-                                for i in temp:
-                                    products.append(i)
-                                    totalprice = totalprice + float(i[5].replace(",", "."))
-                                
-                                temp = self.commandscursor.execute("SELECT * FROM Payments WHERE number = ?", (number, ))
-                                payments = []
-                                pay = 0
-                                for  i in temp:
-                                     print(i)
-                                     payments.append(i)
-                                     pay = pay + float(i[3])
-                                date = str(datetime.datetime.now())[0:19]
-
-                                tim = self.historycursor.execute("""SELECT id FROM Cashdesk WHERE status = ?""", ("open", ))
-                                for i in tim:
-                                    tim = i[0]
-                                self.historycursor.execute("INSERT INTO ClosedCommand (number, date, hour, nameclient, idclient, totalprice, datefinish, cashier, pay, cashdesk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, initdate, hour, nameclient, idclient, totalprice, date, user, pay, tim))
-                                        
-                                temp = self.historycursor.execute("SELECT cod FROM ClosedCommand WHERE number = ? AND nameclient = ? AND idclient = ? AND totalprice = ? AND datefinish = ?", (number, nameclient, idclient, totalprice, date))
-                                for i in temp:
-                                    cod = i[0]
-                                for i in payments:
-                                    self.historycursor.execute("INSERT INTO Payments (commandid, type, quantity) VALUES (?, ?, ?)", (cod, i[2], i[3]))
-                                self.connectprinter()
-                                self.printercursor.execute("INSERT INTO ClosedPrinter (command, date, permission, client) VALUES (?, ?, ?, ?)", (number, initdate + " " + hour, "False", nameclient))
-                                printertemp = self.printercursor.execute("SELECT id FROM ClosedPrinter WHERE command = ? AND date = ?", (number, initdate + " " + hour))
-                                for i in printertemp:
-                                    idcom = i[0]
-                                for i in products:
-                                    print(i)
-                                    self.printercursor.execute("INSERT INTO ProductsClosed (id, product, type, qtd, unitprice) VALUES (?, ?, ?, ?, ?)", (idcom, i[8], i[9], i[7], i[6]))
-                                    self.historycursor.execute("INSERT INTO Products (commandid, name, type, releasedate, releasehour, waiter, price, unitprice, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (cod, i[8], i[9], i[2], i[3], i[4], i[5], i[6], i[7]))
-                                self.printercursor.execute("UPDATE ClosedPrinter SET permission = ? WHERE command = ? AND date = ?", ("True", number, initdate + " " + hour))
-                                self.desconnectprinter()
-                                self.commandscursor.execute("DELETE FROM CommandsActive WHERE number = ?", (number, ))
-                                for i in products:
-                                    self.commandscursor.execute("DELETE FROM Consumption WHERE cod = ?", (i[0], ))
-                                for i in payments:
-                                    self.commandscursor.execute("DELETE FROM Payments WHERE cod = ?", (i[0], ))
-                                    self.desconnectcommands()
-                                    self.desconnecthistory()
-                                    print("foi")
-                            conn.sendall(str.encode("Y"))
+                                modificationdate = datetime.datetime(int(lastmodification[0:4]), int(lastmodification[5:7]), int(lastmodification[8:10]), int(lastmodification[11:13]), int(lastmodification[14:16]), int(lastmodification[17:]))
+                                logindate = datetime.datetime(int(lastlogin[0:4]), int(lastlogin[5:7]), int(lastlogin[8:10]), int(lastlogin[11:13]), int(lastlogin[14:16]), int(lastlogin[17:]))
+                                if logindate > modificationdate:
+                                    conn.sendall(str.encode("Y"))
+                                else:
+                                    raise
                         except Exception as error:
                             print(error)
-                            conn.sendall(str.encode(error))
-                    self.desconnectconts()
-                else:
-                    conn.sendall(data)
-                conn.close()
+                            try:
+                                self.desconnectconts()
+                            except:
+                                pass
+                            conn.sendall(str.encode("N"))
+                    elif listen[0] == "LIMITCOMMANDS":
+                        self.connectconfig()
+                        TEMp = self.configcursor.execute("SELECT maxcommands FROM Config")
+                        temp = ""
+                        for i in TEMp:
+                            temp = i[0]
+                        conn.sendall(str.encode(str(temp)))
+                        self.desconnectconfig()
+                    elif listen[0] == "OPENCOMMANDS":
+                        self.connectcommands()
+                        TEMp = self.commandscursor.execute("SELECT number FROM CommandsActive")
+                        temp = ""
+                        commands = ""
+                        for i in TEMp:
+                            if temp == "":
+                                temp = "a"
+                                commands = str(int(i[0]))
+                            else:
+                                commands = commands + ",=" + str(int(i[0])) 
+                        self.desconnectcommands()
+                        conn.sendall(str.encode(commands))
+                    elif listen[0] == "CLIENTNAME":
+                        self.connectcommands()
+                    
+                        temp = self.commandscursor.execute("SELECT nameclient, idclient FROM CommandsActive WHERE number = ?", (listen[1], ))
+                        tmp = ''
+                        for i in temp:
+                            tmp = f"{i[0]},={i[1]}"
+                        self.desconnectcommands()
+                        if tmp == "":
+                            conn.sendall(str.encode("NOT NAME IN COMMAND"))
+                        else:
+                            conn.sendall(str.encode(tmp))
+                    elif listen[0] == "PRODUCTSON":
+                        self.connectcommands()
+                        TEMp = self.commandscursor.execute("SELECT product, quantity, price, type, size FROM Consumption WHERE number = ?", (listen[1], ))
+                        temp = ""
+                        for i in TEMp:
+                            product, quantity, price, tipe, size = i
+                            if temp == "":
+                                temp = f"{product}|{quantity}|{price}"
+                            else:
+                                temp = temp + f",={product}|{quantity}|{price}"
+                        self.desconnectcommands()
+                        conn.sendall(str.encode(temp))
+                    elif listen[0] == "CATEGORIES":
+                        self.connectproduct()
+                        TEMp = self.productcursor.execute("SELECT cod, name FROM Category")
+                        temp = ""
+
+                        for i in TEMp:
+                            if temp != "":
+                                temp = temp + f",={i[0]}.={i[1]}"
+                            else:
+                                temp = temp + f"{i[0]}.={i[1]}"
+                        self.desconnectproduct()
+                        conn.sendall(str.encode(temp))
+                    elif "PRODUCTSCATEGORY" in listen[0]:
+                        self.connectproduct()
+
+                        if listen[0] == "PRODUCTSCATEGORYID":
+                            TEMp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (listen[1], ))
+                            for i in TEMp:
+                                listen[1] = i[0]
+
+                        TEMp = self.productcursor.execute("SELECT name, type, price, printer FROM Products WHERE category = ?", (listen[1], ))
+                        temp = ""
+                        for i in TEMp:
+                            if temp != "":
+                                temp = temp + f",={i[0]}|{i[1]}|{i[2]}|{i[3]}"
+                            else:
+                                temp = f"{i[0]}|{i[1]}|{i[2]}|{i[3]}"                    
+                        self.desconnectproduct()
+                        conn.sendall(str.encode(temp))
+                    elif "SIZESCATEGORY" in listen[0]:
+                        self.connectproduct()
+                        if listen[0] == "SIZESCATEGORYID":
+                            TEMp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (listen[2], ))
+                            for i in TEMp:
+                                listen[2] = i[0]
+                        TEMp = self.productcursor.execute("SELECT name, price FROM SizeofProducts WHERE product = ? and category = ?", ( listen[1], listen[2]))
+                        temp = ""
+                        for i in TEMp:
+                            if temp != "":
+                                temp = temp + f",={i[0]}|{i[1]}"
+                            else:
+                                temp = f"{i[0]}|{i[1]}"
+                        self.desconnectproduct()
+                        conn.sendall(str.encode(temp))
+                    elif listen[0] == "INSERT" or listen[0] == "INSERTHOST":
+                        temp = ""
+                        inserttemp = ""
+                        print(listen)
+                        self.connecttemp()
+                        self.connectconts()
+                        if listen[0] == "INSERTHOST" and ender[0] == socket.gethostbyname(socket.gethostname()):
+                            number, namesended = listen[1].split('.='), listen[2]
+                            inserttemp = "HOST"
+                            temp = "HOST"
+                            passw = ""
+                            print(listen)
+                            listen = listen[3].split('.-')
+                            print(listen)
+                            print("------")
+                        else:
+                            number, namesended, passw = listen[1].split('.='), listen[2], listen[3]
+                            TEMp = self.contscursor.execute("SELECT name FROM Conts WHERE name = ? AND password = ?", (username, passw))
+                            del listen[0]; del listen[0]; del listen[0]; del listen[0]
+                            for i in TEMp:
+                                temp = i
+                            listen = listen[0].split(".-")
+                        if temp != "":
+                            temp = self.contscursor.execute("SELECT name, username, password, permissionmaster, permissionrelease FROM Conts WHERE name = ?", (namesended, ))
+                            name, password, permissionmaster, permissionentry = "", "", "", ""
+                            for i in temp:
+                                name, username, password, permissionmaster, permissionrelease = i
+                            if namesended == name and (passw == password or inserttemp == "HOST"):
+                                if permissionrelease == "Y" or permissionmaster == "Y":
+                                    if len(listen) == 6:
+                                        product, category, unitprice, qtd, tipe, prynter = listen
+                                        description = ""
+                                    else:
+                                        product, category, unitprice, qtd, description, tipe, prynter = listen
+                                    print(listen)
+                                    unitprice = unitprice.replace(",", ".")
+                                    try:
+                                        n = 0
+
+                                        qtdcommand = len(number)
+                                        if qtdcommand == 1:
+                                            raise    
+                                        for commandnow in number:
+                                            if n != 0:
+                                                prynter = ""
+                                            self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (commandnow, product + " (Dividido)", category, self.decimal(float(unitprice)/qtdcommand), qtd, description, username, tipe, prynter))
+                                            n = 1
+                                    except Exception as error:
+                                        print(error)
+                                        number = int(number[0])
+                                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, product, category, unitprice, qtd, description, username, tipe, prynter))
+                                    conn.sendall(str.encode("Y"))
+                                else:
+                                    conn.sendall(str.encode("VOCÊ NÃO TEM PERMISSÃO PARA LANÇAR PRODUTOS"))
+                            else:
+                                conn.sendall(str.encode("LOGIN INVÁLIDO"))
+                        else:
+                            conn.sendall(str.encode("N"))
+                        self.desconnectconts()
+                        self.desconnecttemp()
+                    elif listen[0] == "GETNOTES" or listen[0] == "GETNOTESID":
+                        self.connectproduct()
+                        if listen[0] == "GETNOTESID":
+                            TEMp = self.productcursor.execute("SELECT name FROM Category WHERE cod = ?", (listen[1], ))
+                            for i in TEMp:
+                                listen[1] = i[0]
+                        temp = self.productcursor.execute("SELECT text FROM Notes WHERE category = ?", (listen[1],  ))
+                        text = ""
+                        num = 1
+                        for i in temp:
+                            if num == 1:
+                                text = i[0]
+                                num = 2
+                            else:
+                                text = text + ".=" + i[0]
+                        self.desconnectproduct()
+                        conn.sendall(str.encode(text))
+                    elif listen[0] == "ENTRIES":
+                        self.connectconfig()
+                        temp = self.configcursor.execute("SELECT cod, name FROM Entries")
+                        text = ''
+
+                        for i in temp:
+                            if text == "":
+                                text = f"{i[0]},={i[1]}"
+                            else:
+                                text = text + f".={i[0]},={i[1]}"
+                        self.desconnectconfig()
+                        conn.sendall(text.encode())
+                    elif "INSERTCLIENT" in listen[0]:
+                        self.connectcommands()
+                        inserttemp = ""
+                        if "INSERTCLIENTID" == listen[0] and ender[0] == socket.gethostbyname(socket.gethostname()):
+                            inserttemp = "HOST"
+                        del listen[0]
+                        print(listen)
+                        try:
+                            waiter, passw, command, idclient, client = listen
+                            entries = ""
+                        except:
+                            waiter, passw, command, idclient, client, entries = listen
+                            entries = entries.split(";=")
+                        date = str(datetime.datetime.now())[0:19]
+                        date, hour = date[0:10], date[11:20]
+                        try:
+                            idclient = int(idclient)
+                        except:
+                            idclient = ""
+                        if idclient != "":
+                            self.connectclients()
+                            tempclient = self.clientscursor.execute("SELECT name FROM Clients WHERE id = ?", (idclient, ))
+                            for i in tempclient:
+                                client = i[0]
+                            self.desconnectclients()
+                        
+                        self.connecttemp()
+                        self.connectconfig()
+                        self.connectproduct()
+                        self.connectconts()
+                        temp = self.contscursor.execute("SELECT name, password, permissionmaster, permissionentry FROM Conts WHERE name = ?", (waiter, ))
+                        name, password, permissionmaster, permissionentry = "", "", "", ""
+                        for i in temp:
+                            name, password, permissionmaster, permissionentry = i
+                        if name == waiter and (passw == password or inserttemp == "HOST"):
+                            if permissionmaster == "Y" or permissionentry == "Y":
+                                temp = self.commandscursor.execute("SELECT number FROM CommandsActive WHERE number = ?", (command, ))
+                                tmp = ""
+                                for i in temp:
+                                    tmp = i[0]
+                                if tmp == "":
+                                    self.commandscursor.execute("INSERT INTO CommandsActive (number, initdate, hour, nameclient, idclient) VALUES (?, ?, ?, ?, ?)", (command, date, hour, client, idclient))
+                                else:
+                                    self.commandscursor.execute("UPDATE CommandsActive SET nameclient = ?, idclient = ? WHERE number = ?", (client, idclient, command))
+                                if entries != "":
+                                    for j in entries:
+                                        entry = j.split(".=")
+                                        temp = self.configcursor.execute("SELECT entry FROM Entries WHERE name = ?", (entry[0], ))
+                                        for i in temp:
+                                            temp = i[0]
+                                        temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ?", (temp, ))
+                                        for i in temp:
+                                            product, tipe, category, price, prynter = i
+                                        self.tempdbcursor.execute("INSERT INTO TempProducts (number, product, category, unitprice, quatity, text, waiter, type, printer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (command, product, category, price, entry[1], "", waiter, tipe, prynter))
+                                
+                                conn.sendall(str.encode("OK"))
+                            else:
+                                conn.sendall(str.encode("SEM PERMISSÃO"))
+                        else:
+                            conn.sendall(str.encode("LOGIN INVÁLIDO"))
+                        self.desconnectconts()
+                        self.desconnectproduct()
+                        self.desconnecttemp()
+                        self.desconnectconfig()
+                        self.desconnectcommands()
+                    elif "CLOSECOMMAND" in listen[0]:
+                        user, tipe, number = listen[1:4]
+                        print(listen)
+                        del listen[0:4]
+                        payments = []
+                        for i in listen:
+                            payments.append(i.split(".="))
+                        self.connectconts()
+                        temp = ""
+                        tmp = self.contscursor.execute("SELECT permissionmaster, permissionclose FROM Conts WHERE name = ?", (user, ))
+                        for i in tmp:
+                            permissionmaster, permissionclose = i
+                            temp = i
+                            print(temp != "" )
+                            print( ender[0] == socket.gethostbyname(socket.gethostname()))
+                            print((permissionmaster == "Y" or permissionclose == "Y"))
+                            try:
+                                if temp == "":
+                                    raise ValueError("usuario nao existe")
+                                if ender[0] != socket.gethostbyname(socket.gethostname()):
+                                    raise
+                                if not (permissionmaster == "Y" or permissionclose == "Y"):
+                                    raise ValueError("sem permissao")
+                                    
+                                self.connectcommands()
+                                for i in payments:
+                                    tipepayment, quantity = i
+                                    self.commandscursor.execute("INSERT INTO Payments (number, type, quantity) VALUES (?, ?, ?)", (number, tipepayment, quantity))
+                                self.desconnectcommands()
+                                del payments
+                                if tipe == "CLOSE":
+                                    self.connectcommands()
+                                    self.connecthistory()
+
+                                    temp = self.commandscursor.execute("SELECT initdate, hour, nameclient, idclient FROM CommandsActive WHERE number = ?", (number, ))
+                                    for i in temp:
+                                        initdate, hour, nameclient, idclient = i
+                                    temp = self.commandscursor.execute("SELECT * FROM Consumption WHERE number = ?", (number, ))
+                                    totalprice = 0
+                                    products = []
+                                    for i in temp:
+                                        products.append(i)
+                                        totalprice = totalprice + float(i[5].replace(",", "."))
+                                    
+                                    temp = self.commandscursor.execute("SELECT * FROM Payments WHERE number = ?", (number, ))
+                                    payments = []
+                                    pay = 0
+                                    for  i in temp:
+                                        print(i)
+                                        payments.append(i)
+                                        pay = pay + float(i[3])
+                                    date = str(datetime.datetime.now())[0:19]
+
+                                    tim = self.historycursor.execute("""SELECT id FROM Cashdesk WHERE status = ?""", ("open", ))
+                                    for i in tim:
+                                        tim = i[0]
+                                    self.historycursor.execute("INSERT INTO ClosedCommand (number, date, hour, nameclient, idclient, totalprice, datefinish, cashier, pay, cashdesk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (number, initdate, hour, nameclient, idclient, totalprice, date, user, pay, tim))
+                                            
+                                    temp = self.historycursor.execute("SELECT cod FROM ClosedCommand WHERE number = ? AND nameclient = ? AND idclient = ? AND totalprice = ? AND datefinish = ?", (number, nameclient, idclient, totalprice, date))
+                                    for i in temp:
+                                        cod = i[0]
+                                    for i in payments:
+                                        self.historycursor.execute("INSERT INTO Payments (commandid, type, quantity) VALUES (?, ?, ?)", (cod, i[2], i[3]))
+                                    self.connectprinter()
+                                    self.printercursor.execute("INSERT INTO ClosedPrinter (command, date, permission, client) VALUES (?, ?, ?, ?)", (number, initdate + " " + hour, "False", nameclient))
+                                    printertemp = self.printercursor.execute("SELECT id FROM ClosedPrinter WHERE command = ? AND date = ?", (number, initdate + " " + hour))
+                                    for i in printertemp:
+                                        idcom = i[0]
+                                    for i in products:
+                                        print(i)
+                                        self.printercursor.execute("INSERT INTO ProductsClosed (id, product, type, qtd, unitprice) VALUES (?, ?, ?, ?, ?)", (idcom, i[8], i[9], i[7], i[6]))
+                                        self.historycursor.execute("INSERT INTO Products (commandid, name, type, releasedate, releasehour, waiter, price, unitprice, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (cod, i[8], i[9], i[2], i[3], i[4], i[5], i[6], i[7]))
+                                    self.printercursor.execute("UPDATE ClosedPrinter SET permission = ? WHERE command = ? AND date = ?", ("True", number, initdate + " " + hour))
+                                    self.desconnectprinter()
+                                    self.commandscursor.execute("DELETE FROM CommandsActive WHERE number = ?", (number, ))
+                                    for i in products:
+                                        self.commandscursor.execute("DELETE FROM Consumption WHERE cod = ?", (i[0], ))
+                                    for i in payments:
+                                        self.commandscursor.execute("DELETE FROM Payments WHERE cod = ?", (i[0], ))
+                                        self.desconnectcommands()
+                                        self.desconnecthistory()
+                                        print("foi")
+                                conn.sendall(str.encode("Y"))
+                            except Exception as error:
+                                print(error)
+                                conn.sendall(str.encode(error))
+                        self.desconnectconts()
+                    else:
+                        conn.sendall(data)
+                    conn.close()
+                except Exception as error:
+                    print(error)
 
 def close():
     aprinter.finishprinter()
