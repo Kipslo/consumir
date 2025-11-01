@@ -1201,7 +1201,7 @@ class application():
 
             self.root.bind_all("<KeyPress>", click)
             self.rootpay.protocol("WM_DELETE_WINDOW", closepay)
-
+        
             self.scrollframepay = ctk.CTkScrollableFrame(self.rootpay)
             self.scrollframepay.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.75)
             
@@ -1250,7 +1250,7 @@ class application():
             self.printercursor.execute("UPDATE ClosedPrinter SET permission = ? WHERE command = ? AND date = ?", ("True", command[0], command[1] + " " + command[2]))
             self.desconnectprinter()
         try:
-            if int(command) > 0:
+            if int(command) >= 0:
                 num = command
         except:
             num = ""
@@ -1313,6 +1313,7 @@ class application():
             self.root.bind_all("<KeyPress>", self.presskeycommandwindow)
             self.rootcommand.protocol("WM_DELETE_WINDOW", self.on_closingcommandwindow)
         else:
+
             self.rootcommand.geometry("900x800")
             self.connecthistory()
             temp = self.historycursor.execute("SELECT * FROM ClosedCommand WHERE cod = ?", (str(closed), ))
@@ -1916,10 +1917,10 @@ class application():
             if key == "0" or key == "1" or key == "2" or key == "3" or key == "4" or key == "5" or key == "6" or key == "7" or key == "8" or key == "9":
                 self.str_searchcommands.set(i + key)
             elif key == "Return":
-                if int(i) <= self.maxcommands and int(i) >=0:
+                if int(i) <= self.maxcommands and int(i) >= 1:
                     self.str_searchcommands.set("")
-                    self.windowcommand(i)
-            elif key == "BackSpace":
+                    self.windowcommand(str(int(i)))
+            elif key == "BackSpace": 
                 self.str_searchcommands.set(i[0:-1])
             else:
                 self.str_searchcommands.set("")
@@ -2743,7 +2744,9 @@ class application():
   #      self.female.insert(0, female)
 
         reload()
-
+    def stockwindow(self):
+        self.deletewindow()
+        self.currentwindow = "ESTOQUE"
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
@@ -3011,6 +3014,13 @@ class application():
                                     waiter VARCHAR(30),
                                     price VARCHAR(8)
                                     )""")
+        self.historycursor.execute("""CREATE TABLE IF NOT EXISTS SupplierHistory(
+                                   product,
+                                   supplier,
+                                   cost,
+                                   quantity,
+                                   cashid
+                                   )""")
         self.desconnecthistory()
         self.connecttemp()
         self.tempdbcursor.execute("""CREATE TABLE IF NOT EXISTS TempProducts(
