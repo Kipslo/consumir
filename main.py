@@ -561,6 +561,8 @@ class application():
                 pass
         elif self.currentwindow == "ANOTAÇÕES":
             self.frame_note.destroy(); self.frame_note.place_forget()
+        elif self.currentwindow == "ESTOQUE":
+            pass
         elif self.currentwindow == "CASHDESKHISTORY":
             self.scrollframecashs.destroy(); self.scrollframecashs.place_forget(); self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy()
         elif self.currentwindow == "RANKINGPRODUCTS":
@@ -2765,9 +2767,9 @@ class application():
             self.currentmain = mainbuttons
             self.currentimgs = mainimgs
         elif text == "PRODUTO":
-            productimgs = [ctk.CTkImage(Image.open("./imgs/produtos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/complementos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/tiposetamanhos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/categorias.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/promocoes.png"), size=(60,60))]
+            productimgs = [ctk.CTkImage(Image.open("./imgs/produtos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/complementos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/tiposetamanhos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/categorias.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/promocoes.png"), size=(60,60))]
             
-            productbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.productswindow), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab, command=self.notewindow), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab, command=self.categorieswindow), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
+            productbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.productswindow), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab, command=self.notewindow), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "ESTOQUE"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab, command=self.categorieswindow), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
             
             self.currentmain = productbuttons
             self.currentimgs = productimgs
@@ -2883,8 +2885,10 @@ class application():
         self.connectconts()
         self.contscursor.execute("""CREATE TABLE IF NOT EXISTS Conts(
                                  username VARCHAR(30) NOT NULL,
-                                 name VARCHAR(30) NOT NULL,
+                                 name VARCHAR(20) NOT NULL,
                                  password VARCHAR(30) NOT NULL,
+                                 valupayment VARCHAR(10),
+                                 periodpayment VARCHAR(10),
                                  permissionmaster CHAR(1) NOT NULL, 
                                  permissionrelease CHAR(1),
                                  permissionentry CHAR(1),
@@ -2930,7 +2934,8 @@ class application():
                                    type VARCHAR(10),
                                    category VARCHAR(10),
                                    price VARCHAR(8),
-                                   printer VARCHAR(30)
+                                   printer VARCHAR(30),
+                                   stock INTEGER(10)
                                    )""")
         self.productcursor.execute("""CREATE TABLE IF NOT EXISTS Notes(
                                     id INTEGER PRIMARY KEY,
@@ -2984,6 +2989,12 @@ class application():
                                     status VARCHAR(5),
                                     totalcash VARCHAR(10)
                                     )""")
+        self.historycursor.execute("""CREATE TABLE IF NOT EXISTS EmployeePayments(
+                                   cod INTEGER PRIMARY KEY,
+                                   name VARCHAR(20),
+                                   value VARCHAR(10),
+                                   cashid VARCHAR(8)
+                                   )""")
         self.historycursor.execute("""CREATE TABLE IF NOT EXISTS Payments(
                                     commandid INTEGER(4),
                                     type VARCHAR(10),
