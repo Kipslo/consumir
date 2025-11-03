@@ -2747,6 +2747,9 @@ class application():
     def stockwindow(self):
         self.deletewindow()
         self.currentwindow = "ESTOQUE"
+
+        self.stock_ScrollableFrame = ctk.CTkScrollableFrame(self.root)
+        self.stock_ScrollableFrame.place(relx=0.01, rely=0.15, relwidth=0.58, relheight=0.88)
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
@@ -2772,7 +2775,7 @@ class application():
         elif text == "PRODUTO":
             productimgs = [ctk.CTkImage(Image.open("./imgs/produtos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/complementos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/tiposetamanhos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/categorias.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/promocoes.png"), size=(60,60))]
             
-            productbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.productswindow), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab, command=self.notewindow), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab), "ESTOQUE"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab, command=self.categorieswindow), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
+            productbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.productswindow), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab, command=self.notewindow), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab, command=self.stockwindow), "ESTOQUE"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab, command=self.categorieswindow), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
             
             self.currentmain = productbuttons
             self.currentimgs = productimgs
@@ -3015,11 +3018,11 @@ class application():
                                     price VARCHAR(8)
                                     )""")
         self.historycursor.execute("""CREATE TABLE IF NOT EXISTS SupplierHistory(
-                                   product,
-                                   supplier,
-                                   cost,
-                                   quantity,
-                                   cashid
+                                   product VARCHAR(30),
+                                   supplier VARCHAR(20),
+                                   cost VARCHAR(30),
+                                   quantity INTEGER(5),
+                                   cashid INTEGER(8)
                                    )""")
         self.desconnecthistory()
         self.connecttemp()
