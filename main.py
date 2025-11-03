@@ -2171,11 +2171,12 @@ class application():
 
         self.connecthistory()
         if idcash == "open":
-            tmp = self.historycursor.execute("SELECT status FROM Cashdesk WHERE status = ?", (idcash, ))
+            tmp = self.historycursor.execute("SELECT status, cod FROM Cashdesk WHERE status = ?", (idcash, ))
             for i in tmp:
-                tmp = i[0]
-            if tmp == "open":
+                tmp = [i[0], i[1]]
+            if tmp[0] == "open":
                 self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="FECHAR CAIXA", command=close)
+                self.currentcash = tmp[1]
             else:
                 self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="ABRIR CAIXA", command=open)
         else:
@@ -2747,9 +2748,26 @@ class application():
     def stockwindow(self):
         self.deletewindow()
         self.currentwindow = "ESTOQUE"
-
+        self.connecthistory()
+        tmp = self.historycursor.execute("SELECT status, id FROM Cashdesk WHERE status = ?", ("open", ))
+        tmp2 = "close"
+        for i in tmp:
+            tmp2 = [i[0], i[1]]
+        if tmp2[0] == "open":
+            self.currentcash = tmp2[1]
+        tmp = self.historycursor.execute("SELECT cod, product, supplier, cost, quantity, cashid FROM SupplierHistory WHERE cashid = ?", (self.currentcash, ))
+        
+        self.desconnecthistory()
         self.stock_ScrollableFrame = ctk.CTkScrollableFrame(self.root)
         self.stock_ScrollableFrame.place(relx=0.01, rely=0.15, relwidth=0.58, relheight=0.88)
+
+        self.product_heading = ctk.CTkLabel()
+
+        self.supplier_heading = ctk.CTkLabel()
+
+        self.totalcost_heading = ctk.CTkLabel()
+
+        self.quantity_heading = ctk.CTkLabel()
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
@@ -2995,12 +3013,6 @@ class application():
                                     status VARCHAR(5),
                                     totalcash VARCHAR(10)
                                     )""")
-        self.historycursor.execute("""CREATE TABLE IF NOT EXISTS EmployeePayments(
-                                   cod INTEGER PRIMARY KEY,
-                                   name VARCHAR(20),
-                                   value VARCHAR(10),
-                                   cashid VARCHAR(8)
-                                   )""")
         self.historycursor.execute("""CREATE TABLE IF NOT EXISTS Payments(
                                     commandid INTEGER(4),
                                     type VARCHAR(10),
