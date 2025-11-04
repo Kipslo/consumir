@@ -2171,12 +2171,14 @@ class application():
 
         self.connecthistory()
         if idcash == "open":
-            tmp = self.historycursor.execute("SELECT status, cod FROM Cashdesk WHERE status = ?", (idcash, ))
+            tmp = self.historycursor.execute("SELECT status, id FROM Cashdesk WHERE status = ?", (idcash, ))
+            tmp2 = "n"
             for i in tmp:
-                tmp = [i[0], i[1]]
-            if tmp[0] == "open":
+                print(i)
+                tmp2 = [i[0], i[1]]
+            if tmp2[0] == "open":
                 self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="FECHAR CAIXA", command=close)
-                self.currentcash = tmp[1]
+                self.currentcash = tmp2[1]
             else:
                 self.buttonopencash = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="ABRIR CAIXA", command=open)
         else:
@@ -2746,6 +2748,8 @@ class application():
 
         reload()
     def stockwindow(self):
+        def add():
+            
         self.deletewindow()
         self.currentwindow = "ESTOQUE"
         self.connecthistory()
@@ -2763,7 +2767,7 @@ class application():
         self.stock_ScrollableFrame = ctk.CTkScrollableFrame(self.root)
         self.stock_ScrollableFrame.place(relx=0.01, rely=0.15, relwidth=0.58, relheight=0.84)
 
-        self.product_heading = ctk.CTkComboBox(self.stock_ScrollableFrame, width=300, height=50, fg_color=self.colors[4], text="Produto")
+        self.product_heading = ctk.CTkLabel(self.stock_ScrollableFrame, width=300, height=50, fg_color=self.colors[4], text="Produto")
         self.product_heading.grid(row=0, column=0, padx=1, pady=1)
 
         self.supplier_heading = ctk.CTkLabel(self.stock_ScrollableFrame, width=300, height=50, fg_color=self.colors[4], text="Provedor")
@@ -2777,16 +2781,28 @@ class application():
 
         self.delete_heading = ctk.CTkButton(self.stock_ScrollableFrame, width=50, height=50, fg_color=self.colors[4], text="", image=ctk.CTkImage(Image.open("imgs/lixeira.png")))
 
-        self.product_entry = ctk.CTkEntry(self.root, placeholder_text="Produto")
-        
+        self.connectproduct()
+        temp = self.productcursor.execute("SELECT name FROM Products")
+        products = []
+        for i in temp:
+            products.append(i[0])
+        self.desconnectproduct()
+
+        self.product_entry = ctk.CTkComboBox(self.root, width=self.width / 100 * 28, height=self.height / 100 * 5, values=products)
+        self.product_entry.place(relx=0.6, rely=0.15)
+
         self.supplier_entry = ctk.CTkEntry(self.root, placeholder_text="Provedor")
+        self.supplier_entry.place(relx=0.6, rely=0.21, relwidth=0.28, relheight=0.05)
 
         self.totalcost_entry = ctk.CTkEntry(self.root, placeholder_text="Preço total")
+        self.totalcost_entry.place(relx=0.89, rely=0.21, relwidth=0.1, relheight=0.05)
 
         self.quantity_entry = ctk.CTkEntry(self.root, placeholder_text="QTD")
+        self.quantity_entry.place(relx=0.89, rely=0.15, relwidth=0.1, relheight=0.05)
 
         self.add_button = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Adicionar estoque")
-                                                     
+        self.add_button.place(relx=0.6, rely=0.27, relwidth=0.39, relheight=0.05)
+
     def changemainbuttons(self, button):
         
         self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
