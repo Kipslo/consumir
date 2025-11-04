@@ -562,7 +562,7 @@ class application():
         elif self.currentwindow == "ANOTAÇÕES":
             self.frame_note.destroy(); self.frame_note.place_forget()
         elif self.currentwindow == "ESTOQUE":
-            pass
+            self.stock_ScrollableFrame.destroy(), self.stock_ScrollableFrame.place_forget(), self.product_entry.destroy(), self.supplier_entry.destroy(), self.totalcost_entry.destroy(), self.quantity_entry.destroy(), self.add_button.destroy()
         elif self.currentwindow == "CASHDESKHISTORY":
             self.scrollframecashs.destroy(); self.scrollframecashs.place_forget(); self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy()
         elif self.currentwindow == "RANKINGPRODUCTS":
@@ -2769,7 +2769,7 @@ class application():
             except:
                 pass
             self.connecthistory()
-            temp = self.historycursor.execute("SELECT cod, product, supplier, cost, quantity FROM SupplierHistory WHERE cashid = ?", (self.currentcash(), ))
+            temp = self.historycursor.execute("SELECT cod, product, supplier, cost, quantity FROM SupplierHistory WHERE cashid = ?", (self.currentcash, ))
             self.current_tableSupplier = []
             num = 0
             for i in temp:
@@ -2778,7 +2778,7 @@ class application():
                                                    ctk.CTkLabel(self.stock_ScrollableFrame, width=300, height=50, fg_color=self.colors[4], text=supplier), 
                                                    ctk.CTkLabel(self.stock_ScrollableFrame, width=150, height=50, fg_color=self.colors[4], text=cost), 
                                                    ctk.CTkLabel(self.stock_ScrollableFrame, width=80, height=50, fg_color=self.colors[4], text=quantity), 
-                                                   ctk.CTkButton(self.stock_ScrollableFrame, width=50, height=50, fg_color=self.colors[4], image=ctk.CTkImage(self.stock_ScrollableFrame, Image.open("imgs/lixeira.png")), hover= False, command=lambda cod = cod, product = product, qtd = quantity: delete(cod, product, qtd))])
+                                                   ctk.CTkButton(self.stock_ScrollableFrame, width=50, height=50, fg_color=self.colors[4], image=ctk.CTkImage(Image.open("imgs/lixeira.png"), size=(35, 35)), hover= False, command=lambda cod = cod, product = product, qtd = quantity: delete(cod, product, qtd), text="")])
                 row = num + 1
                 self.current_tableSupplier[num][0].grid(row=row, column=0, padx=1, pady=1)
                 self.current_tableSupplier[num][1].grid(row=row, column=1, padx=1, pady=1)
@@ -2797,11 +2797,12 @@ class application():
 
                     self.connectproduct()
                     self.connecthistory()
-                    self.historycursor.execute("INSERT INTO SupplierHistory (product, supplier, cost, quantity, cashid) VALUES (?, ?, ?, ?, ?)", (product, qtd, supplier, totalcost, self.currentcash))
+                    self.historycursor.execute("INSERT INTO SupplierHistory (product, supplier, cost, quantity, cashid) VALUES (?, ?, ?, ?, ?)", (product, supplier, totalcost, qtd, self.currentcash))
                     temp = self.productcursor.execute("SELECT stock FROM Products WHERE name = ?", (product, ))
                     actuallyquantity = 0
                     for i in temp:
-                        actuallyquantity = i[0]
+                        if i[0] != "" and i[0] != None:
+                            actuallyquantity = i[0]
                     self.productcursor.execute("UPDATE Products SET stock = ? WHERE name = ?", (str(int(actuallyquantity) + qtd), product))
                     self.desconnectproduct()
                     self.desconnecthistory()
@@ -2860,7 +2861,7 @@ class application():
         self.quantity_entry = ctk.CTkEntry(self.root, placeholder_text="QTD")
         self.quantity_entry.place(relx=0.89, rely=0.15, relwidth=0.1, relheight=0.05)
 
-        self.add_button = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Adicionar estoque")
+        self.add_button = ctk.CTkButton(self.root, fg_color=self.colors[4], hover_color=self.colors[3], text="Adicionar estoque", command=add)
         self.add_button.place(relx=0.6, rely=0.27, relwidth=0.39, relheight=0.05)
         
         reload()
