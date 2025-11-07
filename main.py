@@ -554,7 +554,7 @@ class application():
         elif self.currentwindow == "CLIENTES":
             self.frameclients.destroy(); self.frameclients.place_forget(); self.buttonaddclient.destroy(); self.searchclients.destroy()
         elif self.currentwindow == "CASH":
-            self.scrollframehis.destroy(); self.scrollframehis.place_forget(); self.entrysearchhis.destroy(); self.totalhisalllb.destroy(); self.totalhisvalue.destroy()
+            self.scrollframehis.destroy(); self.scrollframehis.place_forget(); self.entrysearchhis.destroy(); self.totalhisvalue.destroy(); self.totalhisall.destroy(); self.totalhisalllb.destroy(); self.label_supplytotalcost.destroy(); self.supplytotalcost.destroy(); self.button_viewsupplyhis.destroy()
             try:
                 self.buttonopencash.destroy()
             except:
@@ -562,7 +562,7 @@ class application():
         elif self.currentwindow == "ANOTAÇÕES":
             self.frame_note.destroy(); self.frame_note.place_forget()
         elif self.currentwindow == "ESTOQUE":
-            self.stock_ScrollableFrame.destroy(), self.stock_ScrollableFrame.place_forget(), self.product_entry.destroy(), self.supplier_entry.destroy(), self.totalcost_entry.destroy(), self.quantity_entry.destroy(), self.add_button.destroy()
+            self.stock_ScrollableFrame.destroy(); self.stock_ScrollableFrame.place_forget(); self.product_entry.destroy(); self.supplier_entry.destroy(),;self.totalcost_entry.destroy(); self.quantity_entry.destroy(); self.add_button.destroy()
         elif self.currentwindow == "CASHDESKHISTORY":
             self.scrollframecashs.destroy(); self.scrollframecashs.place_forget(); self.initlb.destroy(); self.initentry.destroy(); self.finishlb.destroy(); self.finishentry.destroy(); self.confirmdate.destroy()
         elif self.currentwindow == "RANKINGPRODUCTS":
@@ -2133,17 +2133,49 @@ class application():
         self.deletewindow()
         self.currentwindow = "CASH"
 
-        self.scrollframehis = ctk.CTkScrollableFrame(self.root, height=self.height * 0.8 - 80)
-        self.scrollframehis.place(relx=0.01, rely=0.20, relwidth=0.98)
+        self.connecthistory()
+        totalcost = 0
+        temp = self.historycursor.execute("SELECT id FROM Cashdesk WHERE status = ?", ("open", ))
+        self.currentcash = 0
+        for i in temp:
+            self.currentcash = int(i[0])
+        print(self.currentcash)
+        temp = self.historycursor.execute("SELECT cost FROM SupplierHistory WHERE cashid = ?", (self.currentcash, ))
+        for i in temp:
+            print(i[0])
+            totalcost = totalcost + (float(i[0].replace(",", ".")) * 100)
+        totalcost = "R$ " + str(totalcost / 100).replace(".", ",")
+        totalcost = totalcost.split(",")
+        totalcost = totalcost[0] + "," + totalcost[1] + (((len(totalcost[1]) - 2) * -1) * "0")
+        
+        self.desconnecthistory()
 
-        self.totalhisall = ctk.CTkFrame(self.root, height=60, bg_color=self.colors[3])
-        self.totalhisall.place(relx=0.01, y=self.height - 69, relwidth=0.98,)
+        self.scrollframehis = ctk.CTkScrollableFrame(self.root, height=self.height / 100 * 78)  
+        self.scrollframehis.place(relx=0.01, rely=0.2, relwidth=0.58)
+        
+        self.totalhisall = ctk.CTkFrame(self.root, bg_color=self.colors[1])
+        self.totalhisall.place(relx=0.6, rely=0.2, relwidth=0.39, relheight=0.79)
 
-        self.totalhisalllb = ctk.CTkLabel(self.totalhisall, width=200, height=50, text= "Renda total:", bg_color=self.colors[4])
-        self.totalhisalllb.grid(row= 1, column=1, padx=1, pady=1)
+        self.totalhisalllb = ctk.CTkLabel(self.totalhisall, text= "Receita total:", bg_color=self.colors[4])
+        self.totalhisalllb.place(relx=0.01, rely=0.01, relwidth=0.78, relheight=0.1)
 
         self.totalhisvalue = ctk.CTkLabel(self.totalhisall, width=100, height=50, text="0", bg_color=self.colors[4])
-        self.totalhisvalue.grid(row=1, column=2, padx=1, pady=1)
+        self.totalhisvalue.place(relx=0.80, rely=0.01, relwidth=0.19, relheight=0.1)
+
+        self.label_supplytotalcost = ctk.CTkLabel(self.totalhisall, bg_color=self.colors[4], text="GASTO COM REPOSIÇÃO")
+        self.label_supplytotalcost.place(relx=0.01, rely=0.12, relwidth=0.68, relheight=0.1)
+
+        self.supplytotalcost = ctk.CTkLabel(self.totalhisall, bg_color=self.colors[4], text=totalcost)
+        self.supplytotalcost.place(relx=0.7, rely=0.12, relwidth=0.19, relheight=0.1)
+
+        sizeimg = [((self.width / 100 * 39) / 100 * 9) - 15, ((self.height / 100 * 79) / 10) - 15]
+        if sizeimg[0] < sizeimg[1]:
+            sizeimg = sizeimg[0]
+        else:
+            sizeimg = sizeimg[1]
+
+        self.button_viewsupplyhis = ctk.CTkButton(self.totalhisall, fg_color=self.colors[4], text="", hover=False, image= ctk.CTkImage(Image.open("imgs/info.png"), size=(sizeimg, sizeimg)), command=self.stockwindow)
+        self.button_viewsupplyhis.place(relx=0.9, rely=0.12, relwidth=0.09, relheight=0.1)
 
         self.entrysearchhis = ctk.CTkEntry(self.root, placeholder_text="Cliente ou comanda")
         self.entrysearchhis.place(relx=0.01, rely=0.145, relwidth=0.2, relheight=0.05)
@@ -2793,7 +2825,7 @@ class application():
             product, qtd, supplier, totalcost = self.product_entry.get(), self.quantity_entry.get(), self.supplier_entry.get(), self.totalcost_entry.get()
             if product != "" and qtd != "" and totalcost != "" and self.currentcash != 0:
                 try:
-                    qtd, totalcost = int(qtd), float(totalcost)
+                    qtd, totalcost = int(qtd), float(totalcost.replace(",", "."))
 
                     self.connectproduct()
                     self.connecthistory()
