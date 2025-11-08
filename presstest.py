@@ -23,5 +23,5 @@ import sqlite3
 #    print(i)
 #conts.commit()
 #conts.close()
-oi = [1,2,3,4,5,6]
-
+oi = sqlite3.connect("products.db")
+cursor = oi.cursor()

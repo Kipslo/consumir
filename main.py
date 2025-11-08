@@ -521,7 +521,7 @@ class application():
             listen.append(i)
         self.current_productslist = []
         for k, i in enumerate(listen):
-            name, ttype, category, price, prynter = i
+            name, ttype, category, price, prynter, stock = i
             self.current_productslist.append([ctk.CTkLabel(self.frame_productreeviews, text=category, fg_color=self.colors[5], width=400, height=40), 
                                               ctk.CTkLabel(self.frame_productreeviews, text=name, fg_color=self.colors[5], width=400, height=40), 
                                               ctk.CTkLabel(self.frame_productreeviews, text=price, fg_color=self.colors[5], width=100, height=40), 
@@ -1786,7 +1786,7 @@ class application():
             else:
                 listen = listentemp
             for k, i in enumerate(listen):
-                name, tipe, category, price, printer = i
+                name, tipe, category, price, printer, stock = i
                 self.currentproductsaddlistvalues.append({"name":name, "category":category, "tipe":tipe, "price":price})
                 self.currentproductsaddlist.append([ctk.CTkLabel(self.scroolframe_addproduct, text=category, width=200, height=40, fg_color=self.colors[5]),
                                                     ctk.CTkLabel(self.scroolframe_addproduct, text=name, width=200, height=40, fg_color=self.colors[5]),
@@ -2139,8 +2139,8 @@ class application():
         self.currentcash = 0
         for i in temp:
             self.currentcash = int(i[0])
-        print(self.currentcash)
-        temp = self.historycursor.execute("SELECT cost FROM SupplierHistory WHERE cashid = ?", (self.currentcash, ))
+            idcash = i[0]
+        temp = self.historycursor.execute("SELECT cost FROM SupplierHistory WHERE cashid = ?", (idcash, ))
         for i in temp:
             print(i[0])
             totalcost = totalcost + (float(i[0].replace(",", ".")) * 100)
