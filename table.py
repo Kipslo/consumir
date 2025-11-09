@@ -14,3 +14,12 @@ class table(connect):
             self.connect(self.db)
             self.execute(self.db, f"CREATE TABLE IF NOT EXISTS {self.name}({rows})")
             self.desconnect(self.db)
+    def listcolumns(self):
+        return self.columns
+    def data(self):
+        self.connect()
+        temp = self.execute(self.db, F"SELECT * FROM {self.name}")
+        listen = []
+        for i in temp:
+            listen.append()
+        return listen

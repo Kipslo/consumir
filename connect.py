@@ -6,6 +6,7 @@ class connect():
         self.connected = {}
         self.cursor = {}
         self.dbs = {"contas":"sql", "comandas":"commands", "produtos":"products", "historico":"his", "clientes":"clients", "configuracoes":"config", "temporario":"temp", "impressora":"printer"}
+        self.createtables()
     def createtables(self):
         self.connect("configuracoes")
         self.configcursor.execute("""CREATE TABLE IF NOT EXISTS Config(
