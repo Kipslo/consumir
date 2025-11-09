@@ -2174,7 +2174,7 @@ class application():
         else:
             sizeimg = sizeimg[1]
 
-        self.button_viewsupplyhis = ctk.CTkButton(self.totalhisall, fg_color=self.colors[4], text="", hover=False, image= ctk.CTkImage(Image.open("imgs/info.png"), size=(sizeimg, sizeimg)), command=self.stockwindow)
+        self.button_viewsupplyhis = ctk.CTkButton(self.totalhisall, fg_color=self.colors[4], text="", hover=False, image= ctk.CTkImage(Image.open("imgs/info.png"), size=(sizeimg, sizeimg)), command=lambda id = idcash:self.stockwindow(id))
         self.button_viewsupplyhis.place(relx=0.9, rely=0.12, relwidth=0.09, relheight=0.1)
 
         self.entrysearchhis = ctk.CTkEntry(self.root, placeholder_text="Cliente ou comanda")
@@ -2779,8 +2779,8 @@ class application():
   #      self.female.insert(0, female)
 
         reload()
-    def stockwindow(self):
-        def delete(cod, product, qtd):
+    def stockwindow(self, id = "open"):
+        def delete(cod, product, qtd=0):
             self.connectproduct()
             self.connecthistory()
             self.historycursor.execute("DELETE FROM SupplierHistory WHERE cod = ?", (cod, ))
@@ -2845,16 +2845,18 @@ class application():
         self.deletewindow()
         self.currentwindow = "ESTOQUE"
         self.connecthistory()
-        tmp = self.historycursor.execute("SELECT status, id FROM Cashdesk WHERE status = ?", ("open", ))
-        tmp2 = "close"
-        for i in tmp:
-            tmp2 = [i[0], i[1]]
-        self.currentcash = 0
-        if tmp2[0] == "open":
-            self.currentcash = tmp2[1]
-        if self.currentcash != 0:
-            tmp = self.historycursor.execute("SELECT cod, product, supplier, cost, quantity, cashid FROM SupplierHistory WHERE cashid = ?", (self.currentcash, ))
-        
+        if id == "open":
+            tmp = self.historycursor.execute("SELECT status, id FROM Cashdesk WHERE status = ?", ("open", ))
+            tmp2 = "close"
+            for i in tmp:
+                tmp2 = [i[0], i[1]]
+            self.currentcash = 0
+            if tmp2[0] == "open":
+                self.currentcash = tmp2[1]
+            if self.currentcash != 0:
+                tmp = self.historycursor.execute("SELECT cod, product, supplier, cost, quantity, cashid FROM SupplierHistory WHERE cashid = ?", (self.currentcash, ))
+        else:
+            self.currentcash = id
         self.desconnecthistory()
         self.stock_ScrollableFrame = ctk.CTkScrollableFrame(self.root)
         self.stock_ScrollableFrame.place(relx=0.01, rely=0.15, relwidth=0.58, relheight=0.84)
