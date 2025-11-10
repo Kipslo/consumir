@@ -1,6 +1,6 @@
 from connect import connect
 class table(connect):
-    def __init__(self, db : str, name : str, columns : tuple = ("", ), values: tuple = ("", )):
+    def __init__(self, db : str, name : str, columns : tuple = (), values: tuple = ()):
         super().__init__()
         self.db = db
         self.name = name
@@ -9,18 +9,20 @@ class table(connect):
         self.createPermission = False
         if columns[0] != "" and values[0] != "":
             self.createPermission = True
-    def create(self):
+    def create(self, columns : tuple = (), values: tuple = ()):
+        if columns != ():
+            self.columns, self.values = columns, values
         if len(self.columns) == len(self.values) and self.db != "" and self.name != "" and self.createPermission:
             rows = []
-            for i, j in enumerate(self.columns):
+            for i in range(len(self.columns)):
                 rows.append(f"{self.columns[i]} {self.values[i]}")
             rows = ", ".join(rows)
-            self.connect(self.db)
             self.execute(self.db, f"CREATE TABLE IF NOT EXISTS {self.name}({rows})")
-            self.desconnect(self.db)
-    def listcolumns(self):
-        return self.columns
-    def getData(self, column: tuple= ("*", ), where:tuple = (), value: tuple= ()):
+    def deleteData(self, where:tuple = (), value:tuple = ()):
+        pass
+    def updateData(self, where:tuple = (), valuewhere:tuple = (), newcolumns:tuple = (), newvalues:tuple = ()):
+        pass
+    def getData(self, column: tuple = ("*", ), where:tuple = (), value: tuple = ()):
         column, where, value = list(column), list(where), list(value)
         self.connect(self.db)
         cod = self.name

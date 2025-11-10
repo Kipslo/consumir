@@ -34,30 +34,19 @@ class application():
         self.positionp = True
         self.cod, self.stylemode, self.maxcommands = "", "", ""
         mod, up = False, False
-        self.connectconfig()
-        self.currentconfig = self.configcursor.execute("""SELECT cod, stylemode, maxcommands FROM Config WHERE cod = 1""") 
-        for i in self.currentconfig:
-            self.cod, self.stylemode, self.maxcommands = i
-        if self.cod == "":
-            self.cod = 1
-            mod = True
-        if self.stylemode == "":
-            self.stylemode = "ESCURO"
-            up = True
-        if self.maxcommands == "":
-            self.maxcommands = 400
-            up = True
-        if mod:
+        tableconfig = table("configuracoes", "Config")
+        resultconfig = tableconfig.getData(("cod", "stylemode", "maxcommands"), ("cod", ), ("1", ))
+        if resultconfig == "NULL":
             self.configcursor.execute("""INSERT INTO Config (stylemode, maxcommands, cnpj, housename, adress, fone, male, female) VALUES (?, ?, '', '', '', '', '', '')""", (self.stylemode, self.maxcommands))
-        elif mod == False and up == True:
-            self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ? WHERE cod = 1""", (self.stylemode, self.maxcommands))
+        else:
+            print(resultconfig)
+            self.cod, self.stylemode, self.maxcommands = resultconfig[0]
         if self.stylemode == "ESCURO":
             ctk.set_appearance_mode("dark")
             self.colors = ["#1f1f1f", "#2f2f2f", "#383838", "#3f3f3f", "#484848", "#4f4f4f", "#585858", "#5f5f5f", "#6f6f6f", "#7f7f7f"]
         elif self.stylemode == "CLARO":
             ctk.set_appearance_mode("light")
             self.colors = ["#ffffff", "#efefef", "#c8c8c8", "#bfbfbf", "#a8a8a8", "#9f9f9f", "#888888", "#8f8f8f", "#8f8f8f", "#7f7f7f"]
-        self.desconnectconfig()
         
         self.root = ctk.CTk()
         self.loginwindow()
@@ -66,15 +55,15 @@ class application():
         self.root.after(3000, self.updatelogin)
         self.root.mainloop()
     def updatelogin(self):
-        self.connecttemp()
+        tempTable = table("temporario", "TempLogin")
         TEMp = self.tempdbcursor.execute("SELECT * FROM TempLogin")
         for i in TEMp:
+            table_conts = table("contas", "Conts")
             name, lastlogin = i
             self.connectconts()
             self.contscursor.execute("UPDATE Conts SET lastlogin = ? WHERE name = ?", (lastlogin, name))
             self.tempdbcursor.execute("DELETE FROM TempLogin WHERE lastlogin = ? AND name = ?", (lastlogin, name))
             self.desconnectconts()
-        self.desconnecttemp()
         self.root.after(3000, self.updatelogin)
     def loginwindow(self):
         self.currentwindow = "LOGIN"
