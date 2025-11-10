@@ -1,5 +1,4 @@
 import sqlite3 as sql
-import table
 
 class connect():
     def __init__(self):
