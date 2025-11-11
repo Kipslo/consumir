@@ -9,32 +9,40 @@ class table(connect):
         self.createPermission = False
         if columns != () and values != ():
             self.createPermission = True
+    def fortext(self, joinstr:str, middle:str = "", columns, values = []):
+        if values == ():
+            for i in columns:
+                values.append("")
+        rows = []
+        for i in range(len(columns)):
+            rows.append(f"{columns[i]}{middle}{values[i]}")
+        result = joinstr.join(rows)
+        return
     def create(self, columns : tuple = (), values: tuple = ()):
         if columns != ():
             self.columns, self.values = columns, values
         if len(self.columns) == len(self.values) and self.db != "" and self.name != "" and self.createPermission:
-            rows = []
-            for i in range(len(self.columns)):
-                rows.append(f"{self.columns[i]} {self.values[i]}")
-            rows = ", ".join(rows)
+            rows = self.fortext(", ", " ", self.columns, self.values)
             self.execute(self.db, f"CREATE TABLE IF NOT EXISTS {self.name}({rows})")
     def deleteData(self, where:tuple = (), value:tuple = ()):
-        pass
-    def updateData(self, where:tuple = (), valuewhere:tuple = (), newcolumns:tuple = (), newvalues:tuple = ()):
-        pass
+        rows = ""
+        if where != ():
+            rows = " WHERE " + self.fortext(" AND ", " = ", where, value)
+        self.execute(self.db, f"DELETE FROM {self.name}{rows}")
+    def updateData(self, newcolumns:tuple = (), newvalues:tuple = (), where:tuple = (), valuewhere:tuple = ()):
+        if where == ():
+            where, valuewhere = self.columns, self.values
+        if where != ():
+            whererows = self.fortext(" AND ", " = ", where, valuewhere)
+        newrows = self.fortext(", ", " = ", newcolumns, newvalues)
+        self.execute(self.db, f"UPDATE {self.name} SET {newrows} WHERE {whererows}")
     def getData(self, column: tuple = ("*", ), where:tuple = (), value: tuple = ()):
-        column, where, value = list(column), list(where), list(value)
+        where, value = list(where), list(value)
         self.connect(self.db)
         cod = self.name
         if len(where) > 0 and len(where) == len(value):
-            cod = cod + f" WHERE {where[0]} = {value[0]}"; del where[0], value[0]
-            for whe, val in zip(where, value):
-                    cod = cod + f" AND {whe} = {val}"
-        columns = column[0]
-        del column[0]
-        for i in column:
-            columns = columns + f", {i}"
-        listen = self.execute(self.db, F"SELECT {columns} FROM {cod}", True)
+            cod = cod + f" WHERE {self.fortext(" AND ", " = ", where, value)}"
+        listen = self.execute(self.db, F"SELECT {column} FROM {cod}", True)
         if listen == None:
             return "NULL"
         return listen
