@@ -7,7 +7,7 @@ class table(connect):
         self.columns= columns
         self.values = values
         self.createPermission = False
-        if columns[0] != "" and values[0] != "":
+        if columns != () and values != ():
             self.createPermission = True
     def create(self, columns : tuple = (), values: tuple = ()):
         if columns != ():
@@ -44,5 +44,5 @@ class table(connect):
         if len(self.columns) == len(self.values): 
             self.execute(self.db, F"INSERT INTO {self.name} {str(self.columns)} VALUES {str(self.values)}")
 if __name__ == "__main__":
-    oi = table("", "Conts")
+    oi = table("produtos", "Products")
     print(oi.getData())

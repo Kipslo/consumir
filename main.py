@@ -3042,7 +3042,7 @@ class application():
                                  username VARCHAR(30) NOT NULL,
                                  name VARCHAR(20) NOT NULL,
                                  password VARCHAR(30) NOT NULL,
-                                 valupayment VARCHAR(10),
+                                 valuepayment VARCHAR(10),
                                  periodpayment VARCHAR(10),
                                  permissionmaster CHAR(1) NOT NULL, 
                                  permissionrelease CHAR(1),

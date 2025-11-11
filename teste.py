@@ -1,7 +1,8 @@
 import sqlite3
 
-oi = sqlite3.connect("sql.db")
-cursor = oi.cursor()
-temp = cursor.execute("SELECT * FROM Conts")
-for i in temp:
-    print(i)
+class oi():
+    def __init__(self, i):
+        print(i)
+    def printar(self, i:str= ""):
+        print("oiiiii " + i)
+oi("oi", ).printar("oioioi")
