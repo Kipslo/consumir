@@ -57,14 +57,12 @@ class application():
         self.root.mainloop()
     def updatelogin(self):
         tempTable = table("temporario", "TempLogin")
-        TEMp = self.tempdbcursor.execute("SELECT * FROM TempLogin")
+        TEMp = tempTable.getData()
         for i in TEMp:
             table_conts = table("contas", "Conts")
             name, lastlogin = i
-            self.connectconts()
-            self.contscursor.execute("UPDATE Conts SET lastlogin = ? WHERE name = ?", (lastlogin, name))
-            self.tempdbcursor.execute("DELETE FROM TempLogin WHERE lastlogin = ? AND name = ?", (lastlogin, name))
-            self.desconnectconts()
+            table_conts.updateData(("lastlogin", ), (lastlogin, ), ("name", ), (name, ) )
+            tempTable.deleteData(("lastlogin", "name"), (lastlogin, name))
         self.root.after(3000, self.updatelogin)
     def loginwindow(self):
         self.currentwindow = "LOGIN"
@@ -97,23 +95,14 @@ class application():
             self.login()
     def on_closingcommandwindow(self):
         self.root.bind_all("<KeyPress>", self.presskey)
-        self.connectcommands()
-        self.connectclients()
-        try:
-            temp = self.clientscursor.execute("SELECT name FROM Clients WHERE id = ?", (self.idclient.get(), ))
-            for i in temp:
-                temp = i[0]
-        except:
-            temp = ""
-        self.desconnectclients()
+        tablecommands = table("comandas", "CommandsActive")
+        tableclients = table("clientes", "Clients")
+        temp = tableclients.getData(("name", ), ("id", ), (self.idclient.get(), ))[0][0]
         if self.nameclient.get() != self.actuallyname:
-            print(self.nameclient.get())
-            print(temp)
             if temp == self.nameclient.get():
-                self.commandscursor.execute("UPDATE CommandsActive SET idclient = ?, nameclient = ? WHERE number = ?", (self.idclient.get(), self.nameclient.get(), self.currentcommandwindow))
+                tablecommands.updateData(("idclient", "nameclient"), (self.idclient.get(), self.nameclient.get()), ("number", ), (str(self.currentcommandwindow), ))
             else:
-                self.commandscursor.execute("UPDATE CommandsActive SET idclient = ?, nameclient = ? WHERE number = ?", ("", self.nameclient.get(), self.currentcommandwindow))
-        self.desconnectcommands()
+                tablecommands.updateData(("idclient", "nameclient"), ("", self.nameclient.get()), ("number", ), (str(self.currentcommandwindow), ))
             
         
         self.rootcommand.destroy()
@@ -273,8 +262,7 @@ class application():
             self.current_productlisttab = "COMBOS"
     def reloadproductssize(self):
         def deleteproductsize(product, category):
-            print('oiiiiiiiiiiiiiiiiiiiiiiii')
-            tableSizeProducts = table("produtos", "SizeofProducts", ("name", "category", "type"), (str(product), str(category), "SIZE"))
+            tableSizeProducts = table("produtos", "SizeofProducts").deleteData(("name", "category", "type"), (str(product), str(category), "SIZE"))
             tableProduct = table("produtos", "Products").deleteData(("product", "category"), (str(product), str(category)))
         listofproducts = []
         try:
@@ -286,15 +274,14 @@ class application():
                 i[4].destroy()
         except:
             pass
-        self.connectproduct()
+        tableProduct = table("produtos", "Products")
         self.current_productslist = []
-        temp = self.productcursor.execute("SELECT name, category, printer FROM Products WHERE type = ?", ("SIZE", ))
-        for i in temp:
-            listofproducts.append(i)
+
+        listofproducts = tableProduct.getData(("name", "category", "printer"), ("type", ), ("SIZE", ))
         for k, i in enumerate(listofproducts):
             print(i)
             product, category, printer = i
-            temp = self.productcursor.execute("SELECT price FROM SizeofProducts WHERE product = ? AND category = ?", (product, category))
+            tableProduct.name = "SizeofProducts"; temp = tableProduct.getData(("price", ), ("product", "category"), (product, category))
             prices = [9999, -1]
             for n in temp:
                 price = n[0]
@@ -313,7 +300,6 @@ class application():
             self.current_productslist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
             self.current_productslist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
             self.current_productslist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
-        self.desconnectproduct()
     def notewindow(self):
         def click(event):
             if event.keysym == "Escape":
@@ -324,13 +310,10 @@ class application():
             self.root.grab_set()
         def edit(category):
             def remove(id):
-                self.connectproduct()
-                self.productcursor.execute("DELETE FROM Notes WHERE id = ?", (id, ))
-                self.desconnectproduct()
+                table("produtos", "Notes").deleteData(("id", ), (str(id), ))
                 reload()
             def add():
-                table_notes = table("produtos", "Notes", ("text", "category"), (self.entrynote.get(), category))
-                table_notes.insertData()
+                table("produtos", "Notes", ("text", "category"), (self.entrynote.get(), category)).insertData()
                 reload()
             def reload():
                 try:
@@ -339,16 +322,15 @@ class application():
                             j.destroy()
                 except:
                     pass
-                self.connectproduct()
+                
                 self.current_notes = []
-                temp = self.productcursor.execute("SELECT id, text FROM Notes WHERE category = ?", (category, ))
+                temp = tableProducts = table("produtos", "Notes").getData(("id", "text"), ("category", ), (category, ))
                 for k, i in enumerate(temp):
                     self.current_notes.append([ctk.CTkLabel(self.framenotes, bg_color=self.colors[4], text=i[1], width=500, height=50), ctk.CTkButton(self.framenotes, fg_color=self.colors[4], hover=False, width=60, height=50, image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(45, 45)), text="", command=lambda x = i[0]:remove(x))])
 
                     n = k + 2
                     self.current_notes[k][0].grid(row=n, column=1, padx=1, pady=1)
                     self.current_notes[k][1].grid(row=n, column=2, padx=1, pady=1)
-                self.desconnectproduct()
             self.editnote = ctk.CTkToplevel(self.root)
             self.editnote.geometry("600x500")
             self.editnote.transient(self.root)
@@ -389,8 +371,8 @@ class application():
 
         self.tablecategory = []
 
-        self.connectproduct()
-        temp = self.productcursor.execute("SELECT cod, name From Category")
+                
+        temp = table("produtos", "Category").getData(("cod", "name"))
 
         for k, i in enumerate(temp):
             self.tablecategory.append([ctk.CTkLabel(self.frame_note, fg_color=self.colors[4], width=300, height=50, text=i[1]), ctk.CTkButton(self.frame_note, hover=False, fg_color=self.colors[4], width=50, height=50, text="", image=ctk.CTkImage(Image.open("./imgs/pencil.jpg"), size=(35, 35)), command=lambda x = i[1]:edit(x))])
@@ -401,21 +383,16 @@ class application():
             self.tablecategory[k][1].grid(row=n, column=2, padx=1, pady=1)
             
 
-        self.desconnectproduct()
     def configwindow(self):
         def save():
-            self.connectconfig()
-            self.configcursor.execute("""UPDATE Config SET stylemode = ?, maxcommands = ?, cnpj = ?, housename = ?, adress = ?, fone = ?, printer = ? WHERE cod = 1""", (self.stylevar.get(), self.limitcommands.get(), self.entry_cnpj.get(), self.entry_namehome.get(), self.entry_adress.get(), self.entry_fone.get(), self.printerclosedvar.get()))
-            self.desconnectconfig()
+            table("configuracoes", "Config").updateData(("stylemode", "maxcommands", "cnpj", "housename", "adress", "fone", "printer"), (self.stylevar.get(), self.limitcommands.get(), self.entry_cnpj.get(), self.entry_namehome.get(), self.entry_adress.get(), self.entry_fone.get(), self.printerclosedvar.get()), ("cod", ), ("1", ))
         self.deletewindow()
         self.currentwindow = "CONFIG"
 
-        self.connectconfig()
-        temp = self.configcursor.execute("SELECT stylemode, maxcommands, cnpj, housename, adress, fone, printer FROM Config WHERE cod = '1'")
+        temp = table("configuracoes", "Config").getData(("stylemode", "maxcommands", "cnpj", "housename", "adress", "fone", "printer"), ("cod", ), ("1", ))
 
         for i in temp:
             style, maxcommands, cnpj, housename, adress, fone, prynter = i
-        self.desconnectconfig()
 
         self.frame_config = ctk.CTkScrollableFrame(self.root)
         self.frame_config.place(relx=0.01, rely=0.2, relwidth=0.98, relheight=0.79)
@@ -473,11 +450,9 @@ class application():
         self.lb_printerclosed.grid(row=8, column=1, padx=1, pady=1)
 
         printers = []
-        self.connectprinter()
-        temp = self.printercursor.execute("SELECT name FROM Printers")
+        temp = table("impressoras", "Printers").getData(("name", )) 
         for i in temp:
             printers.append(i[0])
-        self.desconnectprinter()
 
         self.printerclosedvar = ctk.StringVar(value=prynter)
         self.printerclosed = ctk.CTkComboBox(self.frame_config, width=200, height=40, values=printers, variable=self.printerclosedvar)
@@ -488,21 +463,15 @@ class application():
 
     def reloadproductsnormal(self):
         def deleteproductnormal(name, category, tipe):
-            self.connectproduct()
-            self.productcursor.execute("DELETE FROM Products WHERE name = ? AND category = ? AND type = ?", (name, category, tipe))
-            self.desconnectproduct()
+            table("produtos", "Products").deleteData(("name", "category", "type"), (name, category, tipe))
             self.reloadproductsnormal()
-        self.connectproduct()
         try:
             for i in self.current_productslist:
                 for n in i:
                     n.destroy()
         except:
             pass
-        tmp = self.productcursor.execute("SELECT * FROM Products WHERE Type = ?", ("NORMAL", ))
-        listen = []
-        for i in tmp:
-            listen.append(i)
+        listen = table("produtos", "Products").getData(where=("type", ), value=("NORMAL", ))
         self.current_productslist = []
         for k, i in enumerate(listen):
             name, ttype, category, price, prynter, stock = i
@@ -516,7 +485,6 @@ class application():
             self.current_productslist[k][2].grid(row=k + 2, column=3, padx=1, pady=1)
             self.current_productslist[k][3].grid(row=k + 2, column=4, padx=1, pady=1)
             self.current_productslist[k][4].grid(row=k + 2, column=5, padx=1, pady=1)
-        self.desconnectproduct()
     
     def deletewindow(self):
         try:
@@ -563,9 +531,7 @@ class application():
         self.root.bind("<Button-1>", self.nonclick)
     def clientswindow(self):
         def removeclient(id):
-            self.connectclients()
-            self.clientscursor.execute("DELETE FROM Clients WHERE id = ?", (id, ))
-            self.desconnectclients()
+            table("clientes", "Clients").deleteData(("id", ), (str(id), ))
             reloadclients()
         def reloadclients():
             try:

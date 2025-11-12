@@ -29,4 +29,4 @@ def createTable():
     tableProductPrint = table("impressora", "ProductPrint", ("product", "printer", "type", "command", "waiter", "date", "qtd", "text"), ("VARCHAR(500)", "VARCHAR(30)", "VARCHAR(10)", "INTEGER(4)", "VARCHAR(30)", "VARCHAR(20)", "INTEGER(3)", "VARCHAR(100)")).create()
     tableClosedPrinter = table("impressora", "ClosedPrinter", ("id", "command", "date", "permission", "client"), ("INTEGER PRIMARY KEY", "INTEGER(4)", "VARCHAR(20)", "VARCHAR(5)", "VARCHAR(30)")).create()
     tableProductsClosed = table("impressora", "ProductsClosed", ("id", "product", "type", "qtd", "unitprice"), ("INTEGER(10)", "VARCHAR(500)", "VARCHAR(10)", "INTEGER(3)", "VARCHAR(8)")).create()
-    tablePrinters = table("impressora", "Printers", ("name", "ip"), ("VARCHAR(30)", "VARCHAR(19)"))
+    tablePrinters = table("impressora", "Printers", ("name", "ip"), ("VARCHAR(30)", "VARCHAR(19)")).create()
