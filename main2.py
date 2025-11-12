@@ -31,7 +31,7 @@ class application():
                 pass
             self.root.destroy()
         self.insertproductlist = []
-        self.createTable()
+        createTable()
         self.positionp = True
         self.cod, self.stylemode, self.maxcommands = "", "", ""
         mod, up = False, False
@@ -273,11 +273,9 @@ class application():
             self.current_productlisttab = "COMBOS"
     def reloadproductssize(self):
         def deleteproductsize(product, category):
-            self.connectproduct()
-            self.productcursor.execute("DELETE FROM SizeofProducts WHERE product = ? AND category = ?", (product, category))
-            self.productcursor.execute("DELETE FROM Products WHERE name = ? AND category = ? AND type = ?", (product, category, "SIZE"))
-            self.desconnectproduct()
-            self.reloadproductssize()
+            print('oiiiiiiiiiiiiiiiiiiiiiiii')
+            tableSizeProducts = table("produtos", "SizeofProducts", ("name", "category", "type"), (str(product), str(category), "SIZE"))
+            tableProduct = table("produtos", "Products").deleteData(("product", "category"), (str(product), str(category)))
         listofproducts = []
         try:
             for i in self.current_productslist:
