@@ -541,12 +541,7 @@ class application():
             except:
                 pass
             self.clientstable = []
-            self.connectclients()
-            temp = self.clientscursor.execute("SELECT * FROM Clients")
-            listen = []
-            for i in temp:
-                listen.append(i)
-            self.desconnectclients()
+            listen = table("clientes", "Clients").getData()
             for k, i in enumerate(listen):
                 id, name, fone, email, idade, gender = i
                 self.clientstable.append([ctk.CTkLabel(self.frameclients, text=id, bg_color=self.colors[4], width=50, height=40), 
@@ -572,26 +567,17 @@ class application():
                     close()
             def addclient(cod = 0):
                 iid, name, fone, email, year, gender = self.entryid.get(), self.entryname.get(), self.entryfone.get(), self.entryemail.get(), self.entryidade.get(), self.entrygender.get()
-                self.connectclients()
-                tp = ""
-                temp = []
+                tableClients = table("clientes", "Clients")
+                
                 if iid == "":
-                    self.clientscursor.execute("INSERT INTO Clients (name, fone, email, idade, genero) VALUES (?, ?, ?, ?, ?)", (name, fone, email, year, gender))
+                    tableClients.insertData(("name", "fone", "email", "idade", "genero"), (name, fone, email, year, gender))
                 else:
-                    try:
-                        temp = self.clientscursor.execute("SELECT name, fone, email, idade, genero FROM Clients WHERE id = ?", (iid, ))
-                        for i in temp:
-                            tp = i
-                    except:
-                        pass
-                    if tp != "":
-                        self.clientscursor.execute("INSERT INTO Clients (name, fone, email, idade, genero) VALUES (?, ?, ?, ?, ?)", (tp[0], tp[1], tp[2], tp[3], tp[4]))
-                        self.clientscursor.execute("UPDATE Clients SET name = ?, fone = ?, email = ?, idade = ?, genero = ? WHERE id = ?", (name, fone, email, year, gender, iid))
+                    result = tableClients.getData(("name", "fone", "email", "idade", "genero"), ("id", ), (iid, ))
+                    if result != "NULL":
+                        tableClients.insertData(("name", "fone", "email", "idade", "genero"), (result[0], result[1], result[2], result[3], result[4]))
+                        tableClients.updateData(("name", "fone", "email", "idade", "genero"), (name, fone, email, year, gender), ("id", ), (iid, ))
                     else:
-                        self.clientscursor.execute("INSERT INTO Clients (id, name, fone, email, idade, genero) VALUES (?, ?, ?, ?, ?, ?)", (iid, name, fone, email, year, gender))
-                tp = ""
-                temp = self.clientscursor.execute("select name, fone, email, idade FROM Clients Where id = ?", (iid, ))
-                self.desconnectclients()
+                        tableClients.insertData(("id", "name", "fone", "email", "idade", "genero"), (iid, name, fone, email, year, gender))
                 close()
                 reloadclients()
             self.rootaddclient = ctk.CTkToplevel(self.root)
@@ -658,17 +644,13 @@ class application():
     def addproductwindow(self, product = "", category = "", prynter = ""):
         def editproduct():
             newname, newcategory, newprice, newprynter= self.entry_namenewproduct.get(), self.combobox_categoryname.get(), self.entry_price.get(), self.combobox_printer.get()
-            self.connectproduct()
-            self.productcursor.execute("UPDATE Products SET name = ?, category = ?, price = ?, printer = ? WHERE name = ? AND category = ?", (newname, newcategory, newprice, newprynter, product, category))
-            self.desconnectproduct()
+            table("produtos", "Products").updateData(("name", "category", "price", "printer"), (newname, newcategory, newprice, newprynter), ("name", "category"), (product, category))
             self.rootnewproduct.destroy()
             self.reloadproductsnormal()
-        self.connectprinter()
-        tmp = self.printercursor.execute("SELECT name FROM Printers")
+        tmp = table("impressoras", "Printers").getData(("name", ))
         printers = []
         for i in tmp:
             printers.append(i[0])
-        self.desconnectprinter()
         if self.current_productlisttab == "PRODUTOS":
             self.rootnewproduct = ctk.CTkToplevel()
             self.rootnewproduct.title("ADICIONAR PRODUTO")
@@ -677,11 +659,7 @@ class application():
             self.rootnewproduct.grab_set()
             tipeproduct, price = "", ""
             if product != "" and category != "":
-                self.connectproduct()
-                temp = self.productcursor.execute("SELECT name, type, category, price, printer FROM Products WHERE name = ? AND category = ?", (product, category))
-                for i in temp:
-                    product, tipeproduct, category, price, prynter = i
-                self.desconnectproduct()
+                product, tipeproduct, category, price, prynter = table("produtos", "Products").getData(("name", "type", "category", "price", "printer"), ("name", "category"), (product, category))[0]
             self.frame_mainnewproduct = ctk.CTkFrame(self.rootnewproduct, fg_color=self.colors[2])
             self.frame_mainnewproduct.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.49)
 
@@ -696,11 +674,9 @@ class application():
                 self.entry_namenewproduct.insert(0, product)
 
             categories = []
-            self.connectproduct()
-            temp = self.productcursor.execute("SELECT name FROM Category")
+            temp = table("produtos", "Category").getData(("name", ))
             for i in temp:
                 categories.append(i[0])
-            self.desconnectproduct()
 
             self.combobox_categoryname = ctk.CTkComboBox(self.frame_mainnewproduct, fg_color=self.colors[4], values=categories, width=200,height=60)
             self.combobox_categoryname.place(relx=0.5, rely=0.6)
@@ -739,11 +715,9 @@ class application():
             self.entry_namesize.place(relx=0.01, rely=0.60, relwidth=0.39, relheight=0.39)
 
             categories = []
-            self.connectproduct()
-            temp = self.productcursor.execute("SELECT name FROM Category")
+            temp = table("produtos", "Category").getData(("name", ))
             for i in temp:
                 categories.append(i[0])
-            self.desconnectproduct()
 
             self.combobox_categoryname = ctk.CTkComboBox(self.frame_mainnewproduct, fg_color=self.colors[4], values=categories, width=200,height=60)
             self.combobox_categoryname.place(relx=0.24, rely=0.10)
@@ -770,12 +744,8 @@ class application():
             self.delete_heading.grid(row=1, column=3, padx=1, pady=1)
 
             if product != "" and category != "":
-                self.connectproduct()
                 self.rootaddproductsize.title("EDITAR PRODUTO POR TAMANHO")
-                temp = self.productcursor.execute("SELECT name, price FROM SizeofProducts WHERE product = ? AND category = ?", (product, category))
-                for i in temp:
-                    self.current_sizesfornewproduct.append(i)
-                self.desconnectproduct()
+                self.current_sizesfornewproduct = table("produtos", "SizeofProducts").getData(("name", "price"), ("product", "category"), (product, category))
                 self.entry_namenewproduct.insert(0, product)
                 self.combobox_categoryname.set(category)
                 self.button_addproductconfirm.configure(command=lambda x=product, y=category:self.addproductsize(x, y))
