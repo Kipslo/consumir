@@ -5,7 +5,7 @@ class connect():
         
         self.connected = {}
         self.cursor = {}
-        self.dbs = {"contas":"sql", "comandas":"commands", "produtos":"products", "historico":"his", "clientes":"clients", "configuracoes":"config", "temporario":"temp", "impressora":"printer"}
+        self.dbs = {"contas":"sql", "comandas":"commands", "produtos":"products", "historico":"his", "clientes":"clients", "configuracoes":"config", "temporario":"temp", "impressoras":"printer"}
     def connect(self, db):
         self.connected[db] = sql.connect(self.dbs[db] + ".db")
         self.cursor[db] = self.connected[db].cursor()
