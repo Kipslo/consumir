@@ -49,7 +49,7 @@ class table(connect):
             listen = self.execute(self.db, F"SELECT * FROM {cod}", True)
         else:    
             listen = self.execute(self.db, F"SELECT {self.fortext(", ", "", column)} FROM {cod}", True)
-        if listen == None:
+        if listen == None or listen == []:
             return "NULL"
         return listen
     def insertData(self, columns: tuple=(), values:tuple=()):

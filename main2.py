@@ -97,7 +97,9 @@ class application():
         self.root.bind_all("<KeyPress>", self.presskey)
         tablecommands = table("comandas", "CommandsActive")
         tableclients = table("clientes", "Clients")
-        temp = tableclients.getData(("name", ), ("id", ), (self.idclient.get(), ))[0][0]
+        temp = tableclients.getData(("name", ), ("id", ), (self.idclient.get(), ))
+        if temp != "NULL":
+            temp = temp[0][0]
         if self.nameclient.get() != self.actuallyname:
             if temp == self.nameclient.get():
                 tablecommands.updateData(("idclient", "nameclient"), (self.idclient.get(), self.nameclient.get()), ("number", ), (str(self.currentcommandwindow), ))
