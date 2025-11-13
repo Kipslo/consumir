@@ -1940,7 +1940,7 @@ class application():
                     temp = "A"
             if temp == "" and oldname == "" and self.entry_username.get() != "" and self.entry_name.get() != "":
                 username, name, password, permissionmaster, permissionrelease, permissionentry, permissionclose = self.entry_username.get(), self.entry_name.get(), self.entry_passwordcont.get(), "F", "F", "F", "F"
-                self.contscursor.execute("INSERT INTO Conts (username, name, password, permissionmaster, permissionrelease, permissionentry, permissionclose, lastmodification, lastlogin) VALUES (?, ?, ?, ?, ?, ?, ?)",(username, name, password, permissionmaster, permissionrelease, permissionentry, permissionclose, str(datetime.datetime.now())[0:19], ""))
+                self.contscursor.execute("INSERT INTO Conts (username, name, password, permissionmaster, permissionrelease, permissionentry, permissionclose, lastmodification, lastlogin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",(username, name, password, permissionmaster, permissionrelease, permissionentry, permissionclose, str(datetime.datetime.now())[0:19], ""))
             elif temp == "" and self.entry_username.get() != "" and self.entry_name.get() != "":
                 username, name, password = self.entry_username.get(), self.entry_name.get(), self.entry_passwordcont.get()
                 self.contscursor.execute("UPDATE Conts SET username = ?, name = ?, password = ?, lastmodification = ? WHERE name = ?", (username, name, password, str(datetime.datetime.now())[0:19], oldname))
