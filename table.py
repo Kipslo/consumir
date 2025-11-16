@@ -58,5 +58,5 @@ class table(connect):
         if len(self.columns) == len(self.values): 
             self.execute(self.db, F"INSERT INTO {self.name} {str(self.columns)} VALUES {str(self.values)}")
 if __name__ == "__main__":
-    oi = table("clientes", "Clients").getData(("name", ), ("id", ), ("1", ))[0][0]
+    oi = table("temporario", "TempLogin").getData()
     print(oi)

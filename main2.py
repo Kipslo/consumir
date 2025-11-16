@@ -17,7 +17,8 @@ from connect import connect
 from table import table
 from product import product
 from createTable import createTable
-class application():
+from tabchange import changeTabsButtons
+class application(changeTabsButtons):
     def __init__(self):
         def close():
             try:
@@ -58,11 +59,12 @@ class application():
     def updatelogin(self):
         tempTable = table("temporario", "TempLogin")
         TEMp = tempTable.getData()
-        for i in TEMp:
-            table_conts = table("contas", "Conts")
-            name, lastlogin = i
-            table_conts.updateData(("lastlogin", ), (lastlogin, ), ("name", ), (name, ) )
-            tempTable.deleteData(("lastlogin", "name"), (lastlogin, name))
+        if TEMp != "NULL":
+            for i in TEMp:
+                table_conts = table("contas", "Conts")
+                name, lastlogin = i
+                table_conts.updateData(("lastlogin", ), (lastlogin, ), ("name", ), (name, ) )
+                tempTable.deleteData(("lastlogin", "name"), (lastlogin, name))
         self.root.after(3000, self.updatelogin)
     def loginwindow(self):
         self.currentwindow = "LOGIN"
@@ -115,21 +117,13 @@ class application():
             self.label_failedlogin.destroy()
         except:
             pass
-        self.frame_tab = ctk.CTkFrame(self.root, fg_color=self.colors[7], border_color=self.colors[0])
-        self.frame_tab.place(relx=0, rely=0, relwidth=1, relheight=0.14)
 
+        super().__init__()
 
         self.label_none = ctk.CTkLabel(self.frame_tab, fg_color=self.colors[6], text="")
-        self.label_none.place(relx=0.2, rely=0, relwidth=0.8, relheight=0.285)
+        self.label_none.place(relx=0.3, rely=0, relwidth=0.8, relheight=0.285)
 
-        self.button_main = ctk.CTkButton(self.frame_tab, text="PRINCIPAL", hover_color=self.colors[4], fg_color=self.colors[5], command=lambda:self.changemainbuttons(self.button_main))
-        self.button_main.place(relx=0, rely=0, relwidth=0.1, relheight=0.285)
-
-        self.button_product = ctk.CTkButton(self.frame_tab, text="PRODUTO", hover_color=self.colors[4], fg_color=self.colors[5], command=lambda:self.changemainbuttons(self.button_product))
-        self.button_product.place(relx=0.1, rely=0, relwidth=0.1, relheight=0.285)
-
-        self.button_config = ctk.CTkButton(self.frame_tab, text="CONFIGURAÇÕES", hover_color=self.colors[4], fg_color=self.colors[5], command=lambda:self.changemainbuttons(self.button_config))
-        self.button_config.place(relx=0.2, rely=0, relwidth=0.1, relheight=0.285)
+        
 
     def mainwindow(self):
         
@@ -2821,45 +2815,6 @@ class application():
         self.add_button.place(relx=0.6, rely=0.27, relwidth=0.39, relheight=0.05)
         
         reload()
-    def changemainbuttons(self, button):
-        
-        self.button_main.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
-        self.button_product.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
-        self.button_config.configure(fg_color=self.colors[7], hover_color=self.colors[5], hover=True)
-        button.configure(fg_color=self.colors[4], hover=False)
-        text = button.cget("text")
-        
-        try:
-            for i in self.currentmain:
-                buttontemp, texttemp = i
-                buttontemp.destroy()
-        except:
-            pass
-        if text == "PRINCIPAL":
-
-            mainimgs = [ctk.CTkImage(Image.open("./imgs/caixa.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/tables.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/clientes.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/trofeu.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/relogio.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60))]
-            
-            mainbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.cash), "ABRIR CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.cashdeskwindow), "HISTÓRICO DO CAIXA"], [ctk.CTkButton(master= self.frame_tab, command=self.mainwindow), "MESAS / COMANDAS"], [ctk.CTkButton(master= self.frame_tab, command=self.clientswindow), "CLIENTES"], [ctk.CTkButton(master= self.frame_tab, command=self.rankingproducts), "MAIS VENDIDOS"], [ctk.CTkButton(master= self.frame_tab, command=self.historyproducts), "HISTÓRICO DE PEDIDOS"], [ctk.CTkButton(master= self.frame_tab, command=self.rankingservice), "RANKING DE ATENDIMENTOS"]]
-            
-            self.currentmain = mainbuttons
-            self.currentimgs = mainimgs
-        elif text == "PRODUTO":
-            productimgs = [ctk.CTkImage(Image.open("./imgs/produtos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/complementos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/anotacoes.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/tiposetamanhos.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/categorias.jpg"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/promocoes.png"), size=(60,60))]
-            
-            productbuttons = [[ctk.CTkButton(master= self.frame_tab, command=self.productswindow), "PRODUTOS"], [ctk.CTkButton(master= self.frame_tab), "COMPLEMENTOS"], [ctk.CTkButton(master= self.frame_tab, command=self.notewindow), "ANOTAÇÕES"], [ctk.CTkButton(master= self.frame_tab, command=self.stockwindow), "ESTOQUE"], [ctk.CTkButton(master= self.frame_tab), "TIPOS E TAMANHOS"], [ctk.CTkButton(master= self.frame_tab, command=self.categorieswindow), "CATEGORIAS"], [ctk.CTkButton(master= self.frame_tab), "PROMOÇÕES"], ]
-            
-            self.currentmain = productbuttons
-            self.currentimgs = productimgs
-        elif text == "CONFIGURAÇÕES":  
-            configimgs = [ctk.CTkImage(Image.open("./imgs/config.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/caixa.png"), size=(60, 60)), ctk.CTkImage(Image.open("./imgs/garçom.png"), size=(60,60)), ctk.CTkImage(Image.open("./imgs/info.png"), size=(60, 60))]
-            configbuttons = [[ctk.CTkButton(master=self.frame_tab, command=self.configwindow), "CONFIGURAÇÕES"], [ctk.CTkButton(master=self.frame_tab, command=self.functionarywindow), "FUNCIONÁRIOS"], [ctk.CTkButton(self.frame_tab, command=self.windowprinters), "IMPRESSORAS"], [ctk.CTkButton(self.frame_tab, command=self.reloadserverandprinter), "RELOAD"], [ctk.CTkButton(self.frame_tab, command=self.standartentries), "ENTRADAS"]]
-
-            self.currentmain = configbuttons
-            self.currentimgs = configimgs
-        for i, m in enumerate(self.currentmain):
-            buttontemp, texttemp = m
-            buttontemp.configure(text=texttemp, fg_color=self.colors[4], hover_color=self.colors[2], image=self.currentimgs[i], compound="top", anchor="bottom")
-            buttontemp.place(relx=0.1*i, rely=0.285, relwidth=0.1, relheight=0.715)
     def login(self):
         name = self.entry_name.get()
         password = self.entry_password.get()
@@ -2892,7 +2847,7 @@ class application():
             self.permissionmaster = permissionmasterdata
             self.window()
             self.mainwindow()
-            self.changemainbuttons(self.button_main)
+            self.changeTabButton()
         self.desconnectconts()
     def connectconts(self):
         self.conts = sql.connect("sql.db")
