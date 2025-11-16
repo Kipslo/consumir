@@ -1,8 +1,9 @@
-import sqlite3
+import customtkinter
+from tablesWindows import tablesWindows
+root = customtkinter.CTk()
+root.title("oii")
+root.geometry("800x800")
+table = tablesWindows(root, "contas", "Conts", ("username", "name", "password"), bgcolor="#999999")
+table.create(("Nome", "Nome de usuário", "Senha"), (150, 75, 150), (40, 40, 40))
 
-class oi():
-    def __init__(self, i):
-        print(i)
-    def printar(self, i:str= ""):
-        print("oiiiii " + i)
-oi("oi", ).printar("oioioi")
+root.mainloop()
