@@ -3,11 +3,11 @@ from tablesWindows import tablesWindows
 def printar(oi):
     print(oi)
 def reload():
-    table.reload()
+    table.reload(("name", ), ("Biel", ))
 root = customtkinter.CTk()
 root.title("oii")
 root.geometry("800x800")
-table = tablesWindows(root, "contas", "Conts", ("username", "name", "password"), bgcolor="#999999", where=("name", ), values=("Sidney", ))
+table = tablesWindows(root, "contas", "Conts", ("username", "name", "password"), bgcolor="#999999")
 table.create(("Nome", "Nome de usuário", "Senha"), (150, 75, 150), (50, 50, 50), editdata=(printar, "TABLE", ""), deldata=(printar, "TABLE", 0))
 
 button = customtkinter.CTkButton(root, command=reload)

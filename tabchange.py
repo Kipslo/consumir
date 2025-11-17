@@ -1,8 +1,9 @@
 from customtkinter import CTkImage, CTkButton, CTkFrame
 from PIL import Image
-from copy import copy
+from tabFunctions import controlTabs
 class changeTabsButtons():
-    def __init__(self):
+    def __init__(self, frameMain):
+        self.listenFunctions = controlTabs(frameMain)
         self.frame_tab = CTkFrame(self.root, fg_color=self.colors[7], border_color=self.colors[0])
         self.frame_tab.place(relx=0, rely=0, relwidth=1, relheight=0.14)
         self.listImageButton = {"caixa": CTkImage(Image.open("./imgs/caixa.png"), size=(60,60)), 
@@ -29,11 +30,12 @@ class changeTabsButtons():
         self.mainButtonsList["PRINCIPAL"].place(relx=0, rely=0, relwidth=0.1, relheight=0.285)
         self.mainButtonsList["PRODUTO"].place(relx=0.1, rely=0, relwidth=0.1, relheight=0.285)
         self.mainButtonsList["CONFIGURACOES"].place(relx=0.2, rely=0, relwidth=0.1, relheight=0.285)
+        self.listenFunctions.changeTab("listacomandas")
     def createTabButtons(self, tab):
         if tab == "PRINCIPAL":
             self.currentTabButtons = [CTkButton(master= self.frame_tab, command=self.cash, image=self.listImageButton["caixa"], text="ABRIR CAIXA", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
                                              CTkButton(master= self.frame_tab, command=self.cashdeskwindow, image=self.listImageButton["relogio"], text="HISTÓRICO DO CAIXA", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
-                                             CTkButton(master= self.frame_tab, command=self.mainwindow, image=self.listImageButton["tabelas"], text="MESAS / COMANDAS", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
+                                             CTkButton(master= self.frame_tab, command=lambda tab = "listacomandas":self.listenFunctions.changeTab(tab), image=self.listImageButton["tabelas"], text="MESAS / COMANDAS", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
                                              CTkButton(master= self.frame_tab, command=self.clientswindow, image=self.listImageButton["clientes"], text="CLIENTES", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
                                              CTkButton(master= self.frame_tab, command=self.rankingproducts, image=self.listImageButton["trofeu"], text="MAIS VENDIDOS", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
                                              CTkButton(master= self.frame_tab, command=self.historyproducts, image=self.listImageButton["relogio"], text="HISTÓRICO DE PEDIDOS", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
