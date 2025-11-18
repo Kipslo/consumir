@@ -2,8 +2,8 @@ from customtkinter import CTkImage, CTkButton, CTkFrame
 from PIL import Image
 from tabFunctions import controlTabs
 class changeTabsButtons():
-    def __init__(self, frameMain):
-        self.listenFunctions = controlTabs(frameMain)
+    def __init__(self, root):
+        self.listenFunctions = controlTabs(root)
         self.frame_tab = CTkFrame(self.root, fg_color=self.colors[7], border_color=self.colors[0])
         self.frame_tab.place(relx=0, rely=0, relwidth=1, relheight=0.14)
         self.listImageButton = {"caixa": CTkImage(Image.open("./imgs/caixa.png"), size=(60,60)), 

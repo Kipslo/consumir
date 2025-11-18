@@ -125,7 +125,7 @@ class application(changeTabsButtons):
 
         
 
-    def mainwindow(self):
+        print("""    def mainwindow(self):
         
         self.deletewindow()
         self.currentwindow = "MAIN"
@@ -161,7 +161,7 @@ class application(changeTabsButtons):
         self.aplyname.place(relx=0.89, rely=0.175, relwidth=0.1, relheight=0.65)
 
         self.root.bind("<Button-1>", self.clickmain)
-        threading.Thread(self.reloadcommands()).start()
+        threading.Thread(self.reloadcommands()).start()""")
     def productswindow(self):
         self.deletewindow()
         self.currentwindow = "PRODUCTS"
@@ -2846,7 +2846,6 @@ class application(changeTabsButtons):
             self.passwordlogin = passworddata
             self.permissionmaster = permissionmasterdata
             self.window()
-            self.mainwindow()
             self.changeTabButton()
         self.desconnectconts()
     def connectconts(self):
