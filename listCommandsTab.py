@@ -1,6 +1,7 @@
 from customtkinter import StringVar, CTkLabel, CTkButton, CTkScrollableFrame, CTkFrame, CTkEntry
 from colorsList import getColors
 from table import table
+from deleteTab import deleteTab
 import datetime
 class listCommandsTab():
     def __init__(self, frameMain, data):
@@ -10,35 +11,38 @@ class listCommandsTab():
         self.currentwindow = "MAIN"
         self.str_searchcommands = StringVar()
         self.str_searchcommands.set("")
+        self.listfordelete = []
         self.label_searchcommand = CTkLabel(self.frameMain, fg_color=self.colors[1], textvariable=self.str_searchcommands, font=("Arial", 20))
         self.label_searchcommand.place(relx=0.01, rely=0.15, relwidth=0.88, relheight=0.05)
+        self.listfordelete.append(self.label_searchcommand)
         #add command
         self.button_addcommand = CTkButton(self.frameMain, fg_color=self.colors[3], text="ADICIONAR COMANDA", hover_color=self.colors[2])
         self.button_addcommand.place(relx=0.90, rely=0.15, relwidth=0.09, relheight=0.05)
-        
+        self.listfordelete.append(self.button_addcommand)
         self.frameMain.bind("<KeyPress>", self.presskey)
 
-        self.frame_commands = CTkScrollableFrame(self.frameMain, fg_color=self.colors[1])
-        self.frame_commands.place(relx=0.01, rely=0.21, relwidth=0.98, relheight=0.71)
+        self.scroolFrame = CTkScrollableFrame(self.frameMain, fg_color=self.colors[1])
+        self.scroolFrame.place(relx=0.01, rely=0.21, relwidth=0.98, relheight=0.71)
 
         
 
         self.frame_down = CTkFrame(self.frameMain, fg_color=self.colors[3], border_color=self.colors[0])
         self.frame_down.place(relx=0, rely=0.93, relwidth=1, relheight=0.07)
-
+        self.listfordelete.append(self.frame_down)
         self.entry_namecommand = CTkEntry(self.frame_down, placeholder_text="PESQUISAR POR NOME", fg_color=self.colors[7], font=("Arial", 20))
         self.entry_namecommand.place(relx=0.3, rely=0.175 , relwidth=0.15, relheight=0.65)
-
+        self.listfordelete.append(self.entry_namecommand)
         self.button_updatecommand = CTkButton(self.frame_down, fg_color=self.colors[7], text="ATUALIZAR", hover_color=self.colors[6], command=lambda: self.reloadcommands().start())
         self.button_updatecommand.place(relx=0.02, rely=0.175, relwidth=0.1, relheight=0.65)
-
+        self.listfordelete.append(self.button_updatecommand)
         self.button_mergecommands = CTkButton(self.frame_down, fg_color=self.colors[7], text="JUNTAR COMANDAS", hover_color=self.colors[6])
         self.button_mergecommands.place(relx=0.135, rely=0.175, relwidth=0.15, relheight=0.65)
+        self.listfordelete.append(self.button_mergecommands)
         
-        txt = self.entry_namecommand.get()
         self.aplyname = CTkButton(self.frame_down, fg_color=self.colors[7], text="PROCURAR", hover_color=self.colors[6], command=lambda x = True:self.reloadcommands(x))
         self.aplyname.place(relx=0.89, rely=0.175, relwidth=0.1, relheight=0.65)
-
+        self.listfordelete.append(self.aplyname)
+        self.listfordelete = [self.aplyname, self.button_mergecommands, self.button_updatecommand, self.entry_namecommand, self.frame_down, self.button_addcommand, self.label_searchcommand]
         self.frameMain.bind("<Button-1>", self.clickmain)
         self.reloadcommands()
         self.maxcommands = int(table("configuracoes", "Config").getData(("maxcommands", ), ("cod", ), ("1", ))[0][0])
@@ -80,7 +84,7 @@ class listCommandsTab():
             text = text + str(minute) + "M " + str(sec) + "S"
             if len(nameclient) >= 16:
                 nameclient = nameclient[0:15]
-            self.currentcommands.append(CTkButton(self.frame_commands,fg_color=self.colors[3], command="lambda m = i:self.windowcommand(self.currentcommands[m])", hover=False, width=260, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + text, font=("Arial", 20)))
+            self.currentcommands.append(CTkButton(self.scroolFrame,fg_color=self.colors[3], command="lambda m = i:self.windowcommand(self.currentcommands[m])", hover=False, width=260, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + text, font=("Arial", 20)))
             
             self.currentcommands[i].grid(row=i//qtdrow, column=i%qtdrow, padx=5, pady=5)
             self.number.append(number)
@@ -106,3 +110,23 @@ class listCommandsTab():
             self.entry_namecommand.delete(0, "end")
         elif key == "Return":
             pass
+    def deleteTab(self):
+        self.button_addcommand.destroy()
+        try:
+            print(self.scroolFrame)
+            print("deveria ter deletado")
+            self.scroolFrame.destroy()
+            self.scroolFrame.place_forget()
+        except Exception as error:
+            print(error)
+        print(self.frameMain.winfo_children())
+        try:
+            print("deveria ter deletado isso também")
+            for widget in self.listfordelete:
+                widget.destroy()
+        except Exception as error:
+            print(error)
+        try:
+            self.button_addcommand
+        except Exception as error:
+            print(error)

@@ -118,9 +118,7 @@ class application(changeTabsButtons):
         except:
             pass
         
-        self.mainFrame = ctk.CTkFrame(self.root, )
-        self.mainFrame.place(relx=0, rely=0.14, relwidth=1, relheight=0.86)
-        super().__init__(self.mainFrame)
+        super().__init__(self.root)
 
         self.label_none = ctk.CTkLabel(self.frame_tab, fg_color=self.colors[6], text="")
         self.label_none.place(relx=0.3, rely=0, relwidth=0.8, relheight=0.285)

@@ -34,7 +34,7 @@ class changeTabsButtons():
     def createTabButtons(self, tab):
         if tab == "PRINCIPAL":
             self.currentTabButtons = [CTkButton(master= self.frame_tab, command=self.cash, image=self.listImageButton["caixa"], text="ABRIR CAIXA", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
-                                             CTkButton(master= self.frame_tab, command=self.cashdeskwindow, image=self.listImageButton["relogio"], text="HISTÓRICO DO CAIXA", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
+                                             CTkButton(master= self.frame_tab, command=lambda tab = "historicocaixa":self.listenFunctions.changeTab(tab), image=self.listImageButton["relogio"], text="HISTÓRICO DO CAIXA", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
                                              CTkButton(master= self.frame_tab, command=lambda tab = "listacomandas":self.listenFunctions.changeTab(tab), image=self.listImageButton["tabelas"], text="MESAS / COMANDAS", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
                                              CTkButton(master= self.frame_tab, command=self.clientswindow, image=self.listImageButton["clientes"], text="CLIENTES", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
                                              CTkButton(master= self.frame_tab, command=self.rankingproducts, image=self.listImageButton["trofeu"], text="MAIS VENDIDOS", fg_color=self.colors[4], hover_color=self.colors[2], compound="top", anchor="bottom"), 
