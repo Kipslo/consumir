@@ -16,6 +16,8 @@ from printer import printer as printerClass
 from connect import connect
 from table import table
 from product import product
+from loginTab import loginTab
+from tabFunctions import controlTabs
 from createTable import createTable
 from tabchange import changeTabsButtons
 class application(changeTabsButtons):
@@ -51,7 +53,9 @@ class application(changeTabsButtons):
             self.colors = ["#ffffff", "#efefef", "#c8c8c8", "#bfbfbf", "#a8a8a8", "#9f9f9f", "#888888", "#8f8f8f", "#8f8f8f", "#7f7f7f"]
         
         self.root = ctk.CTk()
-        self.loginwindow()
+        self.controlTabs = loginTab(self.root)
+        self.root.attributes("-fullscreen", True)
+        self.root.update()
         self.root.protocol("WM_DELETE_WINDOW", close)
         self.root.after(3000, self.insertcurrentproduct)
         self.root.after(3000, self.updatelogin)
@@ -120,8 +124,8 @@ class application(changeTabsButtons):
         
         super().__init__(self.root)
 
-        self.label_none = ctk.CTkLabel(self.frame_tab, fg_color=self.colors[6], text="")
-        self.label_none.place(relx=0.3, rely=0, relwidth=0.8, relheight=0.285)
+        #self.label_none = ctk.CTkLabel(self.frame_tab, fg_color=self.colors[6], text="")
+        #self.label_none.place(relx=0.3, rely=0, relwidth=0.8, relheight=0.285)
 
         
 
