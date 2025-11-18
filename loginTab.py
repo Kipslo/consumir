@@ -21,7 +21,7 @@ class loginTab():
                 self.label_failedlogin.destroy()
             except:
                 pass
-            self.label_failedlogin = CTkLabel(self.mainFrame, text=error, font=("Arial", 18))
+            self.label_failedlogin = CTkLabel(self.root, text=error, font=("Arial", 18))
             self.label_failedlogin.place(relx=0.4, rely=0.70, relwidth=0.2, relheight=0.05)
         if passworddata == password and permissionmasterdata == "Y" and name == namedata:
             print("login efetuado")
@@ -40,6 +40,7 @@ class loginTab():
         self.root = root
         self.width = self.root.winfo_width()
         self.height = self.root.winfo_height()
+        print(self.height)
 
         self.entry_name = CTkEntry(self.root, bg_color=self.colors[9], placeholder_text="NOME", font=("Arial", 20))
         self.entry_name.place(relx=0.4, rely=0.45, relwidth=0.2, relheight=0.05)
@@ -50,7 +51,7 @@ class loginTab():
         self.button_login = CTkButton(self.root, fg_color=self.colors[9], text="LOGIN", hover_color=self.colors[8], command=self.login, font=("Arial", 20))
         self.button_login.place(relx=0.4, rely=0.65, relwidth=0.2, relheight=0.05)
         
-
+        print(self.height//3.6)
         self.personimg = CTkImage(Image.open("./imgs/person.png"), size=(self.height//3.6,self.height//3.6))
         self.label_person = CTkLabel(self.root, image = self.personimg, bg_color="#242424", text="")
         self.label_person.place(relx=0.423, rely=0.15)

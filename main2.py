@@ -20,7 +20,7 @@ from loginTab import loginTab
 from tabFunctions import controlTabs
 from createTable import createTable
 from tabchange import changeTabsButtons
-class application(changeTabsButtons):
+class application():
     def __init__(self):
         def close():
             try:
@@ -53,12 +53,12 @@ class application(changeTabsButtons):
             self.colors = ["#ffffff", "#efefef", "#c8c8c8", "#bfbfbf", "#a8a8a8", "#9f9f9f", "#888888", "#8f8f8f", "#8f8f8f", "#7f7f7f"]
         
         self.root = ctk.CTk()
-        self.controlTabs = loginTab(self.root)
         self.root.attributes("-fullscreen", True)
         self.root.update()
         self.root.protocol("WM_DELETE_WINDOW", close)
         self.root.after(3000, self.insertcurrentproduct)
         self.root.after(3000, self.updatelogin)
+        self.controlTabs = loginTab(self.root)
         self.root.mainloop()
     def updatelogin(self):
         tempTable = table("temporario", "TempLogin")
@@ -70,31 +70,6 @@ class application(changeTabsButtons):
                 table_conts.updateData(("lastlogin", ), (lastlogin, ), ("name", ), (name, ) )
                 tempTable.deleteData(("lastlogin", "name"), (lastlogin, name))
         self.root.after(3000, self.updatelogin)
-    def loginwindow(self):
-        self.currentwindow = "LOGIN"
-        self.root.attributes("-fullscreen", True)
-        self.root.update()
-        self.width = self.root.winfo_width()
-        self.height = self.root.winfo_height()
-
-        self.entry_name = ctk.CTkEntry(self.root, bg_color=self.colors[9], placeholder_text="NOME", font=("Arial", 20))
-        self.entry_name.place(relx=0.4, rely=0.45, relwidth=0.2, relheight=0.05)
-
-        self.entry_password = ctk.CTkEntry(self.root, bg_color=self.colors[9], placeholder_text="SENHA", show="*", font=("Arial", 20))
-        self.entry_password.place(relx=0.4, rely=0.55, relwidth=0.2, relheight=0.05)
-        
-        self.button_login = ctk.CTkButton(self.root, fg_color=self.colors[9], text="LOGIN", hover_color=self.colors[8], command=self.login, font=("Arial", 20))
-        self.button_login.place(relx=0.4, rely=0.65, relwidth=0.2, relheight=0.05)
-        
-
-        self.personimg = ctk.CTkImage(Image.open("./imgs/person.png"), size=(self.height//3.6,self.height//3.6))
-        self.label_person = ctk.CTkLabel(self.root, image = self.personimg, bg_color="#242424", text="")
-        self.label_person.place(relx=0.423, rely=0.15)
-        temp = ""
-        conts_table = table("contas", "Conts")
-        if conts_table.getData() == "NULL":
-            conts_table.insertData(("username", "name", "password", "permissionmaster", "permissionrelease", "permissionentry", "permissionclose"), ("ADMIN", "Admin", "ADMIN", "Y", "Y", "Y", "Y"))
-        self.root.bind_all("<KeyPress>", self.keypresslogin)
     def keypresslogin(self, event):
         n = event.keysym
         if n == "Return":
@@ -114,58 +89,6 @@ class application(changeTabsButtons):
             
         
         self.rootcommand.destroy()
-    def window(self):
-        self.entry_name.destroy(); self.entry_password.destroy(); self.button_login.destroy(); self.label_person.destroy()
-        del self.personimg
-        try:
-            self.label_failedlogin.destroy()
-        except:
-            pass
-        
-        super().__init__(self.root)
-
-        #self.label_none = ctk.CTkLabel(self.frame_tab, fg_color=self.colors[6], text="")
-        #self.label_none.place(relx=0.3, rely=0, relwidth=0.8, relheight=0.285)
-
-        
-
-        print("""    def mainwindow(self):
-        
-        self.deletewindow()
-        self.currentwindow = "MAIN"
-        self.str_searchcommands = tk.StringVar()
-        self.str_searchcommands.set("")
-        self.label_searchcommand = ctk.CTkLabel(self.root, fg_color=self.colors[1], textvariable=self.str_searchcommands, font=("Arial", 20))
-        self.label_searchcommand.place(relx=0.01, rely=0.15, relwidth=0.88, relheight=0.05)
-
-        self.button_addcommand = ctk.CTkButton(self.root, fg_color=self.colors[3], text="ADICIONAR COMANDA", hover_color=self.colors[2], command=self.newcommands)
-        self.button_addcommand.place(relx=0.90, rely=0.15, relwidth=0.09, relheight=0.05)
-        
-        self.root.bind_all("<KeyPress>", self.presskey)
-
-        self.frame_commands = ctk.CTkScrollableFrame(self.root, fg_color=self.colors[1])
-        self.frame_commands.place(relx=0.01, rely=0.21, relwidth=0.98, relheight=0.71)
-
-        
-
-        self.frame_down = ctk.CTkFrame(self.root, fg_color=self.colors[3], border_color=self.colors[0])
-        self.frame_down.place(relx=0, rely=0.93, relwidth=1, relheight=0.07)
-
-        self.entry_namecommand = ctk.CTkEntry(self.frame_down, placeholder_text="PESQUISAR POR NOME", fg_color=self.colors[7], font=("Arial", 20))
-        self.entry_namecommand.place(relx=0.3, rely=0.175 , relwidth=0.15, relheight=0.65)
-
-        self.button_updatecommand = ctk.CTkButton(self.frame_down, fg_color=self.colors[7], text="ATUALIZAR", hover_color=self.colors[6], command=lambda: threading.Thread(self.reloadcommands()).start())
-        self.button_updatecommand.place(relx=0.02, rely=0.175, relwidth=0.1, relheight=0.65)
-
-        self.button_mergecommands = ctk.CTkButton(self.frame_down, fg_color=self.colors[7], text="JUNTAR COMANDAS", hover_color=self.colors[6])
-        self.button_mergecommands.place(relx=0.135, rely=0.175, relwidth=0.15, relheight=0.65)
-        
-        txt = self.entry_namecommand.get()
-        self.aplyname = ctk.CTkButton(self.frame_down, fg_color=self.colors[7], text="PROCURAR", hover_color=self.colors[6], command=lambda x = True:self.reloadcommands(x))
-        self.aplyname.place(relx=0.89, rely=0.175, relwidth=0.1, relheight=0.65)
-
-        self.root.bind("<Button-1>", self.clickmain)
-        threading.Thread(self.reloadcommands()).start()""")
     def productswindow(self):
         self.deletewindow()
         self.currentwindow = "PRODUCTS"
@@ -2819,39 +2742,6 @@ class application(changeTabsButtons):
         self.add_button.place(relx=0.6, rely=0.27, relwidth=0.39, relheight=0.05)
         
         reload()
-    def login(self):
-        name = self.entry_name.get()
-        password = self.entry_password.get()
-        self.connectconts()
-        try:
-            data = self.contscursor.execute("""SELECT name, password, permissionmaster FROM Conts WHERE name = ?""", (name, ))
-            namedata = ""
-            passworddata = ""
-            permissionmasterdata = ""
-            for i in data:
-                namedata, passworddata, permissionmasterdata = i
-            
-            
-            if password != passworddata or name != namedata or name == "" or password == "":
-                raise Exception("NOME OU SENHA INCORRETOS")
-            elif permissionmasterdata != "Y" and passworddata == password:
-                raise Exception("ESSE USUÁRIO NÃO TEM PERMISSÃO")
-                
-        except Exception as error:
-            try:
-                self.label_failedlogin.destroy()
-            except:
-                pass
-            self.label_failedlogin = ctk.CTkLabel(self.root, text=error, font=("Arial", 18))
-            self.label_failedlogin.place(relx=0.4, rely=0.70, relwidth=0.2, relheight=0.05)
-        if passworddata == password and permissionmasterdata == "Y" and name == namedata:
-            print("login efetuado")
-            self.namelogin = namedata
-            self.passwordlogin = passworddata
-            self.permissionmaster = permissionmasterdata
-            self.window()
-            self.changeTabButton()
-        self.desconnectconts()
     def connectconts(self):
         self.conts = sql.connect("sql.db")
         self.contscursor = self.conts.cursor()
