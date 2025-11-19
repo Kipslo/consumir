@@ -414,11 +414,7 @@ class application():
             self.reloadthread.terminate()
         except:
             pass
-        if self.currentwindow == "MAIN":
-            self.frame_commands.destroy();self.frame_down.destroy();del self.str_searchcommands; self.label_searchcommand.destroy();self.button_addcommand.destroy(); self.frame_commands.place_forget()
-            self.root.bind("<Button-1>", self.nonclick)
-            self.root.bind_all("<KeyPress>", self.nonclick)
-        elif self.currentwindow == "PRODUCTS":
+        if self.currentwindow == "PRODUCTS":
             self.frame_producttypes.destroy(); self.frame_modproducts.destroy(); self.frame_productreeviews.destroy(); self.frame_productreeviews.place_forget()
         elif self.currentwindow == "CATEGORIES":
             self.treeview_categories.destroy(); self.treeview_categories.place_forget(); self.frame_categoriesmod.destroy()

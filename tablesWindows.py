@@ -1,19 +1,21 @@
 from table import table as tableClass
-from customtkinter import CTkButton, CTkLabel, CTkImage
+from customtkinter import CTkButton, CTkLabel, CTkImage, CTkScrollableFrame
 from PIL import Image
 
 class tablesWindows():
-    def __init__(self, master, db:str, table:str, columnsname = ("*", ), where:tuple = (), values:tuple = (), bgcolor:str="", placeholder_color:str=""):
-        self.master = master
+    def __init__(self, master, tableLocal:tuple, db:str, table:str, columnsname = ("*", ), where:tuple = (), values:tuple = (), bgcolor:str="", placeholder_color:str=""):
         self.where = where
+        self.tableLocal = tableLocal
         self.columnsname = columnsname
         self.values = values
         self.table = tableClass(db, table)
         self.bgcolor = bgcolor
         self.placeholder_color = placeholder_color
+        self.frame = CTkScrollableFrame(master)
     def create(self, columns:tuple= (), widthColumns:tuple = (), heightColumns:tuple= (), editdata= (), deldata=()):
         self.content = []
         self.columns = columns
+        self.frame.place(relx=self.tableLocal[0], rely=self.tableLocal[1], relwidth=self.tableLocal[2], relheight=self.tableLocal[3])
         self.widthColumns = widthColumns
         self.heightColumns = heightColumns
         self.editdata = editdata
@@ -29,17 +31,17 @@ class tablesWindows():
         images = {"edit":CTkImage(Image.open("./imgs/pencil.jpg"), size=(40,40)), "del": CTkImage(Image.open("./imgs/lixeira.png"), size=(40,40))}
         self.content.append([])
         for i in range(len(content)):
-            self.content[cod].append(CTkLabel(self.master, width=self.widthColumns[i], height=self.heightColumns[i], bg_color=self.bgcolor, text=content[i]))
+            self.content[cod].append(CTkLabel(self.frame, width=self.widthColumns[i], height=self.heightColumns[i], bg_color=self.bgcolor, text=content[i]))
             print(cod)
             print(i)
             self.content[cod][i].grid(row=cod, column=i, padx=1, pady=1)
         num = len(self.content[cod])
         if self.editdata != ():
-            self.content[cod].append(CTkButton(self.master, width=50, height=self.heightColumns[i], fg_color=self.bgcolor, text="", image=images["edit"], command=lambda cod=cod:self.editCommand(cod), hover=False))
+            self.content[cod].append(CTkButton(self.frame, width=50, height=self.heightColumns[i], fg_color=self.bgcolor, text="", image=images["edit"], command=lambda cod=cod:self.editCommand(cod), hover=False))
             self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
             num += 1
         if self.deldata != ():
-            self.content[cod].append(CTkButton(self.master, width=50, height=self.heightColumns[i], fg_color=self.bgcolor, text="", image=images["del"], command=lambda cod=cod:self.delCommand(cod), hover=False))
+            self.content[cod].append(CTkButton(self.frame, width=50, height=self.heightColumns[i], fg_color=self.bgcolor, text="", image=images["del"], command=lambda cod=cod:self.delCommand(cod), hover=False))
             self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
     def editCommand(self, cod):
         if self.editdata[1] == "TABLE":

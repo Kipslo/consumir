@@ -1,7 +1,7 @@
 from listCommandsTab import listCommandsTab
 from customtkinter import CTkFrame
 class controlTabs():
-    def printar(self, root, mainFrame, data):
+    def printar(self, root, controller, mainFrame, data):
         print("chegou")
     def __init__(self, root):
         self.root = root
@@ -18,4 +18,4 @@ class controlTabs():
             print(error)
         self.mainFrame = CTkFrame(self.root, )
         self.mainFrame.place(relx=0, rely=0.14, relwidth=1, relheight=0.86)
-        self.currentTab = self.listenFunctions[tab](self.root, self.mainFrame, data, )
+        self.currentTab = self.listenFunctions[tab](self.root, self, self.mainFrame, data, )
