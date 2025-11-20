@@ -1545,7 +1545,7 @@ class application():
         def pressesc(event):
             if event.keysym == "Escape":
                 close()
-        def select(product):
+        def selectProduct(product):
             self.entry_unitprice.delete(0, "end")
             self.entry_unitprice.insert(0, self.dicproduct[product])
         def close2():
@@ -1722,8 +1722,8 @@ class application():
             for i in temp:
                 self.dicproduct[i[1]] = i[0]
                 listencb.append(i[1])
-            self.combobox_products = ctk.CTkComboBox(self.rooteditaddproduct, width=240, height=95, values=listencb, command=select, font=("Arial", 25))
-            self.combobox_products.place(relx=0.01, rely=0.50)
+            self.combobox_products = ctk.CTkComboBox(self.rooteditaddproduct, width=240, height=95, values=listencb, command=lambda product = product:selectProduct(product), font=("Arial", 25))
+            self.combobox_products.place(relx=0.01, rely=0.12)
             self.desconnectproduct()
         elif cod != "":
             self.rooteditaddproduct.protocol("WM_DELETE_WINDOW", close2)
