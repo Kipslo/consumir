@@ -12,7 +12,7 @@ class tablesWindows():
         self.bgcolor = bgcolor
         self.placeholder_color = placeholder_color
         self.frame = CTkScrollableFrame(master)
-    def create(self, columns:tuple= (), widthColumns:tuple = (), heightColumns:tuple= (), editdata= (), deldata=()):
+    def create(self, columns:tuple= ((), ()), widthColumns:tuple = (), heightColumns:tuple= (), editdata= (None, None, ""), deldata=(None, None, "")):
         self.content = []
         self.columns = columns
         self.frame.place(relx=self.tableLocal[0], rely=self.tableLocal[1], relwidth=self.tableLocal[2], relheight=self.tableLocal[3])
@@ -21,13 +21,26 @@ class tablesWindows():
         self.editdata = editdata
         self.deldata = deldata
         listen = self.table.getData(self.columnsname, self.where, self.values)
-        listen.insert(0, columns)
+        if len(columns[0]) < len(self.columnsname):
+            firstRow = []
+            for i in range(len(self.columnsname) - len(columns[0])):
+                firstRow.append("")
+            firstRow = 
+        else:  
+            firstRow = columns[0]
+        listen.insert(0, firstRow)
         self.listenValues = list(listen)
         print(listen)
         for contentid in range(len(listen)):
-            self.addRow(listen[contentid], contentid)
+            contentRow = []
+            for id in range(len(self.columns[0])):
+                print(self.columns[1][id])
+                print(listen[contentid])
+                print(listen[contentid][self.columns[1][id]])
+                contentRow.append(listen[contentid][self.columns[1][id]])
+            self.addRow(contentRow, contentid)
                 
-    def addRow(self, content, cod):
+    def addRow(self, content, cod, editPermission = True, delPermission = True):
         images = {"edit":CTkImage(Image.open("./imgs/pencil.jpg"), size=(40,40)), "del": CTkImage(Image.open("./imgs/lixeira.png"), size=(40,40))}
         self.content.append([])
         for i in range(len(content)):
@@ -36,22 +49,22 @@ class tablesWindows():
             print(i)
             self.content[cod][i].grid(row=cod, column=i, padx=1, pady=1)
         num = len(self.content[cod])
-        if self.editdata != ():
+        if self.editdata != () and editPermission:
             self.content[cod].append(CTkButton(self.frame, width=50, height=self.heightColumns[i], fg_color=self.bgcolor, text="", image=images["edit"], command=lambda cod=cod:self.editCommand(cod), hover=False))
             self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
             num += 1
-        if self.deldata != ():
+        if self.deldata != () and delPermission:
             self.content[cod].append(CTkButton(self.frame, width=50, height=self.heightColumns[i], fg_color=self.bgcolor, text="", image=images["del"], command=lambda cod=cod:self.delCommand(cod), hover=False))
             self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
     def editCommand(self, cod):
         if self.editdata[1] == "TABLE":
-            if self.editdata[2] != "":
+            if self.editdata[2] != None:
                 self.editdata[0](self.listenValues[cod][self.editdata[2]])
                 return
             self.editdata[0](self.listenValues[cod])
     def delCommand(self, cod):
         if self.deldata[1] == "TABLE":
-            if self.deldata[2] != "":
+            if self.deldata[2] != None:
                 self.deldata[0](self.listenValues[cod][self.deldata[2]])
                 return
             self.deldata[0](self.listenValues[cod])
@@ -76,7 +89,6 @@ class tablesWindows():
                     self.deleteRow(contentid)
                     break
             else:
-                print('oiii')
                 self.addRow(newcontent[contentid], contentid)
         
     def deleteRow(self, rowid):

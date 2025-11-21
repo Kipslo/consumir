@@ -1,39 +1,40 @@
 from newWindow import newWindow
 from tablesWindows import tablesWindows
+from customtkinter import CTkLabel, CTkFrame, CTkButton
 class windowPayment():
-    def __init__(self, master):
+    def __init__(self, master, comanda:int):
         self.master = master
-        self.rootpay = newWindow(self.master, "Pagamento", (500, 500),)
+        self.rootpay = newWindow(self.master, "Pagamento", (500, 500), )
         #ctk.CTkToplevel(self.rootcommand)
         #self.rootpay.transient(self.rootcommand)
 
         self.scrollframepay = CTkScrollableFrame(self.rootpay)
         self.scrollframepay.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.75)
         
-        self.table = tablesWindows(self.rootpay, )
-
-        self.paytype = ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=300, height=50, text="TIPO DE PAGAMENTO")
+        self.table = tablesWindows(self.rootpay, (0.01, 0.01, 0.98, 0.75), "comandas", "Payments", ("cod", "number", "type", "quantity"), ("", "number"))
+        self.table.create(())
+        self.paytype = CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=300, height=50, text="TIPO DE PAGAMENTO")
         self.paytype.grid(row=1, column=1, padx=1, pady=1)
 
-        self.payment = ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=100, height=50, text="QUANTIDADE")
+        self.payment = CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=100, height=50, text="QUANTIDADE")
         self.payment.grid(row=1, column=2, padx=1, pady=1)
 
-        self.deletepay = ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=50, height=50, text="Deletar")
+        self.deletepay = CTkLabel(self.scrollframepay, bg_color=self.colors[4], width=50, height=50, text="Deletar")
         self.deletepay.grid(row=1, column=3, padx=1, pady=1)
 
-        self.framepay = ctk.CTkFrame(self.rootpay)
+        self.framepay = CTkFrame(self.rootpay)
         self.framepay.place(relx=0.01, rely=0.77, relwidth=0.98, relheight=0.22)
 
-        self.confirmpay = ctk.CTkButton(self.framepay, text="CONFIRMAR", fg_color=self.colors[4], hover_color=self.colors[3], command=confirmpay)
+        self.confirmpay = CTkButton(self.framepay, text="CONFIRMAR", fg_color=self.colors[4], hover_color=self.colors[3], command=confirmpay)
         self.confirmpay.place(relx=0.61, rely=0.32, relwidth=0.38, relheight=0.67)
 
-        self.addpay = ctk.CTkButton(self.framepay, text="ADICIONAR PAGAMENTO", fg_color=self.colors[4], hover_color=self.colors[3], command=addpay)
+        self.addpay = CTkButton(self.framepay, text="ADICIONAR PAGAMENTO", fg_color=self.colors[4], hover_color=self.colors[3], command=addpay)
         self.addpay.place(relx=0.01, rely=0.32, relwidth=0.59, relheight=0.67)
 
-        self.totalpricelbl = ctk.CTkLabel(self.framepay, text="TOTAL:", bg_color=self.colors[3])
+        self.totalpricelbl = CTkLabel(self.framepay, text="TOTAL:", bg_color=self.colors[3])
         self.totalpricelbl.place(relx=0.01, rely=0.01, relwidth=0.2, relheight=0.3)
 
-        self.totalprice = ctk.CTkLabel(self.framepay, text="", bg_color=self.colors[3])
+        self.totalprice = CTkLabel(self.framepay, text="", bg_color=self.colors[3])
         self.totalprice.place(relx=0.2, rely=0.01, relwidth=0.79, relheight=0.3)
 
         reloadpay()
