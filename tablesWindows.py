@@ -21,14 +21,7 @@ class tablesWindows():
         self.editdata = editdata
         self.deldata = deldata
         listen = self.table.getData(self.columnsname, self.where, self.values)
-        if len(columns[0]) < len(self.columnsname):
-            firstRow = []
-            for i in range(len(self.columnsname) - len(columns[0])):
-                firstRow.append("")
-            firstRow = 
-        else:  
-            firstRow = columns[0]
-        listen.insert(0, firstRow)
+        self.addRow(columns[0], 0, True, True)
         self.listenValues = list(listen)
         print(listen)
         for contentid in range(len(listen)):
@@ -38,9 +31,10 @@ class tablesWindows():
                 print(listen[contentid])
                 print(listen[contentid][self.columns[1][id]])
                 contentRow.append(listen[contentid][self.columns[1][id]])
-            self.addRow(contentRow, contentid)
+            id = contentid + 1
+            self.addRow(contentRow, id)
                 
-    def addRow(self, content, cod, editPermission = True, delPermission = True):
+    def addRow(self, content, cod, editHead = False, delHead = False):
         images = {"edit":CTkImage(Image.open("./imgs/pencil.jpg"), size=(40,40)), "del": CTkImage(Image.open("./imgs/lixeira.png"), size=(40,40))}
         self.content.append([])
         for i in range(len(content)):
@@ -49,22 +43,30 @@ class tablesWindows():
             print(i)
             self.content[cod][i].grid(row=cod, column=i, padx=1, pady=1)
         num = len(self.content[cod])
-        if self.editdata != () and editPermission:
-            self.content[cod].append(CTkButton(self.frame, width=50, height=self.heightColumns[i], fg_color=self.bgcolor, text="", image=images["edit"], command=lambda cod=cod:self.editCommand(cod), hover=False))
-            self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
+        if self.editdata != (None, None, ""):
+            if editHead:
+                self.content[cod].append(CTkLabel(self.frame, width=60, height=self.heightColumns[i], fg_color=self.bgcolor, text="Editar"))
+                self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
+            else:
+                self.content[cod].append(CTkButton(self.frame, width=60, height=self.heightColumns[i], fg_color=self.bgcolor, text="", image=images["edit"], command=lambda cod=cod:self.editCommand(cod), hover=False))
+                self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
             num += 1
-        if self.deldata != () and delPermission:
-            self.content[cod].append(CTkButton(self.frame, width=50, height=self.heightColumns[i], fg_color=self.bgcolor, text="", image=images["del"], command=lambda cod=cod:self.delCommand(cod), hover=False))
-            self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
+        if self.deldata != (None, None, ""):
+            if delHead:
+                self.content[cod].append(CTkLabel(self.frame, width=60, height=self.heightColumns[i], fg_color=self.bgcolor, text="Excluir"))
+                self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
+            else:
+                self.content[cod].append(CTkButton(self.frame, width=60, height=self.heightColumns[i], fg_color=self.bgcolor, text="", image=images["del"], command=lambda cod=cod:self.delCommand(cod), hover=False))
+                self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
     def editCommand(self, cod):
         if self.editdata[1] == "TABLE":
-            if self.editdata[2] != None:
+            if self.editdata[2] != "":
                 self.editdata[0](self.listenValues[cod][self.editdata[2]])
                 return
             self.editdata[0](self.listenValues[cod])
     def delCommand(self, cod):
         if self.deldata[1] == "TABLE":
-            if self.deldata[2] != None:
+            if self.deldata[2] != "":
                 self.deldata[0](self.listenValues[cod][self.deldata[2]])
                 return
             self.deldata[0](self.listenValues[cod])
