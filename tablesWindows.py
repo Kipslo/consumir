@@ -31,8 +31,8 @@ class tablesWindows():
                 print(listen[contentid])
                 print(listen[contentid][self.columns[1][id]])
                 contentRow.append(listen[contentid][self.columns[1][id]])
-            id = contentid + 1
-            self.addRow(contentRow, id)
+            id2 = contentid + 1
+            self.addRow(contentRow, id2)
                 
     def addRow(self, content, cod, editHead = False, delHead = False):
         images = {"edit":CTkImage(Image.open("./imgs/pencil.jpg"), size=(40,40)), "del": CTkImage(Image.open("./imgs/lixeira.png"), size=(40,40))}
