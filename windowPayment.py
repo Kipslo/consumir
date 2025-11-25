@@ -7,7 +7,7 @@ from addPay import addPay
 class windowPayment():
     def __init__(self, master, command:int):
         def addpay():
-            addPay(self)
+            addPay(self, self.command)
         self.master = master
         self.command = command
         self.rootpay = newWindow(self.master, "Pagamento", (500, 500), )
@@ -89,6 +89,21 @@ class windowPayment():
                 tableCommands.deleteData(("Payments", ), (i[0], ))
             self.rootpay.deleteWindow()
             self.reloadcommands()
+    def reload(self, ):
+        
+        pay = 0.0
+        temp = table("comandas", "Payments").getData(("price", ), ("number", ), (self.command, )) 
+        for i in temp:
+            pay += float(i[0])
+        temp = table("comandas", ("Consumption")).getData(("price", ), ("number", ), (self.command))
+        for i in temp:
+            pay -= float(i[0].replace(",", "."))
+        if pay < 0:
+            self.totalprice.configure(text=pay, text_color="#D81315")
+        else:
+            self.totalprice.configure(text=pay, text_color="#7CCD5C")
+        self.desconnectcommands()
+    
     def windowpay():
         def delpay(cod):
             self.connectcommands()
@@ -114,13 +129,5 @@ class windowPayment():
                 self.currentpayments[k][0].grid(row=n, column=1, padx=1, pady=1)
                 self.currentpayments[k][1].grid(row=n, column=2, padx=1, pady=1)
                 self.currentpayments[k][2].grid(row=n, column=3, padx=1, pady=1)
-                pay += float(i[3])
-            temp = self.commandscursor.execute("SELECT price FROM Consumption WHERE number =?", (self.currentcommandwindow, ))
-            for i in temp:
-                pay -= float(i[0].replace(",", "."))
-            if pay < 0:
-                self.totalprice.configure(text=pay, text_color="#D81315")
-            else:
-                self.totalprice.configure(text=pay, text_color="#7CCD5C")
-            self.desconnectcommands()
-        
+                
+           

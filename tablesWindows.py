@@ -12,9 +12,10 @@ class tablesWindows():
         self.bgcolor = bgcolor
         self.placeholder_color = placeholder_color
         self.frame = CTkScrollableFrame(master)
-    def create(self, columns:tuple= ((), ()), widthColumns:tuple = (), heightColumns:tuple= (), editdata= (None, None, ""), deldata=(None, None, "")):
+    def create(self, columns:tuple= ((), ()), widthColumns:tuple = (), heightColumns:tuple= (), editdata= (None, None, ""), deldata=(None, None, ""), reloadfunc=(None, None)):
         self.content = []
         self.columns = columns
+        self.reloadFunc = reloadfunc
         self.frame.place(relx=self.tableLocal[0], rely=self.tableLocal[1], relwidth=self.tableLocal[2], relheight=self.tableLocal[3])
         self.widthColumns = widthColumns
         self.heightColumns = heightColumns
@@ -92,7 +93,8 @@ class tablesWindows():
                     break
             else:
                 self.addRow(newcontent[contentid], contentid)
-        
+        if self.reloadFunc[0]:
+            self.reloadFunc[0](self.reloadFunc)
     def deleteRow(self, rowid):
         for i in self.content[rowid:]:
             for j in i:
