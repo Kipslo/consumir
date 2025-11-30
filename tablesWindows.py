@@ -94,7 +94,7 @@ class tablesWindows():
             else:
                 self.addRow(newcontent[contentid], contentid)
         if self.reloadFunc[0]:
-            self.reloadFunc[0](self.reloadFunc)
+            self.reloadFunc[0](self.listenValues)
     def deleteRow(self, rowid):
         for i in self.content[rowid:]:
             for j in i:

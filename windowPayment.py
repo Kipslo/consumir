@@ -104,30 +104,3 @@ class windowPayment():
             self.totalprice.configure(text=pay, text_color="#7CCD5C")
         self.desconnectcommands()
     
-    def windowpay():
-        def delpay(cod):
-            self.connectcommands()
-            self.commandscursor.execute("DELETE FROM Payments WHERE cod = ?", (cod, ))
-            self.desconnectcommands()
-            reloadpay()
-        
-        def reloadpay():
-            try:
-                for i in self.currentpayments:
-                    for j in i:
-                        j.destroy()
-            except:
-                pass
-            self.totalpricelbl.configure()
-            self.connectcommands()
-            temp = self.commandscursor.execute("SELECT * FROM Payments WHERE number = ?", (self.currentcommandwindow, ))
-            self.currentpayments = []
-            pay = 0.0
-            for k, i in enumerate(temp):
-                self.currentpayments.append([ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=i[2], width=300, height=50), ctk.CTkLabel(self.scrollframepay, bg_color=self.colors[4], text=i[3], width=100, height=50), ctk.CTkButton(self.scrollframepay, text="", image=ctk.CTkImage(Image.open("./imgs/lixeira.png"), size=(35, 35)), fg_color=self.colors[4], hover=False, command=lambda y = i[0]:delpay(y), width=50, height=50)])
-                n = k + 2
-                self.currentpayments[k][0].grid(row=n, column=1, padx=1, pady=1)
-                self.currentpayments[k][1].grid(row=n, column=2, padx=1, pady=1)
-                self.currentpayments[k][2].grid(row=n, column=3, padx=1, pady=1)
-                
-           
