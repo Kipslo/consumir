@@ -17,6 +17,8 @@ class commandWindow():
         self.frame_infocommand = CTkFrame(self.windowCommand.window, fg_color=self.colors[2])
         self.frame_infocommand.place(relx=0,rely=0.8,relwidth=1,relheight=0.2)
     
+        self.totalpricelabel = CTkLabel(self.frame_infocommand, text="TOTAL:", fg_color=self.colors[4])
+        self.totalpricelabel.place(relx=0.31, rely=0.15, relwidth=0.37, relheight=0.3)
         if closed == 0:
             talbleconsume = tablesWindows(self.windowCommand.window, (0, 0, 1, 0.7), "comandas", "Consumption", ("cod", "number", "date", "hour", "waiter", "price", "unitprice", "quantity", "product", "type", "size"), ("number", ), (number, ))
             talbleconsume.create((("PRODUTO", "GARÇOM", "PREÇO UNIDADE", "QTD.", "PREÇO TOTAL"), (8, 4, 6, 7, 5)), (200, 200, 100, 50, 100, 100), (40, 40, 40, 40, 40, 40,), reloadfunc=(self.updateTotal, self))
@@ -49,14 +51,12 @@ class commandWindow():
             self.time_heading.grid(row=1, column=6, padx=1, pady=50)
             self.button_finishcommand = CTkButton(self.frame_infocommand, fg_color=self.colors[4], text="Reimprimir", hover_color=self.colors[5], command=lambda x = closed:"reprint(x)")
             self.button_finishcommand.place(relx=0.7, rely=0.15, relwidth=0.29, relheight=0.7)
-        self.totalpricelabel = CTkLabel(self.frame_infocommand, text="TOTAL:", fg_color=self.colors[4])
-        self.totalpricelabel.place(relx=0.31, rely=0.15, relwidth=0.06, relheight=0.3)
         
     def updateTotal(self, products, data):
         total = 0
         for i in products[1:]:
-            total = total + (i[4] * 100)
+            total = total + (float(i[5]) * 100)
         total = priceClass.getPrice(str(total/100))
         print(total)
-        self.totalpricelabel.config(text=total)
+        self.totalpricelabel.configure(text="TOTAL: " + total)
         

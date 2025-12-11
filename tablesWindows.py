@@ -24,15 +24,8 @@ class tablesWindows():
         self.heightColumns = heightColumns
         self.editdata = editdata
         self.deldata = deldata
-        listen = self.table.getData(self.columnsname, self.where, self.values)
         self.addRow(columns[0], 0, True, True)
-        self.listenValues = list(listen)
-        for contentid in range(len(listen)):
-            contentRow = []
-            for id in range(len(self.columns[0])):
-                contentRow.append(listen[contentid][self.columns[1][id]])
-            id2 = contentid + 1
-            self.addRow(contentRow, id2)
+        
         self.reload()
     def addRow(self, content, cod, editHead = False, delHead = False):
         images = {"edit":CTkImage(Image.open("./imgs/pencil.jpg"), size=(40,40)), "del": CTkImage(Image.open("./imgs/lixeira.png"), size=(40,40))}
@@ -80,17 +73,27 @@ class tablesWindows():
         maxx = max(num, len(newcontent))
         newcontent.insert(0, self.columns)
         self.listenValues = list(newcontent)
+        print("maxx")
+        print(maxx)
         for contentid in range(maxx):
+            print("newcontent")
+            print(newcontent)
+            print("contentid:")
+            print(contentid)
+            print("num")
+            print(num)
             if contentid <= num:
+                print("oi")
                 try:
-                    for columnid in range(len(self.columns)):
-                        self.content[contentid][columnid].configure(text = newcontent[contentid][columnid])
+                    for columnid in range(len(self.columns[0])):
+                        self.content[contentid][columnid].configure(text = newcontent[contentid][self.columns[1][columnid]])
 
                 except:
                     self.deleteRow(contentid)
                     break
             else:
-                self.addRow(newcontent[contentid], contentid)
+                print("oii")
+                self.addRow(newcontent[contentid], contentid + 1)
         print("aqui")
         if self.reloadFunc[0]:
             print(self.listenValues)
