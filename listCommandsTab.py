@@ -2,6 +2,7 @@ from customtkinter import StringVar, CTkLabel, CTkButton, CTkScrollableFrame, CT
 from colorsList import getColors
 from table import table
 import datetime
+from commandWindow import commandWindow
 class listCommandsTab():
     def __init__(self, root, contoller, frameMain, data):
         self.colors = getColors()
@@ -16,7 +17,7 @@ class listCommandsTab():
         
         self.button_addcommand = CTkButton(self.frameMain, fg_color=self.colors[3], text="ADICIONAR COMANDA", hover_color=self.colors[2])
         self.button_addcommand.place(relx=0.90, rely=0.02, relwidth=0.09, relheight=0.05)
-        
+        self.root = root
         root.bind("<KeyPress>", self.presskey)
 
         self.scroolFrame = CTkScrollableFrame(self.frameMain, fg_color=self.colors[1])
@@ -77,7 +78,7 @@ class listCommandsTab():
             text = text + str(minute) + "M " + str(sec) + "S"
             if len(nameclient) >= 16:
                 nameclient = nameclient[0:15]
-            self.currentcommands.append(CTkButton(self.scroolFrame,fg_color=self.colors[3], command="lambda m = i:self.windowcommand(self.currentcommands[m])", hover=False, width=260, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + text, font=("Arial", 20)))
+            self.currentcommands.append(CTkButton(self.scroolFrame,fg_color=self.colors[3], command=lambda m = int(number):commandWindow(self.root, m), hover=False, width=260, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + text, font=("Arial", 20)))
             
             self.currentcommands[i].grid(row=i//qtdrow, column=i%qtdrow, padx=5, pady=5)
             self.number.append(number)

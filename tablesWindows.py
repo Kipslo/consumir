@@ -1,6 +1,7 @@
 from table import table as tableClass
 from customtkinter import CTkButton, CTkLabel, CTkImage, CTkScrollableFrame
 from PIL import Image
+from colorsList import getColors
 
 class tablesWindows():
     def __init__(self, master, tableLocal:tuple, db:str, table:str, columnsname = ("*", ), where:tuple = (), values:tuple = (), bgcolor:str="", placeholder_color:str=""):
@@ -10,35 +11,27 @@ class tablesWindows():
         self.values = values
         self.table = tableClass(db, table)
         self.bgcolor = bgcolor
+        if bgcolor == "":
+            self.bgcolor = getColors()
         self.placeholder_color = placeholder_color
         self.frame = CTkScrollableFrame(master)
-    def create(self, columns:tuple= ((), ()), widthColumns:tuple = (), heightColumns:tuple= (), editdata= (None, None, ""), deldata=(None, None, "")):
+    def create(self, columns:tuple= ((), ()), widthColumns:tuple = (), heightColumns:tuple= (), editdata= (None, None, ""), deldata=(None, None, ""), reloadfunc=(None, None)):
         self.content = []
         self.columns = columns
+        self.reloadFunc = reloadfunc
         self.frame.place(relx=self.tableLocal[0], rely=self.tableLocal[1], relwidth=self.tableLocal[2], relheight=self.tableLocal[3])
         self.widthColumns = widthColumns
         self.heightColumns = heightColumns
         self.editdata = editdata
         self.deldata = deldata
-        listen = self.table.getData(self.columnsname, self.where, self.values)
         self.addRow(columns[0], 0, True, True)
-        self.listenValues = list(listen)
-        print(listen)
-        for contentid in range(len(listen)):
-            contentRow = []
-            for id in range(len(self.columns[0])):
-                print(self.columns[1][id])
-                print(listen[contentid])
-                print(listen[contentid][self.columns[1][id]])
-                contentRow.append(listen[contentid][self.columns[1][id]])
-            id = contentid + 1
-            self.addRow(contentRow, id)
-                
+        
+        self.reload()
     def addRow(self, content, cod, editHead = False, delHead = False):
         images = {"edit":CTkImage(Image.open("./imgs/pencil.jpg"), size=(40,40)), "del": CTkImage(Image.open("./imgs/lixeira.png"), size=(40,40))}
         self.content.append([])
         for i in range(len(content)):
-            self.content[cod].append(CTkLabel(self.frame, width=self.widthColumns[i], height=self.heightColumns[i], bg_color=self.bgcolor, text=content[i]))
+            self.content[cod].append(CTkLabel(self.frame, width=self.widthColumns[i], height=self.heightColumns[i], bg_color=self.bgcolor[4], text=content[i]))
             print(cod)
             print(i)
             self.content[cod][i].grid(row=cod, column=i, padx=1, pady=1)
@@ -73,26 +66,39 @@ class tablesWindows():
     def getTable(self, ):
         return self.listenValues
     def reload(self, where:tuple = (), values:tuple = ()):
+        if where == ():
+            where, values = self.where, self.values
         newcontent = self.table.getData(self.columnsname, where, values)
-        print(newcontent)
         num = len(self.content) - 1
         maxx = max(num, len(newcontent))
         newcontent.insert(0, self.columns)
         self.listenValues = list(newcontent)
+        print("maxx")
+        print(maxx)
         for contentid in range(maxx):
+            print("newcontent")
+            print(newcontent)
+            print("contentid:")
             print(contentid)
+            print("num")
             print(num)
             if contentid <= num:
+                print("oi")
                 try:
-                    for columnid in range(len(self.columns)):
-                        self.content[contentid][columnid].configure(text = newcontent[contentid][columnid])
+                    for columnid in range(len(self.columns[0])):
+                        self.content[contentid][columnid].configure(text = newcontent[contentid][self.columns[1][columnid]])
 
                 except:
                     self.deleteRow(contentid)
                     break
             else:
-                self.addRow(newcontent[contentid], contentid)
-        
+                print("oii")
+                self.addRow(newcontent[contentid], contentid + 1)
+        print("aqui")
+        if self.reloadFunc[0]:
+            print(self.listenValues)
+            print(self.reloadFunc[1])
+            self.reloadFunc[0](self.listenValues, self.reloadFunc[1])
     def deleteRow(self, rowid):
         for i in self.content[rowid:]:
             for j in i:
