@@ -45,7 +45,7 @@ class commandWindow():
             self.time_heading = CTkLabel(self.frame_infocommand, text="TEMPO", fg_color=self.colors[4], width=100, height=30)
             self.time_heading.grid(row=1, column=6, padx=1, pady=50)
         else:
-            talbleconsume = tablesWindows(master, (0, 0.1, 1, 0.7), "historico", "Products", ("releasedate", "releasehour", "waiter", "price", "quantity", "name", "unitprice",""), ("commandid", ), (closed, ))
+            talbleconsume = tablesWindows(self.windowCommand.window, (0, 0.1, 1, 0.7), "historico", "Products", ("releasedate", "releasehour", "waiter", "price", "quantity", "name", "unitprice",""), ("commandid", ), (closed, ))
             talbleconsume.create((("PRODUTO", "GARÇOM", "PREÇO UNIDADE", "QTD.", "PREÇO TOTAL"), (5, 2, 6, 4, 3)), (200, 200, 100, 50, 100, 100), (40, 40, 40, 40, 40, 40,))
             self.time_heading = CTkLabel(self.rootcommand, text="TEMPO", fg_color=self.colors[4], width=150, height=30)
             self.time_heading.grid(row=1, column=6, padx=1, pady=50)

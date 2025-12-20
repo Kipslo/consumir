@@ -1939,7 +1939,7 @@ class application():
         def reload():
             try:
                 for i in self.currenthistory:
-                    for j in i:
+                    for j in i: 
                         j.destroy()
             except:
                 pass

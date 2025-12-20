@@ -69,6 +69,7 @@ class tablesWindows():
         if where == ():
             where, values = self.where, self.values
         newcontent = self.table.getData(self.columnsname, where, values)
+        print(newcontent)
         num = len(self.content) - 1
         maxx = max(num, len(newcontent))
         newcontent.insert(0, self.columns)
