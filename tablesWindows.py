@@ -30,6 +30,8 @@ class tablesWindows():
     def addRow(self, content, cod, editHead = False, delHead = False):
         images = {"edit":CTkImage(Image.open("./imgs/pencil.jpg"), size=(40,40)), "del": CTkImage(Image.open("./imgs/lixeira.png"), size=(40,40))}
         self.content.append([])
+        print(self.content)
+        print(cod)
         for i in range(len(content)):
             self.content[cod].append(CTkLabel(self.frame, width=self.widthColumns[i], height=self.heightColumns[i], bg_color=self.bgcolor[4], text=content[i]))
             print(cod)
@@ -72,11 +74,10 @@ class tablesWindows():
         print(newcontent)
         num = len(self.content) - 1
         maxx = max(num, len(newcontent))
-        newcontent.insert(0, self.columns)
         self.listenValues = list(newcontent)
         print("maxx")
         print(maxx)
-        for contentid in range(maxx):
+        for contentid in range(1, maxx + 1):
             print("newcontent")
             print(newcontent)
             print("contentid:")
@@ -87,14 +88,23 @@ class tablesWindows():
                 print("oi")
                 try:
                     for columnid in range(len(self.columns[0])):
+                        print(self.columns[1])
+                        print(self.columns[1][columnid])
+                        print(newcontent)
+                        print(newcontent[contentid][self.columns[1][columnid]])
+
+
                         self.content[contentid][columnid].configure(text = newcontent[contentid][self.columns[1][columnid]])
 
                 except:
                     self.deleteRow(contentid)
                     break
             else:
+                new = []
+                for i in range(len(self.columns[1])):
+                    new.append(newcontent[contentid - 1][self.columns[1][i]])
                 print("oii")
-                self.addRow(newcontent[contentid], contentid + 1)
+                self.addRow(new, contentid)
         print("aqui")
         if self.reloadFunc[0]:
             print(self.listenValues)
