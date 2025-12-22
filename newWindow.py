@@ -9,6 +9,7 @@ class newWindow():
         self.window.grab_set()
         self.onDelete = onDelete
         self.master = master
+        self.data = data
         self.window.protocol("WM_DELETE_WINDOW", self.deleteWindow)
         self.window.bind("<KeyPress>", self.click)
     def click(self, event):
@@ -16,6 +17,6 @@ class newWindow():
             self.deleteWindow()
     def deleteWindow(self, ):
         if self.onDelete:
-            self.onDelete()
+            self.onDelete(self.data)
         self.window.destroy()
         self.master.grab_set()

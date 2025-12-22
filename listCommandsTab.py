@@ -78,7 +78,7 @@ class listCommandsTab():
             text = text + str(minute) + "M " + str(sec) + "S"
             if len(nameclient) >= 16:
                 nameclient = nameclient[0:15]
-            self.currentcommands.append(CTkButton(self.scroolFrame,fg_color=self.colors[3], command=lambda m = int(number):commandWindow(self.root, m), hover=False, width=260, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + text, font=("Arial", 20)))
+            self.currentcommands.append(CTkButton(self.scroolFrame,fg_color=self.colors[3], command=lambda m = int(number), reloadFunc = self.reloadcommands:commandWindow(self.root, m, reloadFunc), hover=False, width=260, height= 150, text= str(number) + " "+ nameclient +"\n" + "TEMPO: " + text, font=("Arial", 20)))
             
             self.currentcommands[i].grid(row=i//qtdrow, column=i%qtdrow, padx=5, pady=5)
             self.number.append(number)
