@@ -4,20 +4,23 @@ from customtkinter import CTkLabel, CTkFrame, CTkButton
 from table import table
 from datetime import datetime
 from addPay import addPay
+from colorsList import getColors
 class windowPayment():
     def __init__(self, master, command:int):
         def addpay():
             addPay(self, self.command)
         self.master = master
+        self.colors = getColors()
         self.command = command
+        print(self.master)
         self.rootpay = newWindow(self.master, "Pagamento", (500, 500), )
         #ctk.CTkToplevel(self.rootcommand)
         #self.rootpay.transient(self.rootcommand)
         
-        self.table = tablesWindows(self.rootpay, (0.01, 0.01, 0.98, 0.75), "comandas", "Payments", ("cod", "number", "type", "quantity"), ("", "number"))
+        self.table = tablesWindows(self.rootpay.window, (0.01, 0.01, 0.98, 0.75), "comandas", "Payments", ("cod", "number", "type", "quantity"), ("", "number"))
         self.table.create((("TIPO DE PAGAMENTO", "QUANTIDADE"), (2, 3)), (300, 100, 50), (50, 50, 50), deldata=(self.delete, "TABLE", 0))
 
-        self.framepay = CTkFrame(self.rootpay)
+        self.framepay = CTkFrame(self.rootpay.window)
         self.framepay.place(relx=0.01, rely=0.77, relwidth=0.98, relheight=0.22)
 
         self.confirmpay_button = CTkButton(self.framepay, text="CONFIRMAR", fg_color=self.colors[4], hover_color=self.colors[3], command=self.confirmpay)

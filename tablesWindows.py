@@ -40,18 +40,18 @@ class tablesWindows():
         num = len(self.content[cod])
         if self.editdata != (None, None, ""):
             if editHead:
-                self.content[cod].append(CTkLabel(self.frame, width=60, height=self.heightColumns[i], fg_color=self.bgcolor, text="Editar"))
+                self.content[cod].append(CTkLabel(self.frame, width=60, height=self.heightColumns[i], fg_color=self.bgcolor[4], text="Editar"))
                 self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
             else:
-                self.content[cod].append(CTkButton(self.frame, width=60, height=self.heightColumns[i], fg_color=self.bgcolor, text="", image=images["edit"], command=lambda cod=cod:self.editCommand(cod), hover=False))
+                self.content[cod].append(CTkButton(self.frame, width=60, height=self.heightColumns[i], fg_color=self.bgcolor[4], text="", image=images["edit"], command=lambda cod=cod:self.editCommand(cod), hover=False))
                 self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
             num += 1
         if self.deldata != (None, None, ""):
             if delHead:
-                self.content[cod].append(CTkLabel(self.frame, width=60, height=self.heightColumns[i], fg_color=self.bgcolor, text="Excluir"))
+                self.content[cod].append(CTkLabel(self.frame, width=60, height=self.heightColumns[i], fg_color=self.bgcolor[4], text="Excluir"))
                 self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
             else:
-                self.content[cod].append(CTkButton(self.frame, width=60, height=self.heightColumns[i], fg_color=self.bgcolor, text="", image=images["del"], command=lambda cod=cod:self.delCommand(cod), hover=False))
+                self.content[cod].append(CTkButton(self.frame, width=60, height=self.heightColumns[i], fg_color=self.bgcolor[4], text="", image=images["del"], command=lambda cod=cod:self.delCommand(cod), hover=False))
                 self.content[cod][num].grid(row=cod, column=num, padx=1, pady=1)
     def editCommand(self, cod):
         if self.editdata[1] == "TABLE":
