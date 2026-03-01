@@ -17,7 +17,7 @@ class windowPayment():
         #ctk.CTkToplevel(self.rootcommand)
         #self.rootpay.transient(self.rootcommand)
         
-        self.table = tablesWindows(self.rootpay.window, (0.01, 0.01, 0.98, 0.75), "comandas", "Payments", ("cod", "number", "type", "quantity"), ("", "number"))
+        self.table = tablesWindows(self.rootpay.window, (0.01, 0.01, 0.98, 0.75), "comandas", "Payments", ("cod", "number", "type", "quantity"), ("number", ), (command, ))
         self.table.create((("TIPO DE PAGAMENTO", "QUANTIDADE"), (2, 3)), (300, 100, 50), (50, 50, 50), deldata=(self.delete, "TABLE", 0))
 
         self.framepay = CTkFrame(self.rootpay.window)

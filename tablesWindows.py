@@ -30,12 +30,8 @@ class tablesWindows():
     def addRow(self, content, cod, editHead = False, delHead = False):
         images = {"edit":CTkImage(Image.open("./imgs/pencil.jpg"), size=(40,40)), "del": CTkImage(Image.open("./imgs/lixeira.png"), size=(40,40))}
         self.content.append([])
-        print(self.content)
-        print(cod)
         for i in range(len(content)):
             self.content[cod].append(CTkLabel(self.frame, width=self.widthColumns[i], height=self.heightColumns[i], bg_color=self.bgcolor[4], text=content[i]))
-            print(cod)
-            print(i)
             self.content[cod][i].grid(row=cod, column=i, padx=1, pady=1)
         num = len(self.content[cod])
         if self.editdata != (None, None, ""):
@@ -71,29 +67,21 @@ class tablesWindows():
         if where == ():
             where, values = self.where, self.values
         newcontent = self.table.getData(self.columnsname, where, values)
-        print(newcontent)
+        if newcontent == "NULL":
+            newcontent = ()
         num = len(self.content) - 1
         maxx = max(num, len(newcontent))
         self.listenValues = list(newcontent)
-        print("maxx")
-        print(maxx)
-        for contentid in range(1, maxx + 1):
-            print("newcontent")
-            print(newcontent)
-            print("contentid:")
-            print(contentid)
-            print("num")
-            print(num)
-            if contentid <= num:
-                print("oi")
+        for contentid in range(1, maxx):
+            if contentid < num:
+                for i in self.content[contentid]:
+                    print(i.cget("text"))
+                    print(newcontent[contentid])
                 try:
                     for columnid in range(len(self.columns[0])):
-                        print(self.columns[1])
-                        print(self.columns[1][columnid])
-                        print(newcontent)
+                        print(contentid)
+                        print(columnid)
                         print(newcontent[contentid][self.columns[1][columnid]])
-
-
                         self.content[contentid][columnid].configure(text = newcontent[contentid][self.columns[1][columnid]])
 
                 except:
@@ -102,7 +90,7 @@ class tablesWindows():
             else:
                 new = []
                 for i in range(len(self.columns[1])):
-                    new.append(newcontent[contentid - 1][self.columns[1][i]])
+                    new.append(newcontent[contentid][self.columns[1][i]])
                 print("oii")
                 self.addRow(new, contentid)
         print("aqui")

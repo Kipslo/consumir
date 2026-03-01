@@ -14,9 +14,7 @@
 # button.place(relx=0.7, rely=0.1, relwidth=0.2, relheight=0.1)
 
 # root.mainloop()
-def printar():
-    pass
-if printar:
-    print("oi")
-else:
-    print("n")
+for i in range(1, 2):
+    oi = 
+    oi2= 1
+    print(max())
